@@ -1,4 +1,5 @@
-import { transformAssetUrls } from 'vite-plugin-vuetify'
+/* eslint-disable node/prefer-global/process */
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 export default defineNuxtConfig({
   app: {
@@ -20,6 +21,13 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
     '@nuxtjs/i18n',
+    (_options, nuxt) => {
+      nuxt.hooks.hook('vite:extendConfig', (config) => {
+        // eslint-disable-next-line ts/ban-ts-comment
+        // @ts-expect-error
+        config.plugins.push(vuetify({ autoImport: true }))
+      })
+    },
   ],
 
   imports: {
