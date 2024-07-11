@@ -7,6 +7,7 @@ export default antfu({
   imports: true,
   jsonc: false,
   markdown: true,
+  unocss: true,
 
   vue: {
     overrides: {
