@@ -20,7 +20,7 @@ jobs:
           echo "STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }}" >> .env
           echo "MESSAGING_SEND_ID=${{ secrets.MESSAGING_SEND_ID }}" >> .env
           echo "APP_ID=${{ secrets.APP_ID }}" >> .env
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run generate
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
