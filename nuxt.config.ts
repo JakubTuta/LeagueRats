@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
     '@nuxtjs/i18n',
+    '@nuxt/icon',
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {
         // eslint-disable-next-line ts/ban-ts-comment

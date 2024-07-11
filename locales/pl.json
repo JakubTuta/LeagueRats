@@ -1,1 +1,17 @@
-{}
+{
+    "universal": {
+        "polish": "Polski",
+        "english": "English",
+        "light": "Jasny",
+        "dark": "Ciemny",
+        "form": {
+            "close": "Zamknij",
+            "save": "Zapisz"
+        }
+    },
+    "settings": {
+        "title": "Ustawienia",
+        "language": "Język",
+        "theme": "Motyw"
+    }
+}

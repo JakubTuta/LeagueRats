@@ -1,1 +1,17 @@
-{}
+{
+    "universal": {
+        "polish": "Polski",
+        "english": "English",
+        "light": "Light",
+        "dark": "Dark",
+        "form": {
+            "close": "Close",
+            "save": "Save"
+        }
+    },
+    "settings": {
+        "title": "Settings",
+        "language": "Language",
+        "theme": "Theme"
+    }
+}
