@@ -61,11 +61,6 @@ watch(language, (newLang) => {
                 value="pl"
                 min-width="150px"
               >
-                <Icon
-                  name="my-icon:poland"
-                  class="mr-2"
-                />
-
                 {{ $t('universal.polish') }}
               </v-btn>
 
@@ -73,11 +68,6 @@ watch(language, (newLang) => {
                 value="en"
                 min-width="150px"
               >
-                <Icon
-                  name="my-icon:poland"
-                  class="mr-2"
-                />
-
                 {{ $t('universal.english') }}
               </v-btn>
             </v-btn-toggle>

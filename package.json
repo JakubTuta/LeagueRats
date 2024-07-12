@@ -14,9 +14,7 @@
   },
   "dependencies": {
     "@antfu/eslint-config": "^2.21.2",
-    "@iconify-json/flag": "^1.1.53",
     "@mdi/font": "^7.4.47",
-    "@nuxt/icon": "^1.0.0",
     "@nuxt/types": "^2.18.1",
     "@nuxtjs/color-mode": "^3.4.2",
     "@nuxtjs/i18n": "^8.3.1",
