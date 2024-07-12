@@ -85,4 +85,14 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
   },
+
+  icon: {
+    mode: 'svg',
+    customCollections: [
+      {
+        prefix: 'my-icon',
+        dir: './assets/my-icons',
+      },
+    ],
+  },
 })

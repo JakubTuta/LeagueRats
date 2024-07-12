@@ -62,7 +62,7 @@ watch(language, (newLang) => {
                 min-width="150px"
               >
                 <Icon
-                  name="flag:pl-4x3"
+                  name="my-icon:poland"
                   class="mr-2"
                 />
 
@@ -74,7 +74,7 @@ watch(language, (newLang) => {
                 min-width="150px"
               >
                 <Icon
-                  name="flag:gb-4x3"
+                  name="my-icon:poland"
                   class="mr-2"
                 />
 
