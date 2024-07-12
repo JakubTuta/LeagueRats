@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { champions, searchChampion } from '~/const/champions';
+import { champions, searchChampion } from '~/const/champions'
 
 const search = ref('')
 </script>

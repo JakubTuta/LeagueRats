@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useLanguageStore } from '~/helpers/language';
-import { useThemeStore } from '~/helpers/theme';
+import { useLanguageStore } from '~/helpers/language'
+import { useThemeStore } from '~/helpers/theme'
 
 const props = defineProps<{
   isShow: boolean
@@ -57,7 +57,10 @@ watch(language, (newLang) => {
               color="primary"
               divided
             >
-              <v-btn value="pl">
+              <v-btn
+                value="pl"
+                min-width="150px"
+              >
                 <Icon
                   name="flag:pl-4x3"
                   class="mr-2"
@@ -66,7 +69,10 @@ watch(language, (newLang) => {
                 {{ $t('universal.polish') }}
               </v-btn>
 
-              <v-btn value="en">
+              <v-btn
+                value="en"
+                min-width="150px"
+              >
                 <Icon
                   name="flag:gb-4x3"
                   class="mr-2"
@@ -91,21 +97,17 @@ watch(language, (newLang) => {
               color="primary"
               divided
             >
-              <v-btn value="light">
-                <Icon
-                  name="theme-light-dark"
-                  class="mr-2"
-                />
-
+              <v-btn
+                value="light"
+                min-width="100px"
+              >
                 {{ $t('universal.light') }}
               </v-btn>
 
-              <v-btn value="dark">
-                <Icon
-                  name="theme-dark-dark"
-                  class="mr-2"
-                />
-
+              <v-btn
+                value="dark"
+                min-width="100px"
+              >
                 {{ $t('universal.dark') }}
               </v-btn>
             </v-btn-toggle>

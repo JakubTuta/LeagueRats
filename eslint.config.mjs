@@ -22,6 +22,17 @@ export default antfu({
           },
         },
       ],
+      // 'vue/attributes-order': [
+      //   'error',
+      //   {
+      //     alphabetical: true,
+      //   },
+      // ],
+      // 'vue/no-static-inline-styles': 'error',
+      // 'vue/no-v-model-argument': 'error',
+      // 'vue/prefer-import-from-vue': 'error',
+      // 'vue/v-on-handler-style': 'error',
+      // 'vue/max-len': 'error',
       'vue/multiline-ternary': 'error',
       'vue/no-bare-strings-in-template': 'error',
       'vue/no-v-html': 'error',

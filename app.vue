@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useLanguageStore } from '~/helpers/language';
-import { useThemeStore } from '~/helpers/theme';
+import { useLanguageStore } from '~/helpers/language'
+import { useThemeStore } from '~/helpers/theme'
 
 const currentLang = localStorage.getItem('current-lang')
 const currentTheme = localStorage.getItem('current-theme')

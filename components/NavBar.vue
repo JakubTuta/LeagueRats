@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @ts-expect-error działa
-import icon from '../public/favicon.ico';
+import icon from '../public/favicon.ico'
 
 const router = useRouter()
 
