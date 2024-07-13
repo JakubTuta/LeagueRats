@@ -49,7 +49,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      NODE_ENV: process.env.NODE_ENV,
       APP_VERSION: process.env.npm_package_version,
       apiKey: process.env.API_KEY,
       authDomain: process.env.AUTH_DOMAIN,
@@ -57,6 +56,7 @@ export default defineNuxtConfig({
       storageBucket: process.env.STORAGE_BUCKET,
       messagingSenderId: process.env.MESSAGING_SENDER_ID,
       appId: process.env.APP_ID,
+      riotApiKey: process.env.RIOT_API_KEY,
     },
   },
 

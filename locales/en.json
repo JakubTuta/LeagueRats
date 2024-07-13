@@ -13,5 +13,14 @@
         "title": "Settings",
         "language": "Language",
         "theme": "Theme"
+    },
+    "index": {
+        "champion": "Champion",
+        "username": "Username",
+        "tag": "Tag"
+    },
+    "rules": {
+        "requiredField": "This field is required",
+        "maxLength": "Maximum length is {length} characters"
     }
 }

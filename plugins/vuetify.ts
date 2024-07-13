@@ -24,7 +24,17 @@ export default defineNuxtPlugin((app) => {
         },
       },
     },
-    defaults: {},
+    defaults: {
+      VTextField: {
+        variant: 'outlined',
+      },
+      VAutocomplete: {
+        variant: 'outlined',
+      },
+      VBtn: {
+        variant: 'outlined',
+      },
+    },
   })
   app.vueApp.use(vuetify)
 })

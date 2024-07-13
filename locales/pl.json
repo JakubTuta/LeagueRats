@@ -13,5 +13,14 @@
         "title": "Ustawienia",
         "language": "Język",
         "theme": "Motyw"
+    },
+    "index": {
+        "champion": "Postać",
+        "username": "Nazwa użytkownika",
+        "tag": "Tag"
+    },
+    "rules": {
+        "requiredField": "To pole jest wymagane",
+        "maxLength": "Maksymalna długość to {length} znaków"
     }
 }
