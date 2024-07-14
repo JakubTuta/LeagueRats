@@ -26,7 +26,6 @@
     "@vueuse/core": "^10.11.0",
     "@vueuse/head": "^2.0.0",
     "@vueuse/nuxt": "^10.11.0",
-    "axios": "^1.7.2",
     "eslint": "^8.57.0",
     "firebase": "^10.12.2",
     "firebase-admin": "^12.2.0",
