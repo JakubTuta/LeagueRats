@@ -29,6 +29,14 @@ function clearError() {
   tagError.value = ''
 }
 
+function clearValues() {
+  search.value = ''
+  username.value = ''
+  tag.value = ''
+  usernameError.value = ''
+  tagError.value = ''
+}
+
 function sendToUserView() {
   if (!username.value || !tag.value || tag.value.length > 3) {
     showError()
@@ -49,6 +57,10 @@ watch(username, (newUsername, oldUsername) => {
 watch(tag, (newTag, oldTag) => {
   if (newTag && !oldTag)
     clearError()
+})
+
+onUnmounted(() => {
+  clearValues()
 })
 </script>
 
