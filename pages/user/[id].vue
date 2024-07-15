@@ -9,6 +9,7 @@ const userDetails = String(route.params.id)
 const username = userDetails.split('-')[0]
 const tag = userDetails.split('-')[1]
 
+// restStore.testConnection()
 restStore.getAccountDetailsByRiotId(username, tag)
 </script>
 

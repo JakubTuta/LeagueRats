@@ -21,10 +21,9 @@ def test_connection(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
-def account_details_by_riot_id(
+def get_account_details_by_riot_id(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    return https_fn.Response(json.dumps("Hello world"), status=200)
     base_url = "https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id"
 
     try:
@@ -44,7 +43,7 @@ def account_details_by_riot_id(
 
     try:
         response = requests.get(
-            request_url, headers={"X-Riot-Token": app.options["riot_api_key"]}
+            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
         )
 
         return https_fn.Response(
@@ -52,4 +51,6 @@ def account_details_by_riot_id(
         )
 
     except Exception as e:
-        return https_fn.Response(json.dumps({"error": "Error occurred"}), status=500)
+        return https_fn.Response(
+            json.dumps({"error": f"Error occurred: {str(e)}"}), status=500
+        )

@@ -14,8 +14,11 @@ export const useRestStore = defineStore('rest', () => {
         headers: HEADERS_FIREBASE,
         body: JSON.stringify(data),
       })
+
       if (!response.ok) {
-        throw new Error(`HTTP error! Error: ${response}`)
+        console.error(response)
+
+        return null
       }
 
       const responseData = await response.json()
@@ -23,39 +26,20 @@ export const useRestStore = defineStore('rest', () => {
       return responseData
     }
     catch (error) {
-      throw new Error(`Error calling Firebase function ${functionName}: ${error}`)
+      console.log(error)
     }
   }
 
   const testConnection = async () => {
-    try {
-      const response = await callFirebaseFunction('test_connection', {})
+    const response = await callFirebaseFunction('test_connection', {})
 
-      console.log(response)
-    }
-    catch (error) {
-      console.error(error)
-
-      throw error
-    }
+    console.log(response)
   }
 
   const getAccountDetailsByRiotId = async (username: string, tag: string) => {
-    try {
-      const response = await callFirebaseFunction('account_details_by_riot_id', {
-        username,
-        tag,
-      })
+    const response = await callFirebaseFunction('get_account_details_by_riot_id', { username, tag })
 
-      console.log(response)
-
-      return response
-    }
-    catch (error) {
-      console.error(error)
-
-      throw error
-    }
+    console.log(response)
   }
 
   return {
