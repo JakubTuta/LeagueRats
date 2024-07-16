@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { champions, searchChampion } from '~/const/champions';
 import { lengthRule } from '~/helpers/rules';
+import { useUserStore } from '~/stores/userStore';
 
 const { t } = useI18n()
 
 const router = useRouter()
+
+const userStore = useUserStore()
+const restStore = useRestStore()
 
 const search = ref<string | null>(null)
 const username = ref<string | null>(null)
 const tag = ref<string | null>(null)
 const usernameError = ref('')
 const tagError = ref('')
+const loading = ref(false)
+const userNotExistSnackbar = ref(false)
 
 const errorMessage = t('rules.requiredField')
 
@@ -35,11 +41,35 @@ function clearValues() {
   tag.value = ''
   usernameError.value = ''
   tagError.value = ''
+  loading.value = false
+  userNotExistSnackbar.value = false
 }
 
-function sendToUserView() {
+async function checkIfUserExists(username: string, tag: string) {
+  loading.value = true
+
+  if (await userStore.checkIfUserExists(username, tag)) {
+    return true
+  }
+
+  if (await restStore.getAccountDetailsByRiotId(username, tag)) {
+    return true
+  }
+
+  loading.value = false
+
+  return false
+}
+
+async function sendToUserView() {
   if (!username.value || !tag.value || tag.value.length > 3) {
     showError()
+
+    return
+  }
+
+  if (!await checkIfUserExists(username.value, tag.value)) {
+    userNotExistSnackbar.value = true
 
     return
   }

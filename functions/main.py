@@ -46,11 +46,18 @@ def get_account_details_by_riot_id(
             request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        if response.ok:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
+
+        else:
+            return https_fn.Response(
+                json.dumps({"Riot API error:", response.json()}),
+                status=response.status_code,
+            )
 
     except Exception as e:
         return https_fn.Response(
-            json.dumps({"error": f"Error occurred: {str(e)}"}), status=500
+            json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
         )

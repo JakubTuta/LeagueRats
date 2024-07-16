@@ -26,7 +26,7 @@ export const useRestStore = defineStore('rest', () => {
       return responseData
     }
     catch (error) {
-      console.log(error)
+      console.error(error)
     }
   }
 
@@ -39,7 +39,7 @@ export const useRestStore = defineStore('rest', () => {
   const getAccountDetailsByRiotId = async (username: string, tag: string) => {
     const response = await callFirebaseFunction('get_account_details_by_riot_id', { username, tag })
 
-    console.log(response)
+    return response
   }
 
   return {
