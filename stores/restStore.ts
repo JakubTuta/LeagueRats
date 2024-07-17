@@ -1,3 +1,5 @@
+import type { IAccount } from '~/models/accountModel'
+
 export const useRestStore = defineStore('rest', () => {
   const baseURL = 'https://europe-central2-league-rats.cloudfunctions.net'
   const HEADERS_FIREBASE = {
@@ -39,7 +41,7 @@ export const useRestStore = defineStore('rest', () => {
   const getAccountDetailsByRiotId = async (username: string, tag: string) => {
     const response = await callFirebaseFunction('get_account_details_by_riot_id', { username, tag })
 
-    return response
+    return response as IAccount | null
   }
 
   return {

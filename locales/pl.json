@@ -16,8 +16,8 @@
     },
     "index": {
         "champion": "Postać",
-        "username": "Nazwa użytkownika",
-        "tag": "Tag"
+        "gameName": "Nazwa użytkownika",
+        "tagLine": "Tag"
     },
     "rules": {
         "requiredField": "To pole jest wymagane",

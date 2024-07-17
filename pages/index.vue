@@ -1,91 +1,99 @@
 <script setup lang="ts">
 import { champions, searchChampion } from '~/const/champions';
 import { lengthRule } from '~/helpers/rules';
-import { useUserStore } from '~/stores/userStore';
+import { useAccountStore } from '~/stores/accountStore';
 
 const { t } = useI18n()
 
 const router = useRouter()
 
-const userStore = useUserStore()
+const accountStore = useAccountStore()
 const restStore = useRestStore()
 
 const search = ref<string | null>(null)
-const username = ref<string | null>(null)
-const tag = ref<string | null>(null)
-const usernameError = ref('')
-const tagError = ref('')
+const gameName = ref<string | null>(null)
+const tagLine = ref<string | null>(null)
+const gameNameError = ref('')
+const tagLineError = ref('')
 const loading = ref(false)
 const userNotExistSnackbar = ref(false)
 
 const errorMessage = t('rules.requiredField')
 
 function showError() {
-  if (!username.value) {
-    usernameError.value = errorMessage
+  if (!gameName.value) {
+    gameNameError.value = errorMessage
   }
 
-  else if (!tag.value) {
-    tagError.value = errorMessage
+  else if (!tagLine.value) {
+    tagLineError.value = errorMessage
   }
 }
 
 function clearError() {
-  usernameError.value = ''
-  tagError.value = ''
+  gameNameError.value = ''
+  tagLineError.value = ''
 }
 
 function clearValues() {
   search.value = ''
-  username.value = ''
-  tag.value = ''
-  usernameError.value = ''
-  tagError.value = ''
+  gameName.value = ''
+  tagLine.value = ''
+  gameNameError.value = ''
+  tagLineError.value = ''
   loading.value = false
   userNotExistSnackbar.value = false
 }
 
-async function checkIfUserExists(username: string, tag: string) {
+async function getAccountDetails(gameName: string, tagLine: string) {
   loading.value = true
 
-  if (await userStore.checkIfUserExists(username, tag)) {
-    return true
+  const databaseAccountDetails = await accountStore.getAccountDetails(gameName, tagLine)
+
+  if (databaseAccountDetails) {
+    return databaseAccountDetails
   }
 
-  if (await restStore.getAccountDetailsByRiotId(username, tag)) {
-    return true
+  const apiAccountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
+
+  if (apiAccountDetails) {
+    accountStore.saveAccount(apiAccountDetails)
+
+    return apiAccountDetails
   }
 
   loading.value = false
 
-  return false
+  return null
 }
 
 async function sendToUserView() {
-  if (!username.value || !tag.value || tag.value.length > 3) {
+  if (!gameName.value || !tagLine.value || tagLine.value.length > 3) {
     showError()
 
     return
   }
 
-  if (!await checkIfUserExists(username.value, tag.value)) {
+  const accountDetails = await getAccountDetails(gameName.value, tagLine.value)
+
+  if (!accountDetails) {
     userNotExistSnackbar.value = true
 
     return
   }
 
-  const userDetails = `${username.value}-${tag.value}`
+  const accountName = `${gameName.value}-${tagLine.value}`
 
-  router.push(`/user/${userDetails}`)
+  router.push(`/account/${accountName}`)
 }
 
-watch(username, (newUsername, oldUsername) => {
-  if (newUsername && !oldUsername)
+watch(gameName, (newGameName, oldGameName) => {
+  if (newGameName && !oldGameName)
     clearError()
 })
 
-watch(tag, (newTag, oldTag) => {
-  if (newTag && !oldTag)
+watch(tagLine, (newTagLine, oldTagLine) => {
+  if (newTagLine && !oldTagLine)
     clearError()
 })
 
@@ -111,11 +119,11 @@ onUnmounted(() => {
         md="8"
       >
         <v-text-field
-          v-model="username"
-          :label="$t('index.username')"
+          v-model="gameName"
+          :label="$t('index.gameName')"
           prepend-inner-icon="mdi-account-outline"
           variant="outlined"
-          :error-messages="usernameError"
+          :error-messages="gameNameError"
           @keydown.enter="sendToUserView"
         />
       </v-col>
@@ -125,12 +133,12 @@ onUnmounted(() => {
         md="4"
       >
         <v-text-field
-          v-model="tag"
-          :label="$t('index.tag')"
+          v-model="tagLine"
+          :label="$t('index.tagLine')"
           prepend-inner-icon="mdi-pound"
           append-icon="mdi-arrow-right"
           :rules="[lengthRule($t, 3)]"
-          :error-messages="tagError"
+          :error-messages="tagLineError"
           @click:append="sendToUserView"
           @keydown.enter="sendToUserView"
         />

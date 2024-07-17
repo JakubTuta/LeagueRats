@@ -16,8 +16,8 @@
     },
     "index": {
         "champion": "Champion",
-        "username": "Username",
-        "tag": "Tag"
+        "gameName": "Username",
+        "tagLine": "Tag"
     },
     "rules": {
         "requiredField": "This field is required",
