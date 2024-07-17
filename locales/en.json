@@ -1,26 +1,33 @@
 {
-    "universal": {
-        "polish": "Polski",
-        "english": "English",
-        "light": "Light",
-        "dark": "Dark",
-        "form": {
-            "close": "Close",
-            "save": "Save"
-        }
-    },
-    "settings": {
-        "title": "Settings",
-        "language": "Language",
-        "theme": "Theme"
-    },
-    "index": {
-        "champion": "Champion",
-        "gameName": "Username",
-        "tagLine": "Tag"
-    },
-    "rules": {
-        "requiredField": "This field is required",
-        "maxLength": "Maximum length is {length} characters"
+  "universal": {
+    "polish": "Polski",
+    "english": "English",
+    "light": "Light",
+    "dark": "Dark",
+    "form": {
+      "close": "Close",
+      "save": "Save"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "index": {
+    "champion": "Champion",
+    "gameName": "Username",
+    "tagLine": "Tag",
+    "userNotExist": "User doesn't exist"
+  },
+  "rules": {
+    "requiredField": "This field is required",
+    "maxLength": "Maximum length is {length} characters"
+  },
+  "regions": {
+    "title": "Regions",
+    "europe": "Europe",
+    "america": "Americas",
+    "asia": "Asia"
+  }
 }

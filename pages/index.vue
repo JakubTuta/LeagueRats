@@ -2,6 +2,7 @@
 import { champions, searchChampion } from '~/const/champions';
 import { lengthRule } from '~/helpers/rules';
 import { useAccountStore } from '~/stores/accountStore';
+import { useRestStore } from '~/stores/restStore';
 
 const { t } = useI18n()
 
@@ -17,8 +18,24 @@ const gameNameError = ref('')
 const tagLineError = ref('')
 const loading = ref(false)
 const userNotExistSnackbar = ref(false)
+// const region = ref('europe')
 
 const errorMessage = t('rules.requiredField')
+
+// const regions = computed(() => [
+//   {
+//     title: t('regions.europe'),
+//     value: 'europe',
+//   },
+//   {
+//     title: t('regions.america'),
+//     value: 'america',
+//   },
+//   {
+//     title: t('regions.asia'),
+//     value: 'asia',
+//   },
+// ])
 
 function showError() {
   if (!gameName.value) {
@@ -68,7 +85,7 @@ async function getAccountDetails(gameName: string, tagLine: string) {
 }
 
 async function sendToUserView() {
-  if (!gameName.value || !tagLine.value || tagLine.value.length > 3) {
+  if (!gameName.value || !tagLine.value || tagLine.value.length > 5) {
     showError()
 
     return
@@ -100,6 +117,14 @@ watch(tagLine, (newTagLine, oldTagLine) => {
 onUnmounted(() => {
   clearValues()
 })
+
+watch(userNotExistSnackbar, (newValue, oldValue) => {
+  if (!oldValue && newValue) {
+    setTimeout(() => {
+      userNotExistSnackbar.value = false
+    }, 5000)
+  }
+})
 </script>
 
 <template>
@@ -113,7 +138,23 @@ onUnmounted(() => {
       :custom-filter="searchChampion"
     />
 
+    <v-spacer class="my-5" />
+
     <v-row align-content="center">
+      <!--
+        <v-col
+        cols="12"
+        md="2"
+        >
+        <v-select
+        v-model="region"
+        :items="regions"
+        :label="$t('regions.title')"
+        prepend-inner-icon="mdi-earth"
+        />
+        </v-col>
+      -->
+
       <v-col
         cols="12"
         md="8"
@@ -129,7 +170,7 @@ onUnmounted(() => {
       </v-col>
 
       <v-col
-        cols="6"
+        cols="12"
         md="4"
       >
         <v-text-field
@@ -137,11 +178,22 @@ onUnmounted(() => {
           :label="$t('index.tagLine')"
           prepend-inner-icon="mdi-pound"
           append-icon="mdi-arrow-right"
-          :rules="[lengthRule($t, 3)]"
+          :rules="[lengthRule($t, 5)]"
           :error-messages="tagLineError"
           @click:append="sendToUserView"
           @keydown.enter="sendToUserView"
         />
+      </v-col>
+
+      <v-col cols="12">
+        <v-alert
+          v-model="userNotExistSnackbar"
+          type="warning"
+          variant="tonal"
+          closable
+        >
+          {{ $t('index.userNotExist') }}
+        </v-alert>
       </v-col>
     </v-row>
   </v-container>

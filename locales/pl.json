@@ -1,26 +1,33 @@
 {
-    "universal": {
-        "polish": "Polski",
-        "english": "English",
-        "light": "Jasny",
-        "dark": "Ciemny",
-        "form": {
-            "close": "Zamknij",
-            "save": "Zapisz"
-        }
-    },
-    "settings": {
-        "title": "Ustawienia",
-        "language": "Język",
-        "theme": "Motyw"
-    },
-    "index": {
-        "champion": "Postać",
-        "gameName": "Nazwa użytkownika",
-        "tagLine": "Tag"
-    },
-    "rules": {
-        "requiredField": "To pole jest wymagane",
-        "maxLength": "Maksymalna długość to {length} znaków"
+  "universal": {
+    "polish": "Polski",
+    "english": "English",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "form": {
+      "close": "Zamknij",
+      "save": "Zapisz"
     }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "language": "Język",
+    "theme": "Motyw"
+  },
+  "index": {
+    "champion": "Postać",
+    "gameName": "Nazwa użytkownika",
+    "tagLine": "Tag",
+    "userNotExist": "Użytkownik nie istnieje"
+  },
+  "rules": {
+    "requiredField": "To pole jest wymagane",
+    "maxLength": "Maksymalna długość to {length} znaków"
+  },
+  "regions": {
+    "title": "Regiony",
+    "europe": "Europa",
+    "america": "Ameryki",
+    "asia": "Azja"
+  }
 }
