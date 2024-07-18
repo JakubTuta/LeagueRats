@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IAccount } from '~/models/accountModel';
+import type { ActiveGameModel } from '~/models/activeGame';
 import { useAccountStore } from '~/stores/accountStore';
 
 const route = useRoute()
@@ -12,7 +13,7 @@ const gameName = userDetails.split('-')[0]
 const tagLine = userDetails.split('-')[1]
 
 const account = ref<IAccount | null>(null)
-const currentGame = ref<any>(null)
+const currentGame = ref<ActiveGameModel | null>(null)
 
 onMounted(async () => {
   account.value = await accountStore.getAccountDetails(gameName, tagLine)

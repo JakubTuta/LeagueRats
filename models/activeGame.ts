@@ -1,4 +1,4 @@
-import type { DocumentData, DocumentReference, Timestamp } from 'firebase/firestore'
+import { type DocumentData, type DocumentReference, Timestamp } from 'firebase/firestore'
 
 export interface IGameCustomizationObject {
   category: string
@@ -18,6 +18,7 @@ export interface IParticipant {
   bot: boolean
   teamId: number
   summonerId: string
+  riotId: string
   puuid: string
   spell1Id: number
   spell2Id: number
@@ -37,7 +38,7 @@ export interface IBannedChampion {
 export interface IActiveGame {
   gameId: number
   gameType: string
-  gameStartTime: number | Timestamp
+  gameStartTime: Timestamp
   mapId: number
   gameLength: number
   platformId: string
@@ -51,7 +52,7 @@ export interface IActiveGame {
 export class ActiveGameModel implements IActiveGame {
   gameId: number
   gameType: string
-  gameStartTime: number | Timestamp
+  gameStartTime: Timestamp
   mapId: number
   gameLength: number
   platformId: string
@@ -66,7 +67,8 @@ export class ActiveGameModel implements IActiveGame {
   constructor(data: IActiveGame, reference: DocumentReference | null) {
     this.gameId = data.gameId
     this.gameType = data.gameType
-    this.gameStartTime = data.gameStartTime
+    //   @ts-expect-error gameStartTime is a number
+    this.gameStartTime = new Timestamp(data.gameStartTime, 0)
     this.mapId = data.mapId
     this.gameLength = data.gameLength
     this.platformId = data.platformId

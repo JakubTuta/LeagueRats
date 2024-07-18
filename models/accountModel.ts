@@ -12,9 +12,9 @@ export class AccountModel implements IAccount {
   puuid: string
 
   constructor(data: IAccount) {
-    this.gameName = data.gameName || ''
-    this.tagLine = data.tagLine || ''
-    this.puuid = data.puuid || ''
+    this.gameName = data.gameName
+    this.tagLine = data.tagLine
+    this.puuid = data.puuid
   }
 
   toMap(): IAccount {
