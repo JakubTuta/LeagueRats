@@ -46,16 +46,44 @@ def get_account_details_by_riot_id(
             request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
         )
 
-        if response.ok:
-            return https_fn.Response(
-                json.dumps(response.json()), status=response.status_code
-            )
+        return https_fn.Response(
+            json.dumps(response.json()), status=response.status_code
+        )
 
-        else:
-            return https_fn.Response(
-                json.dumps({"Riot API error:", response.json()}),
-                status=response.status_code,
-            )
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
+        )
+
+
+@https_fn.on_request(region="europe-central2", cors=cors_options)
+def get_active_game_by_puuid(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    base_url = (
+        "https://eun1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner"
+    )
+
+    try:
+        request_data = req.get_json(force=True)
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    if not request_data.get("puuid", None):
+        return https_fn.Response(json.dumps({"error": "Missing puuid"}), status=400)
+
+    request_url = f"{base_url}/{request_data['puuid']}"
+
+    try:
+        response = requests.get(
+            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+        )
+
+        return https_fn.Response(
+            json.dumps(response.json()), status=response.status_code
+        )
 
     except Exception as e:
         return https_fn.Response(

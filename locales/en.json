@@ -29,5 +29,8 @@
     "europe": "Europe",
     "america": "Americas",
     "asia": "Asia"
+  },
+  "profile": {
+    "liveGame": "Live game"
   }
 }

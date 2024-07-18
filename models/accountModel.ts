@@ -17,12 +17,12 @@ export class AccountModel implements IAccount {
     this.puuid = data.puuid || ''
   }
 
-  toMap() {
+  toMap(): IAccount {
     return {
       gameName: this.gameName,
       tagLine: this.tagLine,
       puuid: this.puuid,
-    } as IAccount
+    }
   }
 }
 
