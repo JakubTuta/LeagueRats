@@ -68,7 +68,7 @@ export class ActiveGameModel implements IActiveGame {
     this.gameId = data.gameId
     this.gameType = data.gameType
     //   @ts-expect-error gameStartTime is a number
-    this.gameStartTime = new Timestamp(data.gameStartTime, 0)
+    this.gameStartTime = new Timestamp(data.gameStartTime / 1000, 0)
     this.mapId = data.mapId
     this.gameLength = data.gameLength
     this.platformId = data.platformId
