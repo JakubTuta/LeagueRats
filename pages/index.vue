@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { champions, searchChampion } from '~/const/champions';
 import { lengthRule } from '~/helpers/rules';
 import { useAccountStore } from '~/stores/accountStore';
 import { useRestStore } from '~/stores/restStore';
@@ -129,16 +128,18 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
 
 <template>
   <v-container>
-    <v-autocomplete
+    <!--
+      <v-autocomplete
       v-model="search"
       prepend-inner-icon="mdi-magnify"
       clearable
       :label="$t('index.champion')"
       :items="champions"
       :custom-filter="searchChampion"
-    />
+      />
 
-    <v-spacer class="my-5" />
+      <v-spacer class="my-5" />
+    -->
 
     <v-row align-content="center">
       <!--

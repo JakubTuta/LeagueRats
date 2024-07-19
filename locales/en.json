@@ -31,6 +31,14 @@
     "asia": "Asia"
   },
   "profile": {
-    "liveGame": "Live game"
+    "currentGame": {
+      "title": "Live game",
+      "noGame": "User is not in a game",
+      "usersGame": "{username}'s game"
+    }
+  },
+  "game": {
+    "team1": "Blue team",
+    "team2": "Red team"
   }
 }

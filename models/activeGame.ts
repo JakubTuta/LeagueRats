@@ -19,6 +19,8 @@ export interface IParticipant {
   teamId: number
   summonerId: string
   riotId: string
+  gameName: string
+  tagLine: string
   puuid: string
   spell1Id: number
   spell2Id: number
@@ -76,7 +78,7 @@ export class ActiveGameModel implements IActiveGame {
     this.bannedChampions = data.bannedChampions
     this.gameQueueConfigId = data.gameQueueConfigId
     this.observers = data.observers
-    this.participants = data.participants
+    this.participants = data.participants.map(mapParticipant)
 
     this.reference = reference
   }
@@ -100,4 +102,12 @@ export class ActiveGameModel implements IActiveGame {
 
 export function mapActiveGame(document: DocumentData) {
   return new ActiveGameModel(document.data(), document.ref)
+}
+
+function mapParticipant(participant: IParticipant) {
+  return {
+    ...participant,
+    gameName: participant.riotId.split('#')[0],
+    tagLine: participant.riotId.split('#')[1],
+  } as IParticipant
 }

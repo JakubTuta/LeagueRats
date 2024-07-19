@@ -31,6 +31,14 @@
     "asia": "Azja"
   },
   "profile": {
-    "liveGame": "Gra na żywo"
+    "currentGame": {
+      "title": "Gra na żywo",
+      "noGame": "Użytkownik nie gra w tej chwili",
+      "usersGame": "Gra użytkownika {username}"
+    }
+  },
+  "game": {
+    "team1": "Niebieska drużyna",
+    "team2": "Czerwona drużyna"
   }
 }

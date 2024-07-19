@@ -14,16 +14,40 @@ const tagLine = userDetails.split('-')[1]
 
 const account = ref<IAccount | null>(null)
 const currentGame = ref<ActiveGameModel | null>(null)
+const currentGameLoading = ref(false)
+const isShowCurrentGamePanel = ref(false)
 
 onMounted(async () => {
   account.value = await accountStore.getAccountDetails(gameName, tagLine)
 })
 
-watch(account, async (newAccount) => {
-  if (newAccount) {
-    currentGame.value = await restStore.getCurrentGameByPuuid(newAccount.puuid)
+async function handleCurrentGameButton() {
+  if (isShowCurrentGamePanel.value) {
+    isShowCurrentGamePanel.value = false
+
+    return
   }
-}, { immediate: true })
+
+  if (!account.value)
+    return
+
+  currentGameLoading.value = true
+
+  if (currentGame.value) {
+    isShowCurrentGamePanel.value = true
+    currentGameLoading.value = false
+  }
+
+  const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
+
+  if (response && response.gameMode === 'CLASSIC') {
+    currentGame.value = response
+
+    isShowCurrentGamePanel.value = true
+  }
+
+  currentGameLoading.value = false
+}
 </script>
 
 <template>
@@ -31,12 +55,13 @@ watch(account, async (newAccount) => {
     <v-card>
       <v-card-text>
         <v-btn
-          :disabled="!currentGame"
+          :loading="currentGameLoading"
           :color="currentGame
             ? 'primary'
             : ''"
+          @click="handleCurrentGameButton"
         >
-          {{ $t('profile.liveGame') }}
+          {{ $t('profile.currentGame.title') }}
 
           <v-icon
             icon="mdi-menu-down"
@@ -45,7 +70,11 @@ watch(account, async (newAccount) => {
           />
         </v-btn>
 
-        {{ currentGame }}
+        <AccountCurrentGame
+          v-if="isShowCurrentGamePanel"
+          :current-game="currentGame"
+          :account="account"
+        />
       </v-card-text>
     </v-card>
   </v-container>
