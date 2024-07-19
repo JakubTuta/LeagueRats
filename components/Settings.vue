@@ -12,7 +12,7 @@ function closeSettings() {
 
 <template>
   <v-btn
-    style="position: absolute; left: 10px; bottom: 10px"
+    style="position: fixed; left: 10px; bottom: 10px"
     icon
     variant="outlined"
     @click="showSettings"
