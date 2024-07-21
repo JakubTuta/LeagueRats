@@ -8,17 +8,40 @@ const route = useRoute()
 const accountStore = useAccountStore()
 const restStore = useRestStore()
 
-const userDetails = String(route.params.id)
-const gameName = userDetails.split('-')[0]
-const tagLine = userDetails.split('-')[1]
-
+const loading = ref(false)
 const account = ref<IAccount | null>(null)
 const currentGame = ref<ActiveGameModel | null>(null)
 const currentGameLoading = ref(false)
 const isShowCurrentGamePanel = ref(false)
 
+async function getAccountDetails(gameName: string, tagLine: string) {
+  loading.value = true
+
+  const databaseAccountDetails = await accountStore.getAccountDetails(gameName, tagLine)
+
+  if (databaseAccountDetails) {
+    return databaseAccountDetails
+  }
+
+  const apiAccountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
+
+  if (apiAccountDetails) {
+    accountStore.saveAccount(apiAccountDetails)
+
+    return apiAccountDetails
+  }
+
+  loading.value = false
+
+  return null
+}
+
 onMounted(async () => {
-  account.value = await accountStore.getAccountDetails(gameName, tagLine)
+  const userDetails = String(route.params.id)
+  const gameName = userDetails.split('-')[0]
+  const tagLine = userDetails.split('-')[1]
+
+  account.value = await getAccountDetails(gameName, tagLine)
 })
 
 async function handleCurrentGameButton() {

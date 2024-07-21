@@ -17,12 +17,17 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const app = initializeApp(firebaseConfig, 'primary')
   const firestore = getFirestore(app)
-  const storage = getStorage(app)
+  const storage = getStorage(app, 'gs://league-rats.appspot.com')
 
   const auth = initializeAuth(app, {
     persistence: [indexedDBLocalPersistence, browserLocalPersistence],
     popupRedirectResolver: browserPopupRedirectResolver,
   })
+
+  nuxtApp.provide(
+    'app',
+    app,
+  )
 
   nuxtApp.provide(
     'auth',

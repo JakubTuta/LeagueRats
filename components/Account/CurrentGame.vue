@@ -21,7 +21,10 @@ const { currentGame, account } = toRefs(props)
     </v-card-title>
 
     <v-card-text>
-      <AccountGameTable :game="currentGame" />
+      <AccountGameTable
+        :game="currentGame"
+        :account="account"
+      />
     </v-card-text>
   </v-card>
 </template>

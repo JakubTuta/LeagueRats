@@ -1,11 +1,23 @@
 <script setup lang="ts">
+import { championIds } from '~/helpers/championIds';
+import type { IAccount } from '~/models/accountModel';
 import type { ActiveGameModel } from '~/models/activeGame';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   game: ActiveGameModel | null
-}>()
+  account?: IAccount | null
+}>(), {
+  account: null,
+})
 
-const { game } = toRefs(props)
+const { game, account } = toRefs(props)
+
+const router = useRouter()
+
+const storageStore = useStorageStore()
+const championIcons = ref<Record<number, string>>({})
+
+const opened = ref<string[]>([])
 
 const teamColors = ['blue', 'red']
 
@@ -29,6 +41,24 @@ const team2 = computed(() => {
 
   return game.value.participants.filter(participant => participant.teamId === teamIds.value[1])
 })
+
+watch(game, (newGame) => {
+  if (!newGame)
+    return
+
+  const championId = newGame.participants.map(participant => participant.championId)
+
+  championId.forEach(async (championId) => {
+    if (!championIcons.value[championId]) {
+      const championName = championIds[championId]
+      championIcons.value[championId] = await storageStore.getChampionIcon(championName)
+    }
+  })
+}, { immediate: true })
+
+function sendToProfile(gameName: string, tagLine: string) {
+  router.push(`/account/${gameName}-${tagLine}`)
+}
 </script>
 
 <template>
@@ -51,18 +81,32 @@ const team2 = computed(() => {
         </v-card-title>
 
         <v-card-text>
-          <v-list>
+          <v-list v-model:opened="opened">
             <v-list-item
               v-for="participant in team"
               :key="participant.puuid"
-              @click="() => { }"
+              @click="() => sendToProfile(participant.gameName, participant.tagLine)"
             >
-              <v-list-item-title>
+              <template #prepend>
+                <v-img
+                  class="mr-4"
+                  :src="championIcons[participant.championId]"
+                  lazy-src="~/assets/default.png"
+                  width="40"
+                  height="40"
+                />
+              </template>
+
+              <v-list-item-title
+                :class="participant.puuid === account?.puuid
+                  ? 'font-weight-bold'
+                  : ''"
+              >
                 {{ participant.gameName }}
 
-                <v-span class="text-subtitle-2 ml-1 text-gray">
+                <span class="text-subtitle-2 ml-1 text-gray">
                   #{{ participant.tagLine }}
-                </v-span>
+                </span>
               </v-list-item-title>
             </v-list-item>
           </v-list>
