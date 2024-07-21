@@ -76,6 +76,17 @@ async function handleCurrentGameButton() {
 <template>
   <v-container>
     <v-card>
+      <v-card-title
+        align="center"
+        class="my-4"
+      >
+        {{ account?.gameName || '' }}
+
+        <span class="test-subtitle-1 ml-1 text-gray">
+          #{{ account?.tagLine || '' }}
+        </span>
+      </v-card-title>
+
       <v-card-text>
         <v-btn
           :loading="currentGameLoading"
