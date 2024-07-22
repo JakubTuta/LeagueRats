@@ -1,3 +1,4 @@
+import axios from 'axios'
 import type { IAccount } from '~/models/accountModel'
 import { ActiveGameModel } from '~/models/activeGame'
 
@@ -8,27 +9,21 @@ export const useRestStore = defineStore('rest', () => {
     'Access-Control-Allow-Origin': '*',
   }
 
+  function getAxios() {
+    return axios.create({
+      baseURL,
+      headers: HEADERS_FIREBASE,
+    })
+  }
+
   const callFirebaseFunction = async (functionName: string, data: any): Promise<any> => {
-    const url = `${baseURL}/${functionName}`
+    const response = await getAxios().post(`/${functionName}`, data)
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: HEADERS_FIREBASE,
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error('Error fetching data from server')
-      }
-
-      const responseData = await response.json()
-
-      return responseData
+    if (response.status !== 200) {
+      throw new Error(response.data)
     }
-    catch (error: any) {
-      throw new Error(String(error))
-    }
+
+    return response.data
   }
 
   const testConnection = async (): Promise<void> => {
@@ -44,7 +39,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getAccountDetailsByRiotId = async (username: string, tag: string): Promise<IAccount | null> => {
     try {
-      const response = await callFirebaseFunction('get_account_details_by_riot_id', { username, tag })
+      const response = await callFirebaseFunction('account_details_by_riot_id', { username, tag })
 
       return response as IAccount
     }
@@ -57,7 +52,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getCurrentGameByPuuid = async (puuid: string): Promise<ActiveGameModel | null> => {
     try {
-      const response = await callFirebaseFunction('get_active_game_by_puuid', { puuid })
+      const response = await callFirebaseFunction('active_game_by_puuid', { puuid })
 
       const model = new ActiveGameModel(response, null)
 
@@ -69,9 +64,23 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
+  const findChampionsPositions = async (championIds: number[]): Promise<Record<number, string> | null> => {
+    try {
+      const response = await callFirebaseFunction('champion_positions', { championIds })
+
+      return response
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return null
+    }
+  }
+
   return {
     testConnection,
     getAccountDetailsByRiotId,
     getCurrentGameByPuuid,
+    findChampionsPositions,
   }
 })

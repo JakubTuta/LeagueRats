@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { championIds } from '~/helpers/championIds';
 import type { IAccount } from '~/models/accountModel';
-import type { ActiveGameModel } from '~/models/activeGame';
+import type { ActiveGameModel, IParticipant } from '~/models/activeGame';
 
 const props = withDefaults(defineProps<{
   game: ActiveGameModel | null
@@ -15,11 +15,23 @@ const { game, account } = toRefs(props)
 const router = useRouter()
 
 const storageStore = useStorageStore()
+const restStore = useRestStore()
+
 const championIcons = ref<Record<number, string>>({})
+const team1 = ref<IParticipant[]>([])
+const team2 = ref<IParticipant[]>([])
 
 const opened = ref<string[]>([])
 
 const teamColors = ['blue', 'red']
+
+const championLanesMap: { [key: string]: number } = {
+  TOP: 1,
+  JUNGLE: 2,
+  MIDDLE: 3,
+  BOTTOM: 4,
+  UTILITY: 5,
+}
 
 const teamIds = computed(() => {
   if (!game.value)
@@ -28,19 +40,30 @@ const teamIds = computed(() => {
   return Array.from(new Set(game.value.participants.map(participant => participant.teamId)))
 })
 
-const team1 = computed(() => {
-  if (!game.value || teamIds.value.length !== 2)
-    return []
+async function sortTeam(participants: IParticipant[]) {
+  const participantIds = participants.map(participant => participant.championId)
+  const teamLanes = await restStore.findChampionsPositions(participantIds)
 
-  return game.value.participants.filter(participant => participant.teamId === teamIds.value[0])
-})
+  if (!teamLanes)
+    return participants
 
-const team2 = computed(() => {
-  if (!game.value || teamIds.value.length !== 2)
-    return []
+  return participants.map((participant) => {
+    const lane = teamLanes[participant.championId]
 
-  return game.value.participants.filter(participant => participant.teamId === teamIds.value[1])
-})
+    return {
+      ...participant,
+      lane,
+    }
+  }).sort((a, b) => championLanesMap[a.lane] - championLanesMap[b.lane])
+}
+
+watch(game, async (newGame) => {
+  if (!newGame)
+    return
+
+  team1.value = await sortTeam(newGame.participants.filter(participant => participant.teamId === teamIds.value[0]))
+  team2.value = await sortTeam(newGame.participants.filter(participant => participant.teamId === teamIds.value[1]))
+}, { immediate: true })
 
 watch(game, (newGame) => {
   if (!newGame)

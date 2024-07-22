@@ -21,7 +21,7 @@ def test_connection(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
-def get_account_details_by_riot_id(
+def account_details_by_riot_id(
     req: https_fn.Request,
 ) -> https_fn.Response:
     base_url = "https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id"
@@ -57,7 +57,7 @@ def get_account_details_by_riot_id(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
-def get_active_game_by_puuid(
+def active_game_by_puuid(
     req: https_fn.Request,
 ) -> https_fn.Response:
     base_url = (
@@ -89,3 +89,64 @@ def get_active_game_by_puuid(
         return https_fn.Response(
             json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
         )
+
+
+def find_highest_playrate_role(champion_data, champion_key):
+    roles = champion_data.get(champion_key, None)
+
+    if not roles:
+        return None
+
+    highest_playrate_role = list(roles.keys())[0]
+    highest_playrate = 0
+
+    for role, stats in roles.items():
+        play_rate = stats.get("playRate", 0)
+        if play_rate > highest_playrate:
+            highest_playrate = play_rate
+            highest_playrate_role = role
+
+    return highest_playrate_role
+
+
+@https_fn.on_request(region="europe-central2", cors=cors_options)
+def champion_positions(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    base_url = "https://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/championrates.json"
+
+    try:
+        request_data = req.get_json(force=True)
+
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    if not request_data.get("championIds", None):
+        return https_fn.Response(json.dumps({"error": "Missing champions"}), status=400)
+
+    try:
+        response = requests.get(base_url)
+
+        response_data = response.json()
+
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Error occurred while fetching data"}), status=500
+        )
+
+    champions = request_data["championIds"]
+    api_champions = response_data.get("data", None)
+
+    if not api_champions:
+        return https_fn.Response(
+            json.dumps({"error": "Error occurred while fetching data"}), status=500
+        )
+
+    champion_positions = {
+        champion_id: find_highest_playrate_role(api_champions, str(champion_id))
+        for champion_id in champions
+    }
+
+    return https_fn.Response(json.dumps(champion_positions), status=200)

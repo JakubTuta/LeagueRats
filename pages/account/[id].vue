@@ -90,9 +90,7 @@ async function handleCurrentGameButton() {
       <v-card-text>
         <v-btn
           :loading="currentGameLoading"
-          :color="currentGame
-            ? 'primary'
-            : ''"
+          color="primary"
           @click="handleCurrentGameButton"
         >
           {{ $t('profile.currentGame.title') }}
