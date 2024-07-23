@@ -61,8 +61,16 @@ watch(game, async (newGame) => {
   if (!newGame)
     return
 
-  team1.value = await sortTeam(newGame.participants.filter(participant => participant.teamId === teamIds.value[0]))
-  team2.value = await sortTeam(newGame.participants.filter(participant => participant.teamId === teamIds.value[1]))
+  let tmpTeam1 = newGame.participants.filter(participant => participant.teamId === teamIds.value[0])
+  let tmpTeam2 = newGame.participants.filter(participant => participant.teamId === teamIds.value[1])
+
+  if (game.value?.gameMode === 'CLASSIC') {
+    tmpTeam1 = await sortTeam(tmpTeam1)
+    tmpTeam2 = await sortTeam(tmpTeam2)
+  }
+
+  team1.value = tmpTeam1
+  team2.value = tmpTeam2
 }, { immediate: true })
 
 watch(game, (newGame) => {

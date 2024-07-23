@@ -56,6 +56,10 @@ export const useRestStore = defineStore('rest', () => {
 
       const model = new ActiveGameModel(response, null)
 
+      if (model.gameType !== 'MATCHED' || (model.gameMode !== 'CLASSIC' && model.gameMode !== 'ARAM')) {
+        return null
+      }
+
       return model
     }
     // eslint-disable-next-line unused-imports/no-unused-vars
@@ -77,10 +81,34 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
+  const getFeaturedGames = async (): Promise<ActiveGameModel[]> => {
+    try {
+      const response = await callFirebaseFunction('featured_games', {})
+
+      const acceptableGameModes = ['CLASSIC', 'ARAM']
+
+      const games = response.gameList.map((game: any) => new ActiveGameModel(game, null))
+        .filter((game: ActiveGameModel) => game.gameType === 'MATCHED')
+        .filter((game: ActiveGameModel) => acceptableGameModes.includes(game.gameMode))
+
+      if (games.length > 2) {
+        return games.slice(0, 2)
+      }
+
+      return games
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return []
+    }
+  }
+
   return {
     testConnection,
     getAccountDetailsByRiotId,
     getCurrentGameByPuuid,
     findChampionsPositions,
+    getFeaturedGames,
   }
 })

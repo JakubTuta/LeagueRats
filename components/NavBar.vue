@@ -13,18 +13,39 @@ function goHome() {
 
 <template>
   <v-app-bar>
-    <v-img
-      :src="appIcon"
-      max-height="40"
-      max-width="40"
-      class="ml-4"
-      rounded="circle"
-      @click="goHome"
-    />
+    <v-tooltip
+      :text="$t('navbar.home')"
+      location="bottom"
+    >
+      <template #activator="{props}">
+        <v-img
+          :src="appIcon"
+          max-height="40"
+          max-width="40"
+          class="ml-4"
+          rounded="circle"
+          style="cursor: pointer"
+          v-bind="props"
+          @click="goHome"
+        />
+      </template>
+    </v-tooltip>
 
-    <!-- eslint-disable-next-line vue/no-bare-strings-in-template -->
     <v-app-bar-title>
-      LeagueRats
+      <v-tooltip
+        :text="$t('navbar.home')"
+        location="bottom"
+      >
+        <template #activator="{props}">
+          <span
+            style="cursor: pointer"
+            v-bind="props"
+            @click="goHome"
+          >
+            {{ $t('universal.title') }}
+          </span>
+        </template>
+      </v-tooltip>
     </v-app-bar-title>
   </v-app-bar>
 </template>

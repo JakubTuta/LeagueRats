@@ -1,5 +1,6 @@
 {
   "universal": {
+    "title": "League Rats",
     "polish": "Polski",
     "english": "English",
     "light": "Light",
@@ -8,6 +9,10 @@
       "close": "Close",
       "save": "Save"
     }
+  },
+  "navbar": {
+    "home": "Home",
+    "settings": "Settings"
   },
   "settings": {
     "title": "Settings",
@@ -18,7 +23,8 @@
     "champion": "Champion",
     "gameName": "Username",
     "tagLine": "Tag",
-    "userNotExist": "User doesn't exist"
+    "userNotExist": "User doesn't exist",
+    "featuredGames": "Featured games"
   },
   "rules": {
     "requiredField": "This field is required",
@@ -39,6 +45,8 @@
   },
   "game": {
     "team1": "Blue team",
-    "team2": "Red team"
+    "team2": "Red team",
+    "classic": "Classic",
+    "aram": "ARAM"
   }
 }

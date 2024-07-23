@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { lengthRule } from '~/helpers/rules';
+import type { ActiveGameModel } from '~/models/activeGame';
 import { useAccountStore } from '~/stores/accountStore';
 import { useRestStore } from '~/stores/restStore';
 
@@ -17,6 +18,7 @@ const gameNameError = ref('')
 const tagLineError = ref('')
 const loading = ref(false)
 const userNotExistSnackbar = ref(false)
+const featuredGames = ref<ActiveGameModel[]>([])
 // const region = ref('europe')
 
 const errorMessage = t('rules.requiredField')
@@ -35,6 +37,10 @@ const errorMessage = t('rules.requiredField')
 //     value: 'asia',
 //   },
 // ])
+
+onMounted(async () => {
+  featuredGames.value = await restStore.getFeaturedGames()
+})
 
 function showError() {
   if (!gameName.value) {
@@ -145,7 +151,7 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
       <!--
         <v-col
         cols="12"
-        md="2"
+        sm="2"
         >
         <v-select
         v-model="region"
@@ -158,7 +164,7 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
 
       <v-col
         cols="12"
-        md="8"
+        sm="8"
       >
         <v-text-field
           v-model="gameName"
@@ -172,7 +178,7 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
 
       <v-col
         cols="12"
-        md="4"
+        sm="4"
       >
         <v-text-field
           v-model="tagLine"
@@ -197,5 +203,63 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
         </v-alert>
       </v-col>
     </v-row>
+
+    <v-spacer class="my-16" />
+
+    <v-card
+      v-if="featuredGames.length > 0"
+      variant="flat"
+    >
+      <v-card-title>
+        {{ $t('index.featuredGames') }}
+      </v-card-title>
+
+      <v-card-text>
+        <v-row>
+          <v-col
+            v-for="game in featuredGames"
+            :key="game.gameId"
+            cols="12"
+            md="6"
+            class="my-3"
+          >
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-title style="height: 70px;">
+                  <v-img
+                    v-if="game.gameMode === 'CLASSIC'"
+                    src="~/assets/classic_icon.png"
+                    lazy-src="~/assets/default.png"
+                    width="30"
+                    height="30"
+                    style="position: absolute; left: 10px"
+                  />
+
+                  <v-img
+                    v-else
+                    src="~/assets/aram_icon.png"
+                    lazy-src="~/assets/default.png"
+                    width="30"
+                    height="30"
+                    style="position: absolute; left: 10px"
+                  />
+
+                  <span style="position: absolute; left: 60px;">
+                    {{ $t(`game.${game.gameMode.toLowerCase()}`) }}
+                  </span>
+                </v-expansion-panel-title>
+
+                <v-expansion-panel-text>
+                  <AccountGameTable
+                    v-expansion-panel-text
+                    :game="game"
+                  />
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>

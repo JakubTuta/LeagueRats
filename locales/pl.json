@@ -1,5 +1,6 @@
 {
   "universal": {
+    "title": "League Rats",
     "polish": "Polski",
     "english": "English",
     "light": "Jasny",
@@ -8,6 +9,10 @@
       "close": "Zamknij",
       "save": "Zapisz"
     }
+  },
+  "navbar": {
+    "home": "Strona głowna",
+    "settings": "Ustawienia"
   },
   "settings": {
     "title": "Ustawienia",
@@ -18,7 +23,8 @@
     "champion": "Postać",
     "gameName": "Nazwa użytkownika",
     "tagLine": "Tag",
-    "userNotExist": "Użytkownik nie istnieje"
+    "userNotExist": "Użytkownik nie istnieje",
+    "featuredGames": "Gry na żywo"
   },
   "rules": {
     "requiredField": "To pole jest wymagane",
@@ -39,6 +45,8 @@
   },
   "game": {
     "team1": "Niebieska drużyna",
-    "team2": "Czerwona drużyna"
+    "team2": "Czerwona drużyna",
+    "classic": "Klasyczna",
+    "aram": "ARAM"
   }
 }

@@ -13,6 +13,7 @@ const account = ref<IAccount | null>(null)
 const currentGame = ref<ActiveGameModel | null>(null)
 const currentGameLoading = ref(false)
 const isShowCurrentGamePanel = ref(false)
+const gameNotFound = ref(false)
 
 async function getAccountDetails(gameName: string, tagLine: string) {
   loading.value = true
@@ -63,10 +64,13 @@ async function handleCurrentGameButton() {
 
   const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
 
-  if (response && response.gameMode === 'CLASSIC') {
+  if (response && (response.gameMode === 'CLASSIC' || response.gameMode === 'ARAM')) {
     currentGame.value = response
 
     isShowCurrentGamePanel.value = true
+  }
+  else {
+    gameNotFound.value = true
   }
 
   currentGameLoading.value = false
