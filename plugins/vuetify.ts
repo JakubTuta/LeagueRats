@@ -11,15 +11,19 @@ export default defineNuxtPlugin((app) => {
         light: {
           dark: false,
           colors: {
-            primary: '#A87676',
-            secondary: '#76A8A8',
+            'primary': '#A87676',
+            'secondary': '#76A8A8',
+            'league-blue': '#4cb4f5',
+            'league-red': '#f73b3b',
           },
         },
         dark: {
           dark: true,
           colors: {
-            primary: '#A87676',
-            secondary: '#87CACA',
+            'primary': '#A87676',
+            'secondary': '#87CACA',
+            'league-blue': '#4cb4f5',
+            'league-red': '#f73b3b',
           },
         },
       },
@@ -34,6 +38,9 @@ export default defineNuxtPlugin((app) => {
       VBtn: {
         variant: 'outlined',
       },
+    },
+    display: {
+      mobileBreakpoint: 'sm',
     },
   })
   app.vueApp.use(vuetify)

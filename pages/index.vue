@@ -220,7 +220,6 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
             v-for="game in featuredGames"
             :key="game.gameId"
             cols="12"
-            md="6"
             class="my-3"
           >
             <v-expansion-panels>

@@ -105,7 +105,7 @@ export const championIds: Record<number, string> = {
   33: 'Rammus',
   421: 'RekSai',
   526: 'Rell',
-  888: 'RenataGlasc',
+  888: 'Renata',
   58: 'Renekton',
   107: 'Rengar',
   92: 'Riven',

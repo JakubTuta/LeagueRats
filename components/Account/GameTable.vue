@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { championIds } from '~/helpers/championIds';
-import type { IAccount } from '~/models/accountModel';
-import type { ActiveGameModel, IParticipant } from '~/models/activeGame';
+import { useDisplay } from 'vuetify'
+import { championIds } from '~/helpers/championIds'
+import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
+import type { IAccount } from '~/models/accountModel'
+import type { ActiveGameModel, IParticipant } from '~/models/activeGame'
 
 const props = withDefaults(defineProps<{
   game: ActiveGameModel | null
@@ -13,17 +15,17 @@ const props = withDefaults(defineProps<{
 const { game, account } = toRefs(props)
 
 const router = useRouter()
+const { mobile } = useDisplay()
 
 const storageStore = useStorageStore()
 const restStore = useRestStore()
 
 const championIcons = ref<Record<number, string>>({})
+const summonerSpellIcons = ref<Record<number, string>>({})
 const team1 = ref<IParticipant[]>([])
 const team2 = ref<IParticipant[]>([])
 
 const opened = ref<string[]>([])
-
-const teamColors = ['blue', 'red']
 
 const championLanesMap: { [key: string]: number } = {
   TOP: 1,
@@ -77,12 +79,20 @@ watch(game, (newGame) => {
   if (!newGame)
     return
 
-  const championId = newGame.participants.map(participant => participant.championId)
+  newGame.participants.forEach(async (participant) => {
+    if (!championIcons.value[participant.championId]) {
+      const championName = championIds[participant.championId]
+      championIcons.value[participant.championId] = await storageStore.getChampionIcon(championName)
+    }
 
-  championId.forEach(async (championId) => {
-    if (!championIcons.value[championId]) {
-      const championName = championIds[championId]
-      championIcons.value[championId] = await storageStore.getChampionIcon(championName)
+    if (!summonerSpellIcons.value[participant.spell1Id]) {
+      const summonerSpellName = summonerSpellsIds[participant.spell1Id]
+      summonerSpellIcons.value[participant.spell1Id] = await storageStore.getSummonerSpellIcon(summonerSpellName)
+    }
+
+    if (!summonerSpellIcons.value[participant.spell2Id]) {
+      const summonerSpellName = summonerSpellsIds[participant.spell2Id]
+      summonerSpellIcons.value[participant.spell2Id] = await storageStore.getSummonerSpellIcon(summonerSpellName)
     }
   })
 }, { immediate: true })
@@ -104,15 +114,22 @@ function sendToProfile(gameName: string, tagLine: string) {
       md="6"
     >
       <v-card
-        :color="teamColors[teamIndex]"
-        variant="tonal"
+        :color="teamIndex === 0
+          ? 'league-blue'
+          : 'league-red'"
       >
         <v-card-title>
           {{ $t(`game.team${teamIndex + 1}`) }}
         </v-card-title>
 
         <v-card-text>
-          <v-list v-model:opened="opened">
+          <v-list
+            v-model:opened="opened"
+            lines="two"
+            :bg-color="teamIndex === 0
+              ? 'league-blue'
+              : 'league-red'"
+          >
             <v-list-item
               v-for="participant in team"
               :key="participant.puuid"
@@ -135,10 +152,32 @@ function sendToProfile(gameName: string, tagLine: string) {
               >
                 {{ participant.gameName }}
 
-                <span class="text-subtitle-2 ml-1 text-gray">
+                <span
+                  :class="teamIndex === 0
+                    ? 'text-subtitle-2 text-grey-darken-2 ml-1'
+                    : 'text-subtitle-2 text-grey-lighten-2 ml-1'"
+                >
                   #{{ participant.tagLine }}
                 </span>
               </v-list-item-title>
+
+              <v-list-item-action v-if="!mobile">
+                <v-img
+                  :src="summonerSpellIcons[participant.spell1Id]"
+                  style="position: absolute; right: 50px; top: 25%"
+                  lazy-src="~/assets/default.png"
+                  width="30"
+                  height="30"
+                />
+
+                <v-img
+                  :src="summonerSpellIcons[participant.spell2Id]"
+                  style="position: absolute; right: 10px; top: 25%"
+                  lazy-src="~/assets/default.png"
+                  width="30"
+                  height="30"
+                />
+              </v-list-item-action>
             </v-list-item>
           </v-list>
         </v-card-text>

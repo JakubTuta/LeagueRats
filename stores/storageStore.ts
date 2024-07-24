@@ -5,6 +5,7 @@ export const useStorageStore = defineStore('storage', () => {
   const { storage } = useFirebase()
 
   const championIconUrls: Record<string, string> = {}
+  const summonerSpellIconUrls: Record<string, string> = {}
 
   const getChampionIcon = async (championName: string) => {
     if (championIconUrls[championName]) {
@@ -20,7 +21,22 @@ export const useStorageStore = defineStore('storage', () => {
     return url
   }
 
+  const getSummonerSpellIcon = async (summonerSpellName: string) => {
+    if (summonerSpellIconUrls[summonerSpellName]) {
+      return summonerSpellIconUrls[summonerSpellName]
+    }
+
+    const storageRef = ref(storage, `summonerSpells/icons/${summonerSpellName}.png`)
+
+    const url = await getDownloadURL(storageRef)
+
+    summonerSpellIconUrls[summonerSpellName] = url
+
+    return url
+  }
+
   return {
     getChampionIcon,
+    getSummonerSpellIcon,
   }
 })
