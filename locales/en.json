@@ -40,7 +40,8 @@
     "currentGame": {
       "title": "Live game",
       "noGame": "User is not in a game",
-      "usersGame": "{username}'s game"
+      "usersGame": "{username}'s game",
+      "gameNotFound": "No active game found"
     }
   },
   "game": {

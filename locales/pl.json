@@ -40,7 +40,8 @@
     "currentGame": {
       "title": "Gra na żywo",
       "noGame": "Użytkownik nie gra w tej chwili",
-      "usersGame": "Gra użytkownika {username}"
+      "usersGame": "Gra użytkownika {username}",
+      "gameNotFound": "Nie znaleziono aktywnej gry"
     }
   },
   "game": {

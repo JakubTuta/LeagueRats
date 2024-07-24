@@ -16,8 +16,6 @@ const isShowCurrentGamePanel = ref(false)
 const gameNotFound = ref(false)
 
 async function getAccountDetails(gameName: string, tagLine: string) {
-  loading.value = true
-
   const databaseAccountDetails = await accountStore.getAccountDetails(gameName, tagLine)
 
   if (databaseAccountDetails) {
@@ -32,8 +30,6 @@ async function getAccountDetails(gameName: string, tagLine: string) {
     return apiAccountDetails
   }
 
-  loading.value = false
-
   return null
 }
 
@@ -42,7 +38,9 @@ onMounted(async () => {
   const gameName = userDetails.split('-')[0]
   const tagLine = userDetails.split('-')[1]
 
+  loading.value = true
   account.value = await getAccountDetails(gameName, tagLine)
+  loading.value = false
 })
 
 async function handleCurrentGameButton() {
@@ -67,6 +65,7 @@ async function handleCurrentGameButton() {
   if (response && (response.gameMode === 'CLASSIC' || response.gameMode === 'ARAM')) {
     currentGame.value = response
 
+    gameNotFound.value = false
     isShowCurrentGamePanel.value = true
   }
   else {
@@ -79,7 +78,15 @@ async function handleCurrentGameButton() {
 
 <template>
   <v-container>
-    <v-card>
+    <v-card v-if="loading">
+      <v-skeleton-loader
+        type="card"
+        width="90%"
+        class="mx-auto my-16"
+      />
+    </v-card>
+
+    <v-card v-else>
       <v-card-title
         align="center"
         class="my-4"
@@ -93,14 +100,31 @@ async function handleCurrentGameButton() {
 
       <v-card-text>
         <v-btn
-          :loading="currentGameLoading"
+          v-if="!gameNotFound"
           color="primary"
+          :loading="currentGameLoading"
           @click="handleCurrentGameButton"
         >
           {{ $t('profile.currentGame.title') }}
 
           <v-icon
             icon="mdi-menu-down"
+            size="x-large"
+            class="ml-2"
+          />
+        </v-btn>
+
+        <v-btn
+          v-else
+          v-tooltip="$t('profile.currentGame.gameNotFound')"
+          color="disabled"
+          :loading="currentGameLoading"
+          @click="handleCurrentGameButton"
+        >
+          {{ $t('profile.currentGame.title') }}
+
+          <v-icon
+            icon="mdi-refresh"
             size="x-large"
             class="ml-2"
           />
