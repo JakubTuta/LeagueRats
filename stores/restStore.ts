@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { IAccount } from '~/models/accountModel'
+import type { IAccount, ISummoner } from '~/models/account'
 import { ActiveGameModel } from '~/models/activeGame'
 
 export const useRestStore = defineStore('rest', () => {
@@ -42,6 +42,19 @@ export const useRestStore = defineStore('rest', () => {
       const response = await callFirebaseFunction('account_details_by_riot_id', { username, tag })
 
       return response as IAccount
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return null
+    }
+  }
+
+  const getSummonerDetailsByPuuid = async (puuid: string): Promise<ISummoner | null> => {
+    try {
+      const response = await callFirebaseFunction('summoner_details_by_puuid', { puuid })
+
+      return response as ISummoner
     }
     catch (error: any) {
       console.error(error)
@@ -107,6 +120,7 @@ export const useRestStore = defineStore('rest', () => {
   return {
     testConnection,
     getAccountDetailsByRiotId,
+    getSummonerDetailsByPuuid,
     getCurrentGameByPuuid,
     findChampionsPositions,
     getFeaturedGames,

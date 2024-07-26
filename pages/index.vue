@@ -67,28 +67,6 @@ function clearValues() {
   userNotExistSnackbar.value = false
 }
 
-async function getAccountDetails(gameName: string, tagLine: string) {
-  loading.value = true
-
-  const databaseAccountDetails = await accountStore.getAccountDetails(gameName, tagLine)
-
-  if (databaseAccountDetails) {
-    return databaseAccountDetails
-  }
-
-  const apiAccountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
-
-  if (apiAccountDetails) {
-    accountStore.saveAccount(apiAccountDetails)
-
-    return apiAccountDetails
-  }
-
-  loading.value = false
-
-  return null
-}
-
 async function sendToUserView() {
   if (!gameName.value || !tagLine.value || tagLine.value.length > 5) {
     showError()
@@ -96,9 +74,10 @@ async function sendToUserView() {
     return
   }
 
-  const accountDetails = await getAccountDetails(gameName.value, tagLine.value)
+  loading.value = true
 
-  if (!accountDetails) {
+  if (!(await accountStore.findAccount(gameName.value, tagLine.value))
+    && !(await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value))) {
     userNotExistSnackbar.value = true
 
     return

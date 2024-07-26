@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { IAccount } from '~/models/accountModel';
+import type { AccountModel } from '~/models/account';
+import { mapAccount } from '~/models/account';
 import type { ActiveGameModel } from '~/models/activeGame';
 import { useAccountStore } from '~/stores/accountStore';
 
@@ -9,29 +10,12 @@ const accountStore = useAccountStore()
 const restStore = useRestStore()
 
 const loading = ref(false)
-const account = ref<IAccount | null>(null)
+const account = ref<AccountModel | null>(null)
 const currentGame = ref<ActiveGameModel | null>(null)
 const currentGameLoading = ref(false)
 const isShowCurrentGamePanel = ref(false)
 const gameNotFound = ref(false)
-
-async function getAccountDetails(gameName: string, tagLine: string) {
-  const databaseAccountDetails = await accountStore.getAccountDetails(gameName, tagLine)
-
-  if (databaseAccountDetails) {
-    return databaseAccountDetails
-  }
-
-  const apiAccountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
-
-  if (apiAccountDetails) {
-    accountStore.saveAccount(apiAccountDetails)
-
-    return apiAccountDetails
-  }
-
-  return null
-}
+const accountNotFound = ref(false)
 
 onMounted(async () => {
   const userDetails = String(route.params.id)
@@ -39,7 +23,36 @@ onMounted(async () => {
   const tagLine = userDetails.split('-')[1]
 
   loading.value = true
-  account.value = await getAccountDetails(gameName, tagLine)
+  const tmpAccount = await accountStore.findAccount(gameName, tagLine)
+
+  if (tmpAccount) {
+    account.value = tmpAccount
+    loading.value = false
+
+    return
+  }
+
+  const accountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
+
+  if (!accountDetails) {
+    accountNotFound.value = true
+    loading.value = false
+
+    return
+  }
+
+  const summonerDetails = await restStore.getSummonerDetailsByPuuid(accountDetails.puuid)
+
+  if (!summonerDetails) {
+    accountNotFound.value = true
+    loading.value = false
+
+    return
+  }
+
+  account.value = mapAccount(accountDetails, summonerDetails)
+  accountStore.saveAccount(account.value)
+
   loading.value = false
 })
 

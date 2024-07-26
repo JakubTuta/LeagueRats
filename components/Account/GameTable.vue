@@ -2,7 +2,7 @@
 import { useDisplay } from 'vuetify'
 import { championIds } from '~/helpers/championIds'
 import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
-import type { IAccount } from '~/models/accountModel'
+import type { IAccount } from '~/models/account'
 import type { ActiveGameModel, IParticipant } from '~/models/activeGame'
 
 const props = withDefaults(defineProps<{

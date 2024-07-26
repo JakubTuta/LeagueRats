@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IAccount } from '~/models/accountModel';
+import type { IAccount } from '~/models/account';
 import type { ActiveGameModel } from '~/models/activeGame';
 
 const props = defineProps<{
