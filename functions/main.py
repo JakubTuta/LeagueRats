@@ -93,7 +93,7 @@ def summoner_details_by_puuid(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
-def league_details_by_summoner_id(
+def league_entry_by_summoner_id(
     req: https_fn.Request,
 ) -> https_fn.Response:
     base_url = "https://eun1.api.riotgames.com/lol/league/v4/entries/by-summoner"

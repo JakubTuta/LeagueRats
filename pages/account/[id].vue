@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import type { IAccount } from '~/models/account';
-import { mapAccount } from '~/models/account';
-import type { IActiveGame } from '~/models/activeGame';
-import { useAccountStore } from '~/stores/accountStore';
+import type { ChartOptions } from 'chart.js'
+import { Pie } from 'vue-chartjs'
+import type { IAccount } from '~/models/account'
+import { mapAccount } from '~/models/account'
+import type { IActiveGame } from '~/models/activeGame'
+import type { ILeagueEntry } from '~/models/leagueEntry'
+import { useAccountStore } from '~/stores/accountStore'
 
 const route = useRoute()
+const { t } = useI18n()
 
 const accountStore = useAccountStore()
 const restStore = useRestStore()
@@ -16,6 +20,21 @@ const currentGameLoading = ref(false)
 const isShowCurrentGamePanel = ref(false)
 const gameNotFound = ref(false)
 const accountNotFound = ref(false)
+const leagueEntry = ref<ILeagueEntry | null>(null)
+const chartData = ref<any>(null)
+
+const chartOptions: ChartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'right',
+    },
+    title: {
+      display: true,
+      text: 'Chart.js Pie Chart',
+    },
+  },
+}
 
 onMounted(async () => {
   const userDetails = String(route.params.id)
@@ -100,6 +119,26 @@ async function handleCurrentGameButton() {
 
   currentGameLoading.value = false
 }
+
+watch(account, async (newAccount) => {
+  if (newAccount) {
+    const tmpLeagueEntry = await restStore.getLeagueEntryBySummonerId(newAccount.id)
+
+    if (tmpLeagueEntry) {
+      chartData.value = {
+        labels: [t('profile.wins'), t('profile.losses')],
+        datasets: [
+          {
+            data: [tmpLeagueEntry.wins, tmpLeagueEntry.losses],
+            backgroundColor: ['#4cb4f5', '#f73b3b'],
+          },
+        ],
+      }
+    }
+
+    leagueEntry.value = tmpLeagueEntry
+  }
+})
 </script>
 
 <template>
@@ -125,42 +164,55 @@ async function handleCurrentGameButton() {
       </v-card-title>
 
       <v-card-text>
-        <v-btn
-          v-if="!gameNotFound"
-          color="primary"
-          :loading="currentGameLoading"
-          @click="handleCurrentGameButton"
+        <v-row
+          v-if="chartData"
         >
-          {{ $t('profile.currentGame.title') }}
+          <v-col cols="6">
+            <Pie
+              :data="chartData"
+              :options="chartOptions"
+            />
+          </v-col>
+        </v-row>
 
-          <v-icon
-            icon="mdi-menu-down"
-            size="x-large"
-            class="ml-2"
+        <v-row class="ma-2">
+          <v-btn
+            v-if="!gameNotFound"
+            color="primary"
+            :loading="currentGameLoading"
+            @click="handleCurrentGameButton"
+          >
+            {{ $t('profile.currentGame.title') }}
+
+            <v-icon
+              icon="mdi-menu-down"
+              size="x-large"
+              class="ml-2"
+            />
+          </v-btn>
+
+          <v-btn
+            v-else
+            v-tooltip="$t('profile.currentGame.gameNotFound')"
+            color="disabled"
+            :loading="currentGameLoading"
+            @click="handleCurrentGameButton"
+          >
+            {{ $t('profile.currentGame.title') }}
+
+            <v-icon
+              icon="mdi-refresh"
+              size="x-large"
+              class="ml-2"
+            />
+          </v-btn>
+
+          <AccountCurrentGame
+            v-if="isShowCurrentGamePanel"
+            :current-game="currentGame"
+            :account="account"
           />
-        </v-btn>
-
-        <v-btn
-          v-else
-          v-tooltip="$t('profile.currentGame.gameNotFound')"
-          color="disabled"
-          :loading="currentGameLoading"
-          @click="handleCurrentGameButton"
-        >
-          {{ $t('profile.currentGame.title') }}
-
-          <v-icon
-            icon="mdi-refresh"
-            size="x-large"
-            class="ml-2"
-          />
-        </v-btn>
-
-        <AccountCurrentGame
-          v-if="isShowCurrentGamePanel"
-          :current-game="currentGame"
-          :account="account"
-        />
+        </v-row>
       </v-card-text>
     </v-card>
   </v-container>

@@ -42,7 +42,9 @@
       "noGame": "Użytkownik nie gra w tej chwili",
       "usersGame": "Gra użytkownika {username}",
       "gameNotFound": "Nie znaleziono aktywnej gry"
-    }
+    },
+    "wins": "Wygrane",
+    "losses": "Przegrane"
   },
   "game": {
     "team1": "Niebieska drużyna",

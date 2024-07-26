@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { IAccountDetails, ISummoner } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
+import { type ILeagueEntry, mapLeagueEntry } from '~/models/leagueEntry'
 
 export const useRestStore = defineStore('rest', () => {
   const baseURL = 'https://europe-central2-league-rats.cloudfunctions.net'
@@ -30,6 +31,7 @@ export const useRestStore = defineStore('rest', () => {
     try {
       const response = await callFirebaseFunction('test_connection', {})
 
+      // eslint-disable-next-line no-console
       console.log(response)
     }
     catch (error: any) {
@@ -115,6 +117,20 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
+  const getLeagueEntryBySummonerId = async (summonerId: string): Promise<ILeagueEntry | null> => {
+    try {
+      const response = await callFirebaseFunction('league_entry_by_summoner_id', { summonerId })
+      const leagueEntry = mapLeagueEntry(response[0])
+
+      return leagueEntry
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return null
+    }
+  }
+
   return {
     testConnection,
     getAccountDetailsByRiotId,
@@ -122,5 +138,6 @@ export const useRestStore = defineStore('rest', () => {
     getCurrentGameByPuuid,
     findChampionsPositions,
     getFeaturedGames,
+    getLeagueEntryBySummonerId,
   }
 })

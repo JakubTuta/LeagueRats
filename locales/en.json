@@ -42,7 +42,9 @@
       "noGame": "User is not in a game",
       "usersGame": "{username}'s game",
       "gameNotFound": "No active game found"
-    }
+    },
+    "wins": "Wins",
+    "losses": "Losses"
   },
   "game": {
     "team1": "Blue team",
