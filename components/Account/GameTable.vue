@@ -3,10 +3,10 @@ import { useDisplay } from 'vuetify'
 import { championIds } from '~/helpers/championIds'
 import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
 import type { IAccount } from '~/models/account'
-import type { ActiveGameModel, IParticipant } from '~/models/activeGame'
+import type { IActiveGame, IParticipant } from '~/models/activeGame'
 
 const props = withDefaults(defineProps<{
-  game: ActiveGameModel | null
+  game: IActiveGame | null
   account?: IAccount | null
 }>(), {
   account: null,

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { IAccount } from '~/models/account';
-import type { ActiveGameModel } from '~/models/activeGame';
+import type { IActiveGame } from '~/models/activeGame';
 
 const props = defineProps<{
-  currentGame: ActiveGameModel | null
+  currentGame: IActiveGame | null
   account: IAccount | null
 }>()
 

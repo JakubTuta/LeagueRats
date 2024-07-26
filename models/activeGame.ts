@@ -1,4 +1,4 @@
-import { type DocumentData, type DocumentReference, Timestamp } from 'firebase/firestore'
+import { type DocumentData, Timestamp } from 'firebase/firestore'
 
 export interface IGameCustomizationObject {
   category: string
@@ -51,60 +51,16 @@ export interface IActiveGame {
   participants: IParticipant[]
 }
 
-export class ActiveGameModel implements IActiveGame {
-  gameId: number
-  gameType: string
-  gameStartTime: Timestamp
-  mapId: number
-  gameLength: number
-  platformId: string
-  gameMode: string
-  bannedChampions: IBannedChampion[]
-  gameQueueConfigId: number
-  observers: IObserver
-  participants: IParticipant[]
+export function mapActiveGame(document: DocumentData): IActiveGame {
+  const documentData = document.data() as IActiveGame
+  // @ts-expect-error gameStartTime is a number
+  documentData.gameStartTime = new Timestamp(documentData.gameStartTime / 1000, 0)
+  documentData.participants = documentData.participants.map(mapParticipant)
 
-  reference: DocumentReference | null
-
-  constructor(data: IActiveGame, reference: DocumentReference | null) {
-    this.gameId = data.gameId
-    this.gameType = data.gameType
-    //   @ts-expect-error gameStartTime is a number
-    this.gameStartTime = new Timestamp(data.gameStartTime / 1000, 0)
-    this.mapId = data.mapId
-    this.gameLength = data.gameLength
-    this.platformId = data.platformId
-    this.gameMode = data.gameMode
-    this.bannedChampions = data.bannedChampions
-    this.gameQueueConfigId = data.gameQueueConfigId
-    this.observers = data.observers
-    this.participants = data.participants.map(mapParticipant)
-
-    this.reference = reference
-  }
-
-  toMap(): IActiveGame {
-    return {
-      gameId: this.gameId,
-      gameType: this.gameType,
-      gameStartTime: this.gameStartTime,
-      mapId: this.mapId,
-      gameLength: this.gameLength,
-      platformId: this.platformId,
-      gameMode: this.gameMode,
-      bannedChampions: this.bannedChampions,
-      gameQueueConfigId: this.gameQueueConfigId,
-      observers: this.observers,
-      participants: this.participants,
-    }
-  }
+  return documentData
 }
 
-export function mapActiveGame(document: DocumentData) {
-  return new ActiveGameModel(document.data(), document.ref)
-}
-
-function mapParticipant(participant: IParticipant) {
+function mapParticipant(participant: IParticipant): IParticipant {
   return {
     ...participant,
     gameName: participant.riotId.split('#')[0],

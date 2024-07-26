@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { lengthRule } from '~/helpers/rules';
-import type { ActiveGameModel } from '~/models/activeGame';
+import type { IActiveGame } from '~/models/activeGame';
 import { useAccountStore } from '~/stores/accountStore';
 import { useRestStore } from '~/stores/restStore';
 
@@ -18,7 +18,7 @@ const gameNameError = ref('')
 const tagLineError = ref('')
 const loading = ref(false)
 const userNotExistSnackbar = ref(false)
-const featuredGames = ref<ActiveGameModel[]>([])
+const featuredGames = ref<IActiveGame[]>([])
 // const region = ref('europe')
 
 const errorMessage = t('rules.requiredField')
@@ -77,7 +77,7 @@ async function sendToUserView() {
   loading.value = true
 
   if (!(await accountStore.findAccount(gameName.value, tagLine.value))
-    && !(await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value))) {
+    || !(await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value))) {
     userNotExistSnackbar.value = true
 
     return
@@ -229,7 +229,6 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
 
                 <v-expansion-panel-text>
                   <AccountGameTable
-                    v-expansion-panel-text
                     :game="game"
                   />
                 </v-expansion-panel-text>

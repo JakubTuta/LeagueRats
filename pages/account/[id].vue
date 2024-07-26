@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { AccountModel } from '~/models/account';
+import type { IAccount } from '~/models/account';
 import { mapAccount } from '~/models/account';
-import type { ActiveGameModel } from '~/models/activeGame';
+import type { IActiveGame } from '~/models/activeGame';
 import { useAccountStore } from '~/stores/accountStore';
 
 const route = useRoute()
@@ -10,8 +10,8 @@ const accountStore = useAccountStore()
 const restStore = useRestStore()
 
 const loading = ref(false)
-const account = ref<AccountModel | null>(null)
-const currentGame = ref<ActiveGameModel | null>(null)
+const account = ref<IAccount | null>(null)
+const currentGame = ref<IActiveGame | null>(null)
 const currentGameLoading = ref(false)
 const isShowCurrentGamePanel = ref(false)
 const gameNotFound = ref(false)
@@ -55,6 +55,19 @@ onMounted(async () => {
 
   loading.value = false
 })
+
+onUnmounted(() => {
+  clearValues()
+})
+
+function clearValues() {
+  account.value = null
+  currentGame.value = null
+  currentGameLoading.value = false
+  isShowCurrentGamePanel.value = false
+  gameNotFound.value = false
+  accountNotFound.value = false
+}
 
 async function handleCurrentGameButton() {
   if (isShowCurrentGamePanel.value) {

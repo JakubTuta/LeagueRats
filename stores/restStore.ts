@@ -1,6 +1,6 @@
 import axios from 'axios'
-import type { IAccount, ISummoner } from '~/models/account'
-import { ActiveGameModel } from '~/models/activeGame'
+import type { IAccountDetails, ISummoner } from '~/models/account'
+import type { IActiveGame } from '~/models/activeGame'
 
 export const useRestStore = defineStore('rest', () => {
   const baseURL = 'https://europe-central2-league-rats.cloudfunctions.net'
@@ -37,11 +37,11 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getAccountDetailsByRiotId = async (username: string, tag: string): Promise<IAccount | null> => {
+  const getAccountDetailsByRiotId = async (username: string, tag: string): Promise<IAccountDetails | null> => {
     try {
       const response = await callFirebaseFunction('account_details_by_riot_id', { username, tag })
 
-      return response as IAccount
+      return response as IAccountDetails
     }
     catch (error: any) {
       console.error(error)
@@ -63,17 +63,17 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getCurrentGameByPuuid = async (puuid: string): Promise<ActiveGameModel | null> => {
+  const getCurrentGameByPuuid = async (puuid: string): Promise<IActiveGame | null> => {
     try {
       const response = await callFirebaseFunction('active_game_by_puuid', { puuid })
 
-      const model = new ActiveGameModel(response, null)
+      const activeGame = response as IActiveGame
 
-      if (model.gameType !== 'MATCHED' || (model.gameMode !== 'CLASSIC' && model.gameMode !== 'ARAM')) {
+      if (activeGame.gameType !== 'MATCHED' || (activeGame.gameMode !== 'CLASSIC' && activeGame.gameMode !== 'ARAM')) {
         return null
       }
 
-      return model
+      return activeGame
     }
     // eslint-disable-next-line unused-imports/no-unused-vars
     catch (error: any) {
@@ -94,15 +94,13 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getFeaturedGames = async (): Promise<ActiveGameModel[]> => {
+  const getFeaturedGames = async (): Promise<IActiveGame[]> => {
     try {
       const response = await callFirebaseFunction('featured_games', {})
 
       const acceptableGameModes = ['CLASSIC', 'ARAM']
 
-      const games = response.gameList.map((game: any) => new ActiveGameModel(game, null))
-        .filter((game: ActiveGameModel) => game.gameType === 'MATCHED')
-        .filter((game: ActiveGameModel) => acceptableGameModes.includes(game.gameMode))
+      const games = response.gameList.filter((game: IActiveGame) => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
 
       if (games.length > 2) {
         return games.slice(0, 2)
