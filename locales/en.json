@@ -32,9 +32,23 @@
   },
   "regions": {
     "title": "Regions",
-    "europe": "Europe",
-    "america": "Americas",
-    "asia": "Asia"
+    "kr": "South Korea",
+    "cn": "China",
+    "na": "North America",
+    "euw": "Europe West",
+    "eune": "Europe Nordic & East",
+    "oce": "Oceania",
+    "ru": "Russia",
+    "tr": "Turkey",
+    "br": "Brazil",
+    "lan": "Latin America North",
+    "las": "Latin America South",
+    "jp": "Japan",
+    "tw": "Taiwan",
+    "sg": "Singapore, Malaysia, Indonesia",
+    "th": "Thailand",
+    "me": "Middle East",
+    "esports": "Esport"
   },
   "profile": {
     "currentGame": {

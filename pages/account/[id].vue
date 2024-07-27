@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { ChartOptions } from 'chart.js'
-import { Pie } from 'vue-chartjs'
 import type { IAccount } from '~/models/account'
 import { mapAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
@@ -8,7 +6,6 @@ import type { ILeagueEntry } from '~/models/leagueEntry'
 import { useAccountStore } from '~/stores/accountStore'
 
 const route = useRoute()
-const { t } = useI18n()
 
 const accountStore = useAccountStore()
 const restStore = useRestStore()
@@ -21,20 +18,6 @@ const isShowCurrentGamePanel = ref(false)
 const gameNotFound = ref(false)
 const accountNotFound = ref(false)
 const leagueEntry = ref<ILeagueEntry | null>(null)
-const chartData = ref<any>(null)
-
-const chartOptions: ChartOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'right',
-    },
-    title: {
-      display: true,
-      text: 'Chart.js Pie Chart',
-    },
-  },
-}
 
 onMounted(async () => {
   const userDetails = String(route.params.id)
@@ -79,6 +62,12 @@ onUnmounted(() => {
   clearValues()
 })
 
+watch(account, async (newAccount) => {
+  if (newAccount) {
+    leagueEntry.value = await restStore.getLeagueEntryBySummonerId(newAccount.id)
+  }
+})
+
 function clearValues() {
   account.value = null
   currentGame.value = null
@@ -119,26 +108,6 @@ async function handleCurrentGameButton() {
 
   currentGameLoading.value = false
 }
-
-watch(account, async (newAccount) => {
-  if (newAccount) {
-    const tmpLeagueEntry = await restStore.getLeagueEntryBySummonerId(newAccount.id)
-
-    if (tmpLeagueEntry) {
-      chartData.value = {
-        labels: [t('profile.wins'), t('profile.losses')],
-        datasets: [
-          {
-            data: [tmpLeagueEntry.wins, tmpLeagueEntry.losses],
-            backgroundColor: ['#4cb4f5', '#f73b3b'],
-          },
-        ],
-      }
-    }
-
-    leagueEntry.value = tmpLeagueEntry
-  }
-})
 </script>
 
 <template>
@@ -164,17 +133,6 @@ watch(account, async (newAccount) => {
       </v-card-title>
 
       <v-card-text>
-        <v-row
-          v-if="chartData"
-        >
-          <v-col cols="6">
-            <Pie
-              :data="chartData"
-              :options="chartOptions"
-            />
-          </v-col>
-        </v-row>
-
         <v-row class="ma-2">
           <v-btn
             v-if="!gameNotFound"

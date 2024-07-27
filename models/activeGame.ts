@@ -1,4 +1,4 @@
-import { type DocumentData, Timestamp } from 'firebase/firestore'
+import { Timestamp } from 'firebase/firestore'
 
 export interface IGameCustomizationObject {
   category: string
@@ -51,13 +51,12 @@ export interface IActiveGame {
   participants: IParticipant[]
 }
 
-export function mapActiveGame(document: DocumentData): IActiveGame {
-  const documentData = document.data() as IActiveGame
+export function mapActiveGame(data: IActiveGame): IActiveGame {
   // @ts-expect-error gameStartTime is a number
-  documentData.gameStartTime = new Timestamp(documentData.gameStartTime / 1000, 0)
-  documentData.participants = documentData.participants.map(mapParticipant)
+  data.gameStartTime = new Timestamp(data.gameStartTime / 1000, 0)
+  data.participants = data.participants.map(mapParticipant)
 
-  return documentData
+  return data
 }
 
 function mapParticipant(participant: IParticipant): IParticipant {

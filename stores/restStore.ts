@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { IAccountDetails, ISummoner } from '~/models/account'
-import type { IActiveGame } from '~/models/activeGame'
+import { type IActiveGame, mapActiveGame } from '~/models/activeGame'
 import { type ILeagueEntry, mapLeagueEntry } from '~/models/leagueEntry'
 
 export const useRestStore = defineStore('rest', () => {
@@ -102,7 +102,8 @@ export const useRestStore = defineStore('rest', () => {
 
       const acceptableGameModes = ['CLASSIC', 'ARAM']
 
-      const games = response.gameList.filter((game: IActiveGame) => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
+      const games = response.gameList.map(mapActiveGame)
+        .filter((game: IActiveGame) => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
 
       if (games.length > 2) {
         return games.slice(0, 2)

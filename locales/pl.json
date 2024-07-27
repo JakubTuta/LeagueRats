@@ -32,9 +32,23 @@
   },
   "regions": {
     "title": "Regiony",
-    "europe": "Europa",
-    "america": "Ameryki",
-    "asia": "Azja"
+    "kr": "Korea Południowa",
+    "cn": "Chiny",
+    "na": "Ameryka Północna",
+    "euw": "Europa Zachodnia",
+    "eune": "Europa Północno-Wschodnia",
+    "oce": "Oceania",
+    "ru": "Rosja",
+    "tr": "Turcja",
+    "br": "Brazylia",
+    "lan": "Ameryka Łacińska Północ",
+    "las": "Ameryka Łacińska Południe",
+    "jp": "Japonia",
+    "tw": "Tajwan",
+    "sg": "Singapur, Malezja, Indonezja",
+    "th": "Tajlandia",
+    "me": "Bliski Wschód",
+    "esports": "Esport"
   },
   "profile": {
     "currentGame": {
@@ -44,7 +58,8 @@
       "gameNotFound": "Nie znaleziono aktywnej gry"
     },
     "wins": "Wygrane",
-    "losses": "Przegrane"
+    "losses": "Przegrane",
+    "winrate": "Współczynnik wygranych"
   },
   "game": {
     "team1": "Niebieska drużyna",
