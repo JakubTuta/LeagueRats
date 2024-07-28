@@ -6,6 +6,7 @@ export const useStorageStore = defineStore('storage', () => {
 
   const championIconUrls: Record<string, string> = {}
   const summonerSpellIconUrls: Record<string, string> = {}
+  const rankIcons: Record<string, string> = {}
 
   const getChampionIcon = async (championName: string) => {
     if (championIconUrls[championName]) {
@@ -35,8 +36,23 @@ export const useStorageStore = defineStore('storage', () => {
     return url
   }
 
+  const getRankIcon = async (rank: string) => {
+    if (rankIcons[rank]) {
+      return rankIcons[rank]
+    }
+
+    const storageRef = ref(storage, `ranks/icons/${rank}.png`)
+
+    const url = await getDownloadURL(storageRef)
+
+    rankIcons[rank] = url
+
+    return url
+  }
+
   return {
     getChampionIcon,
     getSummonerSpellIcon,
+    getRankIcon,
   }
 })

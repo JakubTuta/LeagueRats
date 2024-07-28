@@ -5,9 +5,10 @@ import type { IActiveGame } from '~/models/activeGame';
 const props = defineProps<{
   currentGame: IActiveGame | null
   account: IAccount | null
+  loading: boolean
 }>()
 
-const { currentGame, account } = toRefs(props)
+const { currentGame, account, loading } = toRefs(props)
 </script>
 
 <template>
@@ -26,5 +27,11 @@ const { currentGame, account } = toRefs(props)
         :account="account"
       />
     </v-card-text>
+  </v-card>
+
+  <v-card v-else-if="account && !currentGame && !loading">
+    <v-card-title>
+      {{ $t('profile.currentGame.noGame', {"username": account.gameName}) }}
+    </v-card-title>
   </v-card>
 </template>

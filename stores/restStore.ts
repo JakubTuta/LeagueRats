@@ -69,7 +69,7 @@ export const useRestStore = defineStore('rest', () => {
     try {
       const response = await callFirebaseFunction('active_game_by_puuid', { puuid })
 
-      const activeGame = response as IActiveGame
+      const activeGame = mapActiveGame(response)
 
       if (activeGame.gameType !== 'MATCHED' || (activeGame.gameMode !== 'CLASSIC' && activeGame.gameMode !== 'ARAM')) {
         return null
@@ -118,17 +118,17 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getLeagueEntryBySummonerId = async (summonerId: string): Promise<ILeagueEntry | null> => {
+  const getLeagueEntryBySummonerId = async (summonerId: string): Promise<ILeagueEntry[]> => {
     try {
       const response = await callFirebaseFunction('league_entry_by_summoner_id', { summonerId })
-      const leagueEntry = mapLeagueEntry(response[0])
+      const leagueEntry = response.map(mapLeagueEntry)
 
       return leagueEntry
     }
     catch (error: any) {
       console.error(error)
 
-      return null
+      return []
     }
   }
 

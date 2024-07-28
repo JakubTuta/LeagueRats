@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify'
 import type { IAccount } from '~/models/account'
 import { mapAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
@@ -6,6 +7,8 @@ import type { ILeagueEntry } from '~/models/leagueEntry'
 import { useAccountStore } from '~/stores/accountStore'
 
 const route = useRoute()
+const { mobile } = useDisplay()
+const { t } = useI18n()
 
 const accountStore = useAccountStore()
 const restStore = useRestStore()
@@ -13,11 +16,16 @@ const restStore = useRestStore()
 const loading = ref(false)
 const account = ref<IAccount | null>(null)
 const currentGame = ref<IActiveGame | null>(null)
-const currentGameLoading = ref(false)
-const isShowCurrentGamePanel = ref(false)
+const tabLoading = ref(false)
 const gameNotFound = ref(false)
 const accountNotFound = ref(false)
-const leagueEntry = ref<ILeagueEntry | null>(null)
+const leagueEntry = ref<ILeagueEntry[]>([])
+const selectedTab = ref(0)
+
+const tabs = computed(() => [
+  { text: t('profile.rank.title'), value: 0 },
+  { text: t('profile.currentGame.title'), value: 1 },
+])
 
 onMounted(async () => {
   const userDetails = String(route.params.id)
@@ -64,35 +72,31 @@ onUnmounted(() => {
 
 watch(account, async (newAccount) => {
   if (newAccount) {
+    tabLoading.value = true
     leagueEntry.value = await restStore.getLeagueEntryBySummonerId(newAccount.id)
+    tabLoading.value = false
   }
 })
+
+watch(selectedTab, (newTab) => {
+  if (newTab === 1) {
+    findCurrentGame()
+  }
+}, { immediate: true })
 
 function clearValues() {
   account.value = null
   currentGame.value = null
-  currentGameLoading.value = false
-  isShowCurrentGamePanel.value = false
+  tabLoading.value = false
   gameNotFound.value = false
   accountNotFound.value = false
 }
 
-async function handleCurrentGameButton() {
-  if (isShowCurrentGamePanel.value) {
-    isShowCurrentGamePanel.value = false
-
-    return
-  }
-
-  if (!account.value)
+async function findCurrentGame() {
+  if (!account.value || currentGame.value)
     return
 
-  currentGameLoading.value = true
-
-  if (currentGame.value) {
-    isShowCurrentGamePanel.value = true
-    currentGameLoading.value = false
-  }
+  tabLoading.value = true
 
   const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
 
@@ -100,13 +104,12 @@ async function handleCurrentGameButton() {
     currentGame.value = response
 
     gameNotFound.value = false
-    isShowCurrentGamePanel.value = true
   }
   else {
     gameNotFound.value = true
   }
 
-  currentGameLoading.value = false
+  tabLoading.value = false
 }
 </script>
 
@@ -123,54 +126,44 @@ async function handleCurrentGameButton() {
     <v-card v-else>
       <v-card-title
         align="center"
-        class="my-4"
+        class="text-h5 my-4"
       >
         {{ account?.gameName || '' }}
 
-        <span class="test-subtitle-1 ml-1 text-gray">
+        <span class="ml-1 text-gray font-italic">
           #{{ account?.tagLine || '' }}
         </span>
       </v-card-title>
 
+      <v-tabs
+        v-model="selectedTab"
+        color="primary"
+        align-tabs="center"
+        grow
+        :show-arrows="mobile"
+        :items="tabs"
+      />
+
       <v-card-text>
-        <v-row class="ma-2">
-          <v-btn
-            v-if="!gameNotFound"
-            color="primary"
-            :loading="currentGameLoading"
-            @click="handleCurrentGameButton"
-          >
-            {{ $t('profile.currentGame.title') }}
-
-            <v-icon
-              icon="mdi-menu-down"
-              size="x-large"
-              class="ml-2"
-            />
-          </v-btn>
-
-          <v-btn
-            v-else
-            v-tooltip="$t('profile.currentGame.gameNotFound')"
-            color="disabled"
-            :loading="currentGameLoading"
-            @click="handleCurrentGameButton"
-          >
-            {{ $t('profile.currentGame.title') }}
-
-            <v-icon
-              icon="mdi-refresh"
-              size="x-large"
-              class="ml-2"
-            />
-          </v-btn>
-
-          <AccountCurrentGame
-            v-if="isShowCurrentGamePanel"
-            :current-game="currentGame"
-            :account="account"
+        <v-card v-if="tabLoading">
+          <v-skeleton-loader
+            type="card"
+            width="90%"
+            class="mx-auto my-8"
           />
-        </v-row>
+        </v-card>
+
+        <AccountRank
+          v-if="selectedTab === 0"
+          :league-entries="leagueEntry"
+        />
+
+        <AccountCurrentGame
+          v-if="selectedTab === 1"
+          :current-game="currentGame"
+          :account="account"
+          :loading="tabLoading"
+        />
       </v-card-text>
     </v-card>
   </v-container>

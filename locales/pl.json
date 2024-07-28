@@ -53,18 +53,27 @@
   "profile": {
     "currentGame": {
       "title": "Gra na żywo",
-      "noGame": "Użytkownik nie gra w tej chwili",
+      "noGame": "{username} nie jest w grze",
       "usersGame": "Gra użytkownika {username}",
       "gameNotFound": "Nie znaleziono aktywnej gry"
     },
-    "wins": "Wygrane",
-    "losses": "Przegrane",
-    "winrate": "Współczynnik wygranych"
+    "rank": {
+      "title": "Ranga",
+      "wins": "Wygrane",
+      "losses": "Przegrane",
+      "winRate": "Win rate",
+      "games": "Gry"
+    }
   },
   "game": {
     "team1": "Niebieska drużyna",
     "team2": "Czerwona drużyna",
     "classic": "Klasyczna",
     "aram": "ARAM"
+  },
+  "queueTypes": {
+    "RANKED_SOLO_5x5": "Solo/Duo",
+    "RANKED_FLEX_SR": "Flex",
+    "CHERRY": "ARENA"
   }
 }

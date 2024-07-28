@@ -244,6 +244,8 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
           <template #append>
             <v-btn
               icon
+              size="small"
+              :loading="loading"
               @click="sendToUserView"
             >
               <v-icon
