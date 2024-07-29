@@ -19,111 +19,111 @@ const tagLineError = ref('')
 const loading = ref(false)
 const userNotExistSnackbar = ref(false)
 const featuredGames = ref<IActiveGame[]>([])
-const region = ref('euw')
+// const region = ref('euw')
 
 const errorMessage = t('rules.requiredField')
 
-const regions = computed(() => [
-  {
-    title: t('regions.kr'),
-    // subtitle: 'KR',
-    value: 'kr',
-  },
-  {
-    title: t('regions.cn'),
-    // subtitle: 'CN',
-    value: 'cn',
-  },
-  {
-    title: t('regions.na'),
-    // subtitle: 'NA',
-    value: 'na',
-  },
-  {
-    title: t('regions.euw'),
-    // subtitle: 'EUW',
-    value: 'euw',
-  },
-  {
-    title: t('regions.eune'),
-    // subtitle: 'EUNE',
-    value: 'eune',
-  },
-  {
-    title: t('regions.oce'),
-    // subtitle: 'OCE',
-    value: 'oce',
-  },
-  {
-    title: t('regions.ru'),
-    // subtitle: 'RU',
-    value: 'ru',
-  },
-  {
-    title: t('regions.tr'),
-    // subtitle: 'TR',
-    value: 'tr',
-  },
-  {
-    title: t('regions.br'),
-    // subtitle: 'BR',
-    value: 'br',
-  },
-  {
-    title: t('regions.lan'),
-    // subtitle: 'LAN',
-    value: 'lan',
-  },
-  {
-    title: t('regions.las'),
-    // subtitle: 'LAS',
-    value: 'las',
-  },
-  {
-    title: t('regions.jp'),
-    // subtitle: 'JP',
-    value: 'jp',
-  },
-  {
-    title: t('regions.tw'),
-    // subtitle: 'TW',
-    value: 'tw',
-  },
-  {
-    title: t('regions.sg'),
-    // subtitle: 'SG',
-    value: 'sg',
-  },
-  {
-    title: t('regions.th'),
-    // subtitle: 'TH',
-    value: 'th',
-  },
-  {
-    title: t('regions.me'),
-    // subtitle: 'ME',
-    value: 'me',
-  },
-  {
-    title: t('regions.esports'),
-    // subtitle: 'ESPORTS',
-    value: 'esports',
-  },
-])
+// const regions = computed(() => [
+//   {
+//     title: t('regions.kr'),
+//     // subtitle: 'KR',
+//     value: 'kr',
+//   },
+//   {
+//     title: t('regions.cn'),
+//     // subtitle: 'CN',
+//     value: 'cn',
+//   },
+//   {
+//     title: t('regions.na'),
+//     // subtitle: 'NA',
+//     value: 'na',
+//   },
+//   {
+//     title: t('regions.euw'),
+//     // subtitle: 'EUW',
+//     value: 'euw',
+//   },
+//   {
+//     title: t('regions.eune'),
+//     // subtitle: 'EUNE',
+//     value: 'eune',
+//   },
+//   {
+//     title: t('regions.oce'),
+//     // subtitle: 'OCE',
+//     value: 'oce',
+//   },
+//   {
+//     title: t('regions.ru'),
+//     // subtitle: 'RU',
+//     value: 'ru',
+//   },
+//   {
+//     title: t('regions.tr'),
+//     // subtitle: 'TR',
+//     value: 'tr',
+//   },
+//   {
+//     title: t('regions.br'),
+//     // subtitle: 'BR',
+//     value: 'br',
+//   },
+//   {
+//     title: t('regions.lan'),
+//     // subtitle: 'LAN',
+//     value: 'lan',
+//   },
+//   {
+//     title: t('regions.las'),
+//     // subtitle: 'LAS',
+//     value: 'las',
+//   },
+//   {
+//     title: t('regions.jp'),
+//     // subtitle: 'JP',
+//     value: 'jp',
+//   },
+//   {
+//     title: t('regions.tw'),
+//     // subtitle: 'TW',
+//     value: 'tw',
+//   },
+//   {
+//     title: t('regions.sg'),
+//     // subtitle: 'SG',
+//     value: 'sg',
+//   },
+//   {
+//     title: t('regions.th'),
+//     // subtitle: 'TH',
+//     value: 'th',
+//   },
+//   {
+//     title: t('regions.me'),
+//     // subtitle: 'ME',
+//     value: 'me',
+//   },
+//   {
+//     title: t('regions.esports'),
+//     // subtitle: 'ESPORTS',
+//     value: 'esports',
+//   },
+// ])
 
 onMounted(async () => {
   featuredGames.value = await restStore.getFeaturedGames()
 })
 
-function regionItemsProps(item: any) {
-  return {
-    title: item.title,
-    // subtitle: item.subtitle,
-    value: item.value,
-    subtitle: item.value.toUpperCase(),
-    lines: 'two',
-  }
-}
+// function regionItemsProps(item: any) {
+//   return {
+//     title: item.title,
+//     // subtitle: item.subtitle,
+//     value: item.value,
+//     subtitle: item.value.toUpperCase(),
+//     lines: 'two',
+//   }
+// }
 
 function showError() {
   if (!gameName.value) {
@@ -200,23 +200,25 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
       align-content="center"
       class="my-16"
     >
-      <v-col
+      <!--
+        <v-col
         cols="12"
         sm="3"
-      >
+        >
         <v-select
-          v-model="region"
-          :items="regions"
-          :item-props="regionItemsProps"
-          :label="$t('regions.title')"
-          prepend-inner-icon="mdi-earth"
-          variant="outlined"
+        v-model="region"
+        :items="regions"
+        :item-props="regionItemsProps"
+        :label="$t('regions.title')"
+        prepend-inner-icon="mdi-earth"
+        variant="outlined"
         />
-      </v-col>
+        </v-col>
+      -->
 
       <v-col
         cols="12"
-        sm="6"
+        sm="8"
       >
         <v-text-field
           v-model="gameName"
@@ -230,7 +232,7 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
 
       <v-col
         cols="12"
-        sm="3"
+        sm="4"
       >
         <v-text-field
           v-model="tagLine"

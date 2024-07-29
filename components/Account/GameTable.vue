@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { championIds } from '~/helpers/championIds'
-import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
-import type { IAccount } from '~/models/account'
-import type { IActiveGame, IParticipant } from '~/models/activeGame'
+import { useDisplay } from 'vuetify';
+import type { IAccount } from '~/models/account';
+import type { IActiveGame, IParticipant } from '~/models/activeGame';
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -18,10 +16,10 @@ const router = useRouter()
 const { mobile } = useDisplay()
 
 const storageStore = useStorageStore()
+const { championIcons, summonerSpellIcons } = storeToRefs(storageStore)
+
 const restStore = useRestStore()
 
-const championIcons = ref<Record<number, string>>({})
-const summonerSpellIcons = ref<Record<number, string>>({})
 const team1 = ref<IParticipant[]>([])
 const team2 = ref<IParticipant[]>([])
 
@@ -79,21 +77,10 @@ watch(game, (newGame) => {
   if (!newGame)
     return
 
-  newGame.participants.forEach(async (participant) => {
-    if (!championIcons.value[participant.championId]) {
-      const championName = championIds[participant.championId]
-      championIcons.value[participant.championId] = await storageStore.getChampionIcon(championName)
-    }
-
-    if (!summonerSpellIcons.value[participant.spell1Id]) {
-      const summonerSpellName = summonerSpellsIds[participant.spell1Id]
-      summonerSpellIcons.value[participant.spell1Id] = await storageStore.getSummonerSpellIcon(summonerSpellName)
-    }
-
-    if (!summonerSpellIcons.value[participant.spell2Id]) {
-      const summonerSpellName = summonerSpellsIds[participant.spell2Id]
-      summonerSpellIcons.value[participant.spell2Id] = await storageStore.getSummonerSpellIcon(summonerSpellName)
-    }
+  newGame.participants.forEach((participant) => {
+    storageStore.getChampionIcon(participant.championId)
+    storageStore.getSummonerSpellIcon(participant.spell1Id)
+    storageStore.getSummonerSpellIcon(participant.spell2Id)
   })
 }, { immediate: true })
 

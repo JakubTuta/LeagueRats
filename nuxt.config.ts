@@ -56,7 +56,6 @@ export default defineNuxtConfig({
       storageBucket: process.env.STORAGE_BUCKET,
       messagingSenderId: process.env.MESSAGING_SENDER_ID,
       appId: process.env.APP_ID,
-      riotApiKey: process.env.RIOT_API_KEY,
     },
   },
 

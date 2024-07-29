@@ -244,3 +244,41 @@ def featured_games(
         return https_fn.Response(
             json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
         )
+
+
+@https_fn.on_request(region="europe-central2", cors=cors_options)
+def champion_mastery_by_puuid(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    base_url = "https://eun1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid"
+
+    try:
+        request_data = req.get_json(force=True)
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    puuid = request_data.get("puuid", None)
+    if not puuid:
+        return https_fn.Response(json.dumps({"error": "Missing puuid"}), status=400)
+
+    request_url = f"{base_url}/{puuid}"
+
+    try:
+        response = requests.get(
+            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+        )
+
+        # filtered_champions = list(
+        #     filter(lambda champion: champion["championPoints"] > 0, response.json())
+        # )
+
+        return https_fn.Response(
+            json.dumps(response.json()), status=response.status_code
+        )
+
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
+        )

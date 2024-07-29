@@ -1,56 +1,59 @@
-import { getDownloadURL, ref } from 'firebase/storage'
+import { getDownloadURL, ref as storageRef } from 'firebase/storage'
+import { championIds } from '~/helpers/championIds'
+import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
 import { useFirebase } from '~/helpers/useFirebase'
 
 export const useStorageStore = defineStore('storage', () => {
   const { storage } = useFirebase()
 
-  const championIconUrls: Record<string, string> = {}
-  const summonerSpellIconUrls: Record<string, string> = {}
-  const rankIcons: Record<string, string> = {}
+  const championIcons = ref<Record<number, string>>({})
+  const summonerSpellIcons = ref<Record<number, string>>({})
+  const rankIcons = ref<Record<string, string>>({})
 
-  const getChampionIcon = async (championName: string) => {
-    if (championIconUrls[championName]) {
-      return championIconUrls[championName]
+  const getChampionIcon = async (championId: number) => {
+    if (championIcons.value[championId]) {
+      return
     }
 
-    const storageRef = ref(storage, `champions/icons/${championName}.png`)
+    const championName = championIds[championId]
 
-    const url = await getDownloadURL(storageRef)
+    const championsRef = storageRef(storage, `champions/icons/${championName}.png`)
 
-    championIconUrls[championName] = url
+    const url = await getDownloadURL(championsRef)
 
-    return url
+    championIcons.value[championId] = url
   }
 
-  const getSummonerSpellIcon = async (summonerSpellName: string) => {
-    if (summonerSpellIconUrls[summonerSpellName]) {
-      return summonerSpellIconUrls[summonerSpellName]
+  const getSummonerSpellIcon = async (summonerSpellId: number) => {
+    if (summonerSpellIcons.value[summonerSpellId]) {
+      return
     }
 
-    const storageRef = ref(storage, `summonerSpells/icons/${summonerSpellName}.png`)
+    const summonerSpellName = summonerSpellsIds[summonerSpellId]
 
-    const url = await getDownloadURL(storageRef)
+    const summonerSpellRef = storageRef(storage, `summonerSpells/icons/${summonerSpellName}.png`)
 
-    summonerSpellIconUrls[summonerSpellName] = url
+    const url = await getDownloadURL(summonerSpellRef)
 
-    return url
+    summonerSpellIcons.value[summonerSpellId] = url
   }
 
   const getRankIcon = async (rank: string) => {
-    if (rankIcons[rank]) {
-      return rankIcons[rank]
+    if (rankIcons.value[rank]) {
+      return
     }
 
-    const storageRef = ref(storage, `ranks/icons/${rank}.png`)
+    const rankRef = storageRef(storage, `ranks/icons/${rank}.png`)
 
-    const url = await getDownloadURL(storageRef)
+    const url = await getDownloadURL(rankRef)
 
-    rankIcons[rank] = url
-
-    return url
+    rankIcons.value[rank] = url
   }
 
   return {
+    championIcons,
+    summonerSpellIcons,
+    rankIcons,
     getChampionIcon,
     getSummonerSpellIcon,
     getRankIcon,

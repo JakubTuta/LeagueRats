@@ -8,8 +8,10 @@ const props = defineProps<{
 const { leagueEntries } = toRefs(props)
 
 const storageStore = useStorageStore()
+const { rankIcons } = storeToRefs(storageStore)
 
-const rankIcons = ref<Record<string, string>>({})
+const themeStore = useThemeStore()
+const { isDark } = storeToRefs(themeStore)
 
 function romanToNumber(roman: string) {
   switch (roman) {
@@ -44,12 +46,12 @@ const soloQueue = computed(() => {
   }
 })
 
-watch(soloQueue, async (value) => {
+watch(soloQueue, (value) => {
   if (!value)
     return
 
   if (!rankIcons.value[value.tier.toLowerCase()])
-    rankIcons.value[value.tier.toLowerCase()] = await storageStore.getRankIcon(value.tier.toLowerCase())
+    storageStore.getRankIcon(value.tier.toLowerCase())
 })
 
 const flexQueue = computed(() => {
@@ -70,12 +72,12 @@ const flexQueue = computed(() => {
   }
 })
 
-watch(flexQueue, async (value) => {
+watch(flexQueue, (value) => {
   if (!value)
     return
 
   if (!rankIcons.value[value.tier.toLowerCase()])
-    rankIcons.value[value.tier.toLowerCase()] = await storageStore.getRankIcon(value.tier.toLowerCase())
+    storageStore.getRankIcon(value.tier.toLowerCase())
 })
 
 const items = computed(() => [
@@ -85,14 +87,32 @@ const items = computed(() => [
 </script>
 
 <template>
-  <v-row>
+  <v-row
+    v-if="!items.length"
+    class="text-h5 my-4"
+    justify="center"
+  >
+    {{ $t('profile.rank.noRank') }}
+  </v-row>
+
+  <v-row
+    v-else
+    justify="center"
+    class="my-4"
+  >
     <v-col
       v-for="(entry, index) in items"
       :key="index"
       cols="12"
       sm="6"
+      md="4"
     >
-      <v-card>
+      <v-card
+        :elevation="isDark
+          ? 20
+          : 5"
+        class="mx-4"
+      >
         <v-card-title align="center">
           {{ $t(`queueTypes.${entry.queueType}`) }}
         </v-card-title>
@@ -145,16 +165,6 @@ const items = computed(() => [
               {{ `${$t('profile.rank.games')}: ${entry.wins + entry.losses}` }}
             </span>
           </v-row>
-
-          <!--
-            <v-row class="text-subtitle-1 pb-2">
-            {{ `${$t('profile.rank.winRate')}: ${entry.winRate}%` }}
-            </v-row>
-
-            <v-row class="text-subtitle-1">
-            {{ `${$t('profile.rank.games')}: ${entry.wins + entry.wins}` }}
-            </v-row>
-          -->
         </v-card-text>
       </v-card>
     </v-col>

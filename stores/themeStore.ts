@@ -15,8 +15,11 @@ export const useThemeStore = defineStore('theme', () => {
     localStorage.setItem('current-theme', newTheme)
   }
 
+  const isDark = computed(() => theme.global.name.value === 'dark')
+
   return {
     toggleTheme,
     setTheme,
+    isDark,
   }
 })

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { IAccountDetails, ISummoner } from '~/models/account'
 import { type IActiveGame, mapActiveGame } from '~/models/activeGame'
+import { type IChampionMastery, mapChampionMastery } from '~/models/championMastery'
 import { type ILeagueEntry, mapLeagueEntry } from '~/models/leagueEntry'
 
 export const useRestStore = defineStore('rest', () => {
@@ -132,6 +133,19 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
+  const getChampionMasteryByPuuid = async (puuid: string): Promise<IChampionMastery[]> => {
+    try {
+      const response = await callFirebaseFunction('champion_mastery_by_puuid', { puuid })
+
+      return response.map(mapChampionMastery)
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return []
+    }
+  }
+
   return {
     testConnection,
     getAccountDetailsByRiotId,
@@ -140,5 +154,6 @@ export const useRestStore = defineStore('rest', () => {
     findChampionsPositions,
     getFeaturedGames,
     getLeagueEntryBySummonerId,
+    getChampionMasteryByPuuid,
   }
 })

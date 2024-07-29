@@ -59,10 +59,15 @@
     },
     "rank": {
       "title": "Rank",
+      "noRank": "Not enough games played to show rank",
       "wins": "Wins",
       "losses": "Loses",
       "winRate": "Win rate",
       "games": "Games"
+    },
+    "champions": {
+      "title": "Champions",
+      "noChampions": "No champions found"
     }
   },
   "game": {

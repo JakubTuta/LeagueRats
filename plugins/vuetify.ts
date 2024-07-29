@@ -38,6 +38,9 @@ export default defineNuxtPlugin((app) => {
       VBtn: {
         variant: 'outlined',
       },
+      VContainer: {
+        style: 'max-width: 1500px',
+      },
     },
     display: {
       mobileBreakpoint: 'sm',

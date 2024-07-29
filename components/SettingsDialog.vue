@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { useLanguageStore } from '~/helpers/language'
-import { useThemeStore } from '~/helpers/theme'
-
 const props = defineProps<{
   isShow: boolean
 }>()

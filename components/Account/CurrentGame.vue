@@ -12,8 +12,16 @@ const { currentGame, account, loading } = toRefs(props)
 </script>
 
 <template>
+  <v-row
+    v-if="account && !currentGame && !loading"
+    class="text-h5 my-4"
+    justify="center"
+  >
+    {{ $t('profile.currentGame.noGame', {"username": account.gameName}) }}
+  </v-row>
+
   <v-card
-    v-if="currentGame && account"
+    v-else-if="currentGame && account"
     elevation="24"
     class="my-2"
   >
@@ -27,11 +35,5 @@ const { currentGame, account, loading } = toRefs(props)
         :account="account"
       />
     </v-card-text>
-  </v-card>
-
-  <v-card v-else-if="account && !currentGame && !loading">
-    <v-card-title>
-      {{ $t('profile.currentGame.noGame', {"username": account.gameName}) }}
-    </v-card-title>
   </v-card>
 </template>

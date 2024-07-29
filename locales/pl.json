@@ -59,10 +59,15 @@
     },
     "rank": {
       "title": "Ranga",
+      "noRank": "Brak wystarczającej ilości gier do wyświetlenia rankingu",
       "wins": "Wygrane",
       "losses": "Przegrane",
       "winRate": "Win rate",
       "games": "Gry"
+    },
+    "champions": {
+      "title": "Postacie",
+      "noChampions": "Nie znaleziono postaci"
     }
   },
   "game": {

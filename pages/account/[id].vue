@@ -3,6 +3,7 @@ import { useDisplay } from 'vuetify'
 import type { IAccount } from '~/models/account'
 import { mapAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
+import type { IChampionMastery } from '~/models/championMastery'
 import type { ILeagueEntry } from '~/models/leagueEntry'
 import { useAccountStore } from '~/stores/accountStore'
 
@@ -21,10 +22,12 @@ const gameNotFound = ref(false)
 const accountNotFound = ref(false)
 const leagueEntry = ref<ILeagueEntry[]>([])
 const selectedTab = ref(0)
+const championMasteries = ref<IChampionMastery[]>([])
 
 const tabs = computed(() => [
   { text: t('profile.rank.title'), value: 0 },
   { text: t('profile.currentGame.title'), value: 1 },
+  { text: t('profile.champions.title'), value: 2 },
 ])
 
 onMounted(async () => {
@@ -67,7 +70,14 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  clearValues()
+  account.value = null
+  currentGame.value = null
+  tabLoading.value = false
+  gameNotFound.value = false
+  accountNotFound.value = false
+  leagueEntry.value = []
+  selectedTab.value = 0
+  championMasteries.value = []
 })
 
 watch(account, async (newAccount) => {
@@ -82,34 +92,28 @@ watch(selectedTab, (newTab) => {
   if (newTab === 1) {
     findCurrentGame()
   }
+  else if (newTab === 2) {
+    findChampions()
+  }
 }, { immediate: true })
-
-function clearValues() {
-  account.value = null
-  currentGame.value = null
-  tabLoading.value = false
-  gameNotFound.value = false
-  accountNotFound.value = false
-}
 
 async function findCurrentGame() {
   if (!account.value || currentGame.value)
     return
 
-  tabLoading.value = true
-
   const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
 
-  if (response && (response.gameMode === 'CLASSIC' || response.gameMode === 'ARAM')) {
+  if (response)
     currentGame.value = response
-
-    gameNotFound.value = false
-  }
-  else {
+  else
     gameNotFound.value = true
-  }
+}
 
-  tabLoading.value = false
+async function findChampions() {
+  if (!account.value || championMasteries.value.length)
+    return
+
+  championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid)
 }
 </script>
 
@@ -163,6 +167,11 @@ async function findCurrentGame() {
           :current-game="currentGame"
           :account="account"
           :loading="tabLoading"
+        />
+
+        <AccountChampions
+          v-if="selectedTab === 2"
+          :champions="championMasteries"
         />
       </v-card-text>
     </v-card>
