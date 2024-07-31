@@ -146,6 +146,19 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
+  const getMatchHistoryByPuuid = async (puuid: string, optionalKeys: object): Promise<string[]> => {
+    try {
+      const response = await callFirebaseFunction('match_history_by_puuid', { puuid, ...optionalKeys })
+
+      return response
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return []
+    }
+  }
+
   return {
     testConnection,
     getAccountDetailsByRiotId,
@@ -155,5 +168,6 @@ export const useRestStore = defineStore('rest', () => {
     getFeaturedGames,
     getLeagueEntryBySummonerId,
     getChampionMasteryByPuuid,
+    getMatchHistoryByPuuid,
   }
 })

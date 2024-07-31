@@ -1,32 +1,11 @@
 import { Timestamp } from 'firebase/firestore'
 
-interface IRewardConfig {
-  rewardValue: string
-  rewardType: string
-  maximumReward: number
-}
-
-interface INextSeasonMilestones {
-  requireGradeCounts: object
-  rewardMarks: number
-  bonus: boolean
-  rewardConfig: IRewardConfig
-}
-
 export interface IChampionMastery {
-  puuid: string
+  chestGranted: boolean
   championId: number
   championLevel: number
   championPoints: number
   lastPlayTime: Timestamp
-  championPointsSinceLastLevel: number
-  championPointsUntilNextLevel: number
-  chestGranted: boolean
-  tokensEarned: number
-  markRequiredForNextLevel: number
-  championSeasonMilestone: number
-  milestoneGrades: string[]
-  nextSeasonMilestone: INextSeasonMilestones
 }
 
 export function mapChampionMastery(data: IChampionMastery): IChampionMastery {

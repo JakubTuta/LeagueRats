@@ -48,15 +48,11 @@
     "sg": "Singapur, Malezja, Indonezja",
     "th": "Tajlandia",
     "me": "Bliski Wschód",
+    "ph": "Filipiny",
+    "vn": "Wietnam",
     "esports": "Esport"
   },
   "profile": {
-    "currentGame": {
-      "title": "Gra na żywo",
-      "noGame": "{username} nie jest w grze",
-      "usersGame": "Gra użytkownika {username}",
-      "gameNotFound": "Nie znaleziono aktywnej gry"
-    },
     "rank": {
       "title": "Ranga",
       "noRank": "Brak wystarczającej ilości gier do wyświetlenia rankingu",
@@ -64,6 +60,19 @@
       "losses": "Przegrane",
       "winRate": "Win rate",
       "games": "Gry"
+    },
+    "matchHistory": {
+      "title": "Historia gier",
+      "noGames": "Brak gier do wyświetlenia",
+      "kills": "Zabójstwa",
+      "assists": "Asysty",
+      "deaths": "Śmierci"
+    },
+    "currentGame": {
+      "title": "Gra na żywo",
+      "noGame": "{username} nie jest w grze",
+      "usersGame": "Gra użytkownika {username}",
+      "gameNotFound": "Nie znaleziono aktywnej gry"
     },
     "champions": {
       "title": "Postacie",
