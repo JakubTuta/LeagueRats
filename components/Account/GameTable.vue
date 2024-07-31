@@ -48,7 +48,11 @@ async function sortTeam(participants: IParticipant[]) {
     return participants
 
   return participants.map((participant) => {
-    const lane = teamLanes[participant.championId]
+    let lane = teamLanes[participant.championId]
+
+    // smite = 11
+    if (participant.spell1Id === 11 || participant.spell2Id === 11)
+      lane = 'JUNGLE'
 
     return {
       ...participant,

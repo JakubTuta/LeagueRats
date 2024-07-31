@@ -1,10 +1,5 @@
 import { Timestamp } from 'firebase/firestore'
 
-export interface IGameCustomizationObject {
-  category: string
-  content: string
-}
-
 export interface IPerks {
   perkIds: number[]
   perkStyle: number
@@ -14,8 +9,6 @@ export interface IPerks {
 export interface IParticipant {
   championId: number
   perks: IPerks[]
-  profileIconId: number
-  bot: boolean
   teamId: number
   summonerId: string
   riotId: string
@@ -24,11 +17,6 @@ export interface IParticipant {
   puuid: string
   spell1Id: number
   spell2Id: number
-  gameCustomizationObjects: IGameCustomizationObject[]
-}
-
-export interface IObserver {
-  encryptionKey: string
 }
 
 export interface IBannedChampion {
@@ -43,11 +31,8 @@ export interface IActiveGame {
   gameStartTime: Timestamp
   mapId: number
   gameLength: number
-  platformId: string
   gameMode: string
   bannedChampions: IBannedChampion[]
-  gameQueueConfigId: number
-  observers: IObserver
   participants: IParticipant[]
 }
 

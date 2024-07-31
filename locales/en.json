@@ -48,15 +48,11 @@
     "sg": "Singapore, Malaysia, Indonesia",
     "th": "Thailand",
     "me": "Middle East",
+    "ph": "Philippines",
+    "vn": "Vietnam",
     "esports": "Esport"
   },
   "profile": {
-    "currentGame": {
-      "title": "Live game",
-      "noGame": "{username} is not in a game",
-      "usersGame": "{username}'s game",
-      "gameNotFound": "No active game found"
-    },
     "rank": {
       "title": "Rank",
       "noRank": "Not enough games played to show rank",
@@ -64,6 +60,19 @@
       "losses": "Loses",
       "winRate": "Win rate",
       "games": "Games"
+    },
+    "matchHistory": {
+      "title": "Match history",
+      "noGames": "No games to show",
+      "kills": "Kills",
+      "assists": "Assists",
+      "deaths": "Deaths"
+    },
+    "currentGame": {
+      "title": "Live game",
+      "noGame": "{username} is not in a game",
+      "usersGame": "{username}'s game",
+      "gameNotFound": "No active game found"
     },
     "champions": {
       "title": "Champions",

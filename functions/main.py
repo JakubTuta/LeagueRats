@@ -321,7 +321,7 @@ def champion_mastery_by_puuid(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
-def match_ids_by_puuid(
+def match_history_by_puuid(
     req: https_fn.Request,
 ) -> https_fn.Response:
     base_url = "https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid"

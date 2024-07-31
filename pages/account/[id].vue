@@ -23,11 +23,14 @@ const accountNotFound = ref(false)
 const leagueEntry = ref<ILeagueEntry[]>([])
 const selectedTab = ref(0)
 const championMasteries = ref<IChampionMastery[]>([])
+const matchHistory = ref<any[]>([])
+const matchHistoryNotFound = ref(false)
 
 const tabs = computed(() => [
   { text: t('profile.rank.title'), value: 0 },
-  { text: t('profile.currentGame.title'), value: 1 },
-  { text: t('profile.champions.title'), value: 2 },
+  { text: t('profile.matchHistory.title'), value: 1 },
+  { text: t('profile.currentGame.title'), value: 2 },
+  { text: t('profile.champions.title'), value: 3 },
 ])
 
 onMounted(async () => {
@@ -80,28 +83,63 @@ onUnmounted(() => {
   championMasteries.value = []
 })
 
-watch(account, async (newAccount) => {
-  if (newAccount) {
-    tabLoading.value = true
-    leagueEntry.value = await restStore.getLeagueEntryBySummonerId(newAccount.id)
-    tabLoading.value = false
-  }
-})
-
-watch(selectedTab, (newTab) => {
-  if (newTab === 1) {
-    findCurrentGame()
-  }
-  else if (newTab === 2) {
-    findChampions()
-  }
+watch(account, () => {
+  handleTabData()
 }, { immediate: true })
+
+watch(selectedTab, () => {
+  handleTabData()
+}, { immediate: true })
+
+function handleTabData() {
+  switch (selectedTab.value) {
+    case 0:
+      findLeagueEntry()
+      break
+    case 1:
+      findMatchHistory()
+      break
+    case 2:
+      findCurrentGame()
+      break
+    case 3:
+      findChampions()
+      break
+  }
+}
+
+async function findLeagueEntry() {
+  if (!account.value || leagueEntry.value.length)
+    return
+
+  tabLoading.value = true
+  leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id)
+  tabLoading.value = false
+}
+
+async function findMatchHistory() {
+  if (!account.value)
+    return
+
+  const optionalKeys = {
+    count: 5,
+  }
+
+  tabLoading.value = true
+  matchHistory.value = await restStore.getMatchHistoryByPuuid(account.value.puuid, optionalKeys)
+  tabLoading.value = false
+
+  if (!matchHistory.value.length)
+    matchHistoryNotFound.value = true
+}
 
 async function findCurrentGame() {
   if (!account.value || currentGame.value)
     return
 
+  tabLoading.value = true
   const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
+  tabLoading.value = false
 
   if (response)
     currentGame.value = response
@@ -113,8 +151,15 @@ async function findChampions() {
   if (!account.value || championMasteries.value.length)
     return
 
+  tabLoading.value = true
   championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid)
+  tabLoading.value = false
 }
+
+// async function endTabLoading() {
+//   await sleep(500)
+//   tabLoading.value = false
+// }
 </script>
 
 <template>
@@ -162,15 +207,20 @@ async function findChampions() {
           :league-entries="leagueEntry"
         />
 
-        <AccountCurrentGame
+        <AccountMatchHistory
           v-if="selectedTab === 1"
+          :match-ids="matchHistory"
+        />
+
+        <AccountCurrentGame
+          v-if="selectedTab === 2"
           :current-game="currentGame"
           :account="account"
           :loading="tabLoading"
         />
 
         <AccountChampions
-          v-if="selectedTab === 2"
+          v-if="selectedTab === 3"
           :champions="championMasteries"
         />
       </v-card-text>

@@ -1,266 +1,197 @@
 <mxfile host="65bd71144e">
     <diagram id="v4KydXevRKA9k5-2016U" name="Page-1">
-        <mxGraphModel dx="5660" dy="2357" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2577" dy="827" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="10" value="Account&#10;/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
-                    <mxGeometry x="233" y="110" width="385" height="188" as="geometry"/>
+                <mxCell id="10" value="Account&#10;/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
+                    <mxGeometry x="233" y="100" width="385" height="188" as="geometry"/>
                 </mxCell>
-                <mxCell id="11" value="-&gt; gameName: string (nazwa gracza przed # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="10">
+                <mxCell id="11" value="-&gt; gameName: string (nazwa gracza przed # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="10" vertex="1">
                     <mxGeometry y="50" width="385" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="14" value="-&gt; tagLine: string (tag po # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="10">
+                <mxCell id="14" value="-&gt; tagLine: string (tag po # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="10" vertex="1">
                     <mxGeometry y="76" width="385" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="12" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="10">
+                <mxCell id="12" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="10" vertex="1">
                     <mxGeometry y="102" width="385" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="13" value="&lt;- puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="10">
+                <mxCell id="13" value="&lt;- puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="10" vertex="1">
                     <mxGeometry y="110" width="385" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="15" value="&lt;- gameName: string (nazwa gracza przed # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="10">
+                <mxCell id="15" value="&lt;- gameName: string (nazwa gracza przed # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="10" vertex="1">
                     <mxGeometry y="136" width="385" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="20" value="&lt;- tagLine: string (tag po # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="10">
+                <mxCell id="20" value="&lt;- tagLine: string (tag po # w nazwie konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="10" vertex="1">
                     <mxGeometry y="162" width="385" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="21" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;-&amp;gt; API PRZYJMUJE&lt;br&gt;&amp;lt;- API ZWRACA&lt;/font&gt;" style="html=1;" vertex="1" parent="1">
-                    <mxGeometry x="340" y="10" width="170" height="60" as="geometry"/>
+                <mxCell id="21" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;-&amp;gt; API PRZYJMUJE&lt;br&gt;&amp;lt;- API ZWRACA&lt;/font&gt;" style="html=1;" parent="1" vertex="1">
+                    <mxGeometry x="340" width="170" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="22" value="Summoner&#10;/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
-                    <mxGeometry x="132" y="340" width="587" height="240" as="geometry"/>
+                <mxCell id="22" value="Summoner&#10;/lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
+                    <mxGeometry x="132" y="350" width="587" height="188" as="geometry"/>
                 </mxCell>
-                <mxCell id="23" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="22">
+                <mxCell id="23" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="22" vertex="1">
                     <mxGeometry y="50" width="587" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="25" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="22">
+                <mxCell id="25" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="22" vertex="1">
                     <mxGeometry y="76" width="587" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="26" value="&lt;- accountId: string (id konta)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="22">
+                <mxCell id="26" value="&lt;- accountId: string (id konta)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="22" vertex="1">
                     <mxGeometry y="84" width="587" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="27" value="&lt;- profileIconId: number (id ikony konta)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="22">
+                <mxCell id="27" value="&lt;- profileIconId: number (id ikony konta)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="22" vertex="1">
                     <mxGeometry y="110" width="587" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="28" value="&lt;- revisionDate: number (czas w milisekundach od epoch time kiedy konto było ostatnio modyfikowane)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="22">
+                <mxCell id="29" value="&lt;- id: string (summoner id)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="22" vertex="1">
                     <mxGeometry y="136" width="587" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="29" value="&lt;- id: string (summoner id)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="22">
+                <mxCell id="31" value="&lt;- summonerLevel: number (poziom konta)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="22" vertex="1">
                     <mxGeometry y="162" width="587" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="30" value="&lt;- puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="22">
-                    <mxGeometry y="188" width="587" height="26" as="geometry"/>
+                <mxCell id="42" value="Spectator/Active game&#10;/lol/spectator/v5/active-games/by-summoner/{encryptedPUUID}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
+                    <mxGeometry x="173" y="600" width="505" height="292" as="geometry"/>
                 </mxCell>
-                <mxCell id="31" value="&lt;- summonerLevel: number (poziom konta)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="22">
-                    <mxGeometry y="214" width="587" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="42" value="Spectator/Active game&#10;/lol/spectator/v5/active-games/by-summoner/{encryptedPUUID}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
-                    <mxGeometry x="173" y="620" width="505" height="370" as="geometry"/>
-                </mxCell>
-                <mxCell id="43" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="43" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="50" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="44" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="42">
+                <mxCell id="44" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="42" vertex="1">
                     <mxGeometry y="76" width="505" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="45" value="&lt;- gameId: number (unikalne id gry)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="45" value="&lt;- gameId: number (unikalne id gry)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="84" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="46" value="&lt;- gameType: string (typ gry: MATCHED, PRACTISE, CUSTOM)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="46" value="&lt;- gameType: string (typ gry: MATCHED, PRACTISE, CUSTOM)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="110" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="47" value="&lt;- gameStartTime: number (czas rozpoczęcia gry w milisekundach od epoch time)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="47" value="&lt;- gameStartTime: number (czas rozpoczęcia gry w milisekundach od epoch time)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="136" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="48" value="&lt;- mapId: number (id mapy)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="48" value="&lt;- mapId: number (id mapy)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="162" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="49" value="&lt;- gameLength: number (czas w sekundach od rozpoczęcia gry)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="49" value="&lt;- gameLength: number (czas w sekundach od rozpoczęcia gry)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="188" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="50" value="&lt;- platformId: string (id platformy, na której jest rozgrywana gra)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="51" value="&lt;- gameMode: string (tryb gry np. RANKED_SOLO_5x5, RANKED_FLEX_5x5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="214" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="51" value="&lt;- gameMode: string (tryb gry np. RANKED_SOLO_5x5, RANKED_FLEX_5x5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="52" value="&lt;- bannedChampions: IBannedChampion [ ] (lista zbanowanych postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="240" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="52" value="&lt;- bannedChampions: IBannedChampion [ ] (lista zbanowanych postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                <mxCell id="55" value="&lt;- participants: IParticipant [ ] (informacje o graczach w grze)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="266" width="505" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="53" value="&lt;- gameQueueConfigId: number (typ kolejki)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
-                    <mxGeometry y="292" width="505" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="54" value="&lt;- observers: IObserver (informacja o observerze)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
-                    <mxGeometry y="318" width="505" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="55" value="&lt;- participants: IParticipant [ ] (informacje o graczach w grze)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
-                    <mxGeometry y="344" width="505" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="60" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="56" target="52">
+                <mxCell id="60" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" parent="1" source="56" target="52" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="56" value="IBannedChampion" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" vertex="1" parent="1">
-                    <mxGeometry x="-440" y="660" width="440" height="104" as="geometry"/>
+                <mxCell id="56" value="IBannedChampion" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="-440" y="700" width="440" height="104" as="geometry"/>
                 </mxCell>
-                <mxCell id="57" value="pickTurn: number (numer kiedy postać została zbanowana)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="56">
+                <mxCell id="57" value="pickTurn: number (numer kiedy postać została zbanowana)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="56" vertex="1">
                     <mxGeometry y="26" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="58" value="championId: number (id postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="56">
+                <mxCell id="58" value="championId: number (id postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="56" vertex="1">
                     <mxGeometry y="52" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="59" value="teamId: number (która drużyna zbanowała)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="56">
+                <mxCell id="59" value="teamId: number (która drużyna zbanowała)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="56" vertex="1">
                     <mxGeometry y="78" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="72" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="61" target="55">
+                <mxCell id="72" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" parent="1" source="61" target="55" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="61" value="IParticipant" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" vertex="1" parent="1">
-                    <mxGeometry x="-440" y="1100" width="440" height="286" as="geometry"/>
+                <mxCell id="61" value="IParticipant" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="-440" y="901" width="440" height="208" as="geometry"/>
                 </mxCell>
-                <mxCell id="62" value="championId: number (id postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
+                <mxCell id="62" value="championId: number (id postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="61" vertex="1">
                     <mxGeometry y="26" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="63" value="perks: IPerk [ ] (runy)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
+                <mxCell id="63" value="perks: IPerk [ ] (runy)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="61" vertex="1">
                     <mxGeometry y="52" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="64" value="profileIconId: number (id ikony konta)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
+                <mxCell id="66" value="teamId: number (id drużyny)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="61" vertex="1">
                     <mxGeometry y="78" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="65" value="bot: bool (czy postać jest botem)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
+                <mxCell id="67" value="summonerId: string (summoner id)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="61" vertex="1">
                     <mxGeometry y="104" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="66" value="teamId: number (id drużyny)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
+                <mxCell id="68" value="puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="61" vertex="1">
                     <mxGeometry y="130" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="67" value="summonerId: string (summoner id)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
+                <mxCell id="69" value="spell1Id: number (id czaru przywoływacza 1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="61" vertex="1">
                     <mxGeometry y="156" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="68" value="puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
+                <mxCell id="70" value="spell2Id: number (id czaru przywoływacza 2)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="61" vertex="1">
                     <mxGeometry y="182" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="69" value="spell1Id: number (id czaru przywoływacza 1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
-                    <mxGeometry y="208" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="70" value="spell2Id: number (id czaru przywoływacza 2)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
-                    <mxGeometry y="234" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="71" value="gameCustomizationObjects: IGameCustomizationObject [ ]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="61">
-                    <mxGeometry y="260" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="77" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="73" target="54">
+                <mxCell id="82" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" parent="1" source="78" target="63" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="73" value="IObserver" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" vertex="1" parent="1">
-                    <mxGeometry x="-505" y="925" width="160" height="52" as="geometry"/>
+                <mxCell id="78" value="IPerk" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="-1290" y="914" width="440" height="104" as="geometry"/>
                 </mxCell>
-                <mxCell id="74" value="encryptionKey: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="73">
-                    <mxGeometry y="26" width="160" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="82" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="78" target="63">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="78" value="IPerk" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" vertex="1" parent="1">
-                    <mxGeometry x="-1290" y="1113" width="440" height="104" as="geometry"/>
-                </mxCell>
-                <mxCell id="79" value="perkIds: number [ ] (lista id run)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="78">
+                <mxCell id="79" value="perkIds: number [ ] (lista id run)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="78" vertex="1">
                     <mxGeometry y="26" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="80" value="perkStyle: number (główna gałąź run)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="78">
+                <mxCell id="80" value="perkStyle: number (główna gałąź run)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="78" vertex="1">
                     <mxGeometry y="52" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="81" value="perkSubStyle: number (pomocnicza gałąź run)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="78">
+                <mxCell id="81" value="perkSubStyle: number (pomocnicza gałąź run)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" parent="78" vertex="1">
                     <mxGeometry y="78" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="87" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="83" target="71">
-                    <mxGeometry relative="1" as="geometry"/>
+                <mxCell id="103" value="Champion Mastery&#10;/lol/champion-mastery/v4/champion-masteries/by-puuid/{encryptedPUUID}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
+                    <mxGeometry x="140" y="950" width="556" height="214" as="geometry"/>
                 </mxCell>
-                <mxCell id="83" value="IGameCustomizationObject" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" vertex="1" parent="1">
-                    <mxGeometry x="-1290" y="1334" width="440" height="78" as="geometry"/>
-                </mxCell>
-                <mxCell id="84" value="category: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="83">
-                    <mxGeometry y="26" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="85" value="content: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="83">
-                    <mxGeometry y="52" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="103" value="Champion Mastery&#10;/lol/champion-mastery/v4/champion-masteries/by-puuid/{encryptedPUUID}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
-                    <mxGeometry x="140" y="1240" width="556" height="396" as="geometry"/>
-                </mxCell>
-                <mxCell id="104" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
+                <mxCell id="104" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="103" vertex="1">
                     <mxGeometry y="50" width="556" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="105" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="103">
+                <mxCell id="105" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="103" vertex="1">
                     <mxGeometry y="76" width="556" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="106" value="&lt;- puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
+                <mxCell id="108" value="&lt;- chestGranted: bool (czy otrzymano skrzynię na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="103" vertex="1">
                     <mxGeometry y="84" width="556" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="107" value="&lt;- championPointsUntilNextLevel: number (ilość punktów maestrii potrzebna do następnego poziomu)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
+                <mxCell id="109" value="&lt;- championId: number (id postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="103" vertex="1">
                     <mxGeometry y="110" width="556" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="108" value="&lt;- chestGranted: bool (czy otrzymano skrzynię na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
+                <mxCell id="110" value="&lt;- lastPlayTime: number (czas w milisekundach od epoch time kiedy ostatni raz zagrano postacią)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="103" vertex="1">
                     <mxGeometry y="136" width="556" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="109" value="&lt;- championId: number (id postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
+                <mxCell id="111" value="&lt;- championLevel: number (poziom maestrii na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="103" vertex="1">
                     <mxGeometry y="162" width="556" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="110" value="&lt;- lastPlayTime: number (czas w milisekundach od epoch time kiedy ostatni raz zagrano postacią)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
+                <mxCell id="112" value="&lt;- championPoints: number (punkty maestrii na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="103" vertex="1">
                     <mxGeometry y="188" width="556" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="111" value="&lt;- championLevel: number (poziom maestrii na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
-                    <mxGeometry y="214" width="556" height="26" as="geometry"/>
+                <mxCell id="135" value="Match/Matches&#10;/lol/match/v5/matches/by-puuid/{puuid}/ids" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
+                    <mxGeometry x="128" y="1230" width="580" height="266" as="geometry"/>
                 </mxCell>
-                <mxCell id="112" value="&lt;- championPoints: number (punkty maestrii na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
-                    <mxGeometry y="240" width="556" height="26" as="geometry"/>
+                <mxCell id="136" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="50" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="113" value="&lt;- championPointsSinceLastLevel: number (ilość punktów maestrii od ostatniego poziomu)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
-                    <mxGeometry y="266" width="556" height="26" as="geometry"/>
+                <mxCell id="150" value="-&gt; startTime: number (czas w sekundach od epoch time) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="76" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="114" value="&lt;- markRequiredForNextLevel: number" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
-                    <mxGeometry y="292" width="556" height="26" as="geometry"/>
+                <mxCell id="153" value="-&gt; endTime: number (czas w sekundach od epoch time) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="102" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="115" value="&lt;- nextSeasonMilestone: INextSeasonMilestone" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
-                    <mxGeometry y="318" width="556" height="26" as="geometry"/>
+                <mxCell id="155" value="-&gt; queue: number (id kolejki; wartość musi odpowiadać type) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="128" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="116" value="&lt;- tokensEarned: number (ilość tokenów uzbieranych na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
-                    <mxGeometry y="344" width="556" height="26" as="geometry"/>
+                <mxCell id="154" value="-&gt; type: string (typ kolejki; wartość musi odpowiadać queue) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="154" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="117" value="&lt;- milestoneGrades: string [ ] (lista kamieni milowych ocen gry na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="103">
-                    <mxGeometry y="370" width="556" height="26" as="geometry"/>
+                <mxCell id="152" value="-&gt; start: number (index od którego zaczynane jest pobieranie) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="180" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="129" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="118" target="115">
-                    <mxGeometry relative="1" as="geometry"/>
+                <mxCell id="151" value="-&gt; count: number (ilośc meczy do pobrania) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="206" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="118" value="INextSeasonMilestone" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" vertex="1" parent="1">
-                    <mxGeometry x="-440" y="1506" width="440" height="130" as="geometry"/>
+                <mxCell id="137" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="135">
+                    <mxGeometry y="232" width="580" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="119" value="requireGradeConts: object" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="118">
-                    <mxGeometry y="26" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="120" value="rewardMarks: number" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="118">
-                    <mxGeometry y="52" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="121" value="bonus: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="118">
-                    <mxGeometry y="78" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="122" value="rewardConfig: IRewardConfig" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="118">
-                    <mxGeometry y="104" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="135" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="130" target="122">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="130" value="IRewardConfig" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=16;" vertex="1" parent="1">
-                    <mxGeometry x="-1290" y="1570" width="440" height="104" as="geometry"/>
-                </mxCell>
-                <mxCell id="131" value="rewardValue: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="130">
-                    <mxGeometry y="26" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="132" value="rewardType: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="130">
-                    <mxGeometry y="52" width="440" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="133" value="maximumReward: number" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;" vertex="1" parent="130">
-                    <mxGeometry y="78" width="440" height="26" as="geometry"/>
+                <mxCell id="138" value="&lt;- string [ ] (lista id meczy posortowana od najnowszych)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                    <mxGeometry y="240" width="580" height="26" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
