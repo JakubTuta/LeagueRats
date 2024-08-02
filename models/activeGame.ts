@@ -34,6 +34,7 @@ export interface IActiveGame {
   gameMode: string
   bannedChampions: IBannedChampion[]
   participants: IParticipant[]
+  platformId: string
 }
 
 export function mapActiveGame(data: IActiveGame): IActiveGame {

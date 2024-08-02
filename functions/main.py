@@ -2,32 +2,16 @@ import json
 
 import firebase_functions
 import requests
+import src.firebase_init as firebase_init
+import src.help_functions as help_functions
 from firebase_functions import https_fn
-from src.firebase_init import initialize_app
 
-app = initialize_app()
+app = firebase_init.initialize_app()
 
 cors_options = firebase_functions.options.CorsOptions(
     cors_methods=["POST", "OPTIONS"],
     cors_origins="*",
 )
-
-
-def get_existing_request_data(data, required_keys=[], optional_keys=[]):
-    required_data = {}
-    optional_data = {}
-
-    for key in required_keys:
-        if key not in data:
-            raise Exception(f"Missing required key: {key}")
-
-        required_data[key] = data[key]
-
-    for key in optional_keys:
-        if key in data:
-            optional_data[key] = data[key]
-
-    return required_data, optional_data
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
@@ -52,7 +36,9 @@ def account_details_by_riot_id(
         )
 
     try:
-        required_data, _ = get_existing_request_data(request_data, required_keys)
+        required_data, _ = help_functions.get_existing_request_data(
+            request_data, required_keys
+        )
     except Exception as e:
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
@@ -63,7 +49,8 @@ def account_details_by_riot_id(
 
     try:
         response = requests.get(
-            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+            request_url,
+            headers={"X-Riot-Token": app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -91,7 +78,9 @@ def summoner_details_by_puuid(
         )
 
     try:
-        required_data, _ = get_existing_request_data(request_data, required_keys)
+        required_data, _ = help_functions.get_existing_request_data(
+            request_data, required_keys
+        )
     except Exception as e:
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
@@ -101,7 +90,8 @@ def summoner_details_by_puuid(
 
     try:
         response = requests.get(
-            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+            request_url,
+            headers={"X-Riot-Token": app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -129,7 +119,9 @@ def league_entry_by_summoner_id(
         )
 
     try:
-        required_data, _ = get_existing_request_data(request_data, required_keys)
+        required_data, _ = help_functions.get_existing_request_data(
+            request_data, required_keys
+        )
     except Exception as e:
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
@@ -139,7 +131,8 @@ def league_entry_by_summoner_id(
 
     try:
         response = requests.get(
-            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+            request_url,
+            headers={"X-Riot-Token": app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -169,7 +162,9 @@ def active_game_by_puuid(
         )
 
     try:
-        required_data, _ = get_existing_request_data(request_data, required_keys)
+        required_data, _ = help_functions.get_existing_request_data(
+            request_data, required_keys
+        )
     except Exception as e:
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
@@ -179,7 +174,8 @@ def active_game_by_puuid(
 
     try:
         response = requests.get(
-            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+            request_url,
+            headers={"X-Riot-Token": app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -190,24 +186,6 @@ def active_game_by_puuid(
         return https_fn.Response(
             json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
         )
-
-
-def find_highest_playrate_role(champion_data, champion_key):
-    roles = champion_data.get(champion_key, None)
-
-    if not roles:
-        return None
-
-    highest_playrate_role = list(roles.keys())[0]
-    highest_playrate = 0
-
-    for role, stats in roles.items():
-        play_rate = stats.get("playRate", 0)
-        if play_rate > highest_playrate:
-            highest_playrate = play_rate
-            highest_playrate_role = role
-
-    return highest_playrate_role
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
@@ -226,7 +204,9 @@ def champion_positions(
         )
 
     try:
-        required_data, _ = get_existing_request_data(request_data, required_keys)
+        required_data, _ = help_functions.get_existing_request_data(
+            request_data, required_keys
+        )
     except Exception as e:
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
@@ -250,7 +230,9 @@ def champion_positions(
         )
 
     champion_positions = {
-        champion_id: find_highest_playrate_role(api_champions, str(champion_id))
+        champion_id: help_functions.find_highest_playrate_role(
+            api_champions, str(champion_id)
+        )
         for champion_id in champion_ids
     }
 
@@ -265,7 +247,8 @@ def featured_games(
 
     try:
         response = requests.get(
-            base_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+            base_url,
+            headers={"X-Riot-Token": app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -293,7 +276,9 @@ def champion_mastery_by_puuid(
         )
 
     try:
-        required_data, _ = get_existing_request_data(request_data, required_keys)
+        required_data, _ = help_functions.get_existing_request_data(
+            request_data, required_keys
+        )
     except Exception as e:
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
@@ -303,7 +288,8 @@ def champion_mastery_by_puuid(
 
     try:
         response = requests.get(
-            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+            request_url,
+            headers={"X-Riot-Token": app.options.get("riot_api_key")},
         )
 
         # filtered_champions = list(
@@ -336,7 +322,7 @@ def match_history_by_puuid(
         )
 
     try:
-        required_data, optional_data = get_existing_request_data(
+        required_data, optional_data = help_functions.get_existing_request_data(
             request_data, required_keys, optional_keys
         )
     except Exception as e:
@@ -352,7 +338,8 @@ def match_history_by_puuid(
 
     try:
         response = requests.get(
-            request_url, headers={"X-Riot-Token": app.options.get("riot_api_key")}
+            request_url,
+            headers={"X-Riot-Token": app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -362,4 +349,38 @@ def match_history_by_puuid(
     except Exception as e:
         return https_fn.Response(
             json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
+        )
+
+
+@https_fn.on_request(region="europe-central2", cors=cors_options)
+def accounts_in_all_regions(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    required_keys = ["gameName", "tagLine"]
+
+    try:
+        request_data = req.get_json(force=True)
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    try:
+        required_data, _ = help_functions.get_existing_request_data(
+            request_data, required_keys
+        )
+    except Exception as e:
+        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
+
+    game_name = required_data["gameName"]
+    tag_line = required_data["tagLine"]
+
+    try:
+        accounts = help_functions.find_accounts_in_all_regions(game_name, tag_line)
+
+        return https_fn.Response(json.dumps(accounts), status=200)
+
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
         )

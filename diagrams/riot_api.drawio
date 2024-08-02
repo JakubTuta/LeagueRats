@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="v4KydXevRKA9k5-2016U" name="Page-1">
-        <mxGraphModel dx="2577" dy="827" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2305" dy="752" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -50,7 +50,7 @@
                     <mxGeometry y="162" width="587" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="42" value="Spectator/Active game&#10;/lol/spectator/v5/active-games/by-summoner/{encryptedPUUID}" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
-                    <mxGeometry x="173" y="600" width="505" height="292" as="geometry"/>
+                    <mxGeometry x="173" y="600" width="505" height="318" as="geometry"/>
                 </mxCell>
                 <mxCell id="43" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="50" width="505" height="26" as="geometry"/>
@@ -81,6 +81,9 @@
                 </mxCell>
                 <mxCell id="55" value="&lt;- participants: IParticipant [ ] (informacje o graczach w grze)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="42" vertex="1">
                     <mxGeometry y="266" width="505" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="156" value="&lt;- platformId: string (region meczu)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="42">
+                    <mxGeometry y="292" width="505" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="60" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" parent="1" source="56" target="52" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -163,34 +166,34 @@
                 <mxCell id="112" value="&lt;- championPoints: number (punkty maestrii na postaci)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="103" vertex="1">
                     <mxGeometry y="188" width="556" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="135" value="Match/Matches&#10;/lol/match/v5/matches/by-puuid/{puuid}/ids" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
+                <mxCell id="135" value="Match/Matches&#10;/lol/match/v5/matches/by-puuid/{puuid}/ids" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
                     <mxGeometry x="128" y="1230" width="580" height="266" as="geometry"/>
                 </mxCell>
-                <mxCell id="136" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="136" value="-&gt; puuid: string (uuid konta Riot)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="50" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="150" value="-&gt; startTime: number (czas w sekundach od epoch time) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="150" value="-&gt; startTime: number (czas w sekundach od epoch time) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="76" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="153" value="-&gt; endTime: number (czas w sekundach od epoch time) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="153" value="-&gt; endTime: number (czas w sekundach od epoch time) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="102" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="155" value="-&gt; queue: number (id kolejki; wartość musi odpowiadać type) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="155" value="-&gt; queue: number (id kolejki; wartość musi odpowiadać type) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="128" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="154" value="-&gt; type: string (typ kolejki; wartość musi odpowiadać queue) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="154" value="-&gt; type: string (typ kolejki; wartość musi odpowiadać queue) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="154" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="152" value="-&gt; start: number (index od którego zaczynane jest pobieranie) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="152" value="-&gt; start: number (index od którego zaczynane jest pobieranie) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="180" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="151" value="-&gt; count: number (ilośc meczy do pobrania) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="151" value="-&gt; count: number (ilośc meczy do pobrania) (opcjonalne)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="206" width="580" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="137" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="135">
+                <mxCell id="137" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="135" vertex="1">
                     <mxGeometry y="232" width="580" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="138" value="&lt;- string [ ] (lista id meczy posortowana od najnowszych)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="135">
+                <mxCell id="138" value="&lt;- string [ ] (lista id meczy posortowana od najnowszych)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="135" vertex="1">
                     <mxGeometry y="240" width="580" height="26" as="geometry"/>
                 </mxCell>
             </root>

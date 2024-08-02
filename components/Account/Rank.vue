@@ -3,9 +3,10 @@ import type { ILeagueEntry } from '~/models/leagueEntry';
 
 const props = defineProps<{
   leagueEntries: ILeagueEntry[]
+  loading: boolean
 }>()
 
-const { leagueEntries } = toRefs(props)
+const { leagueEntries, loading } = toRefs(props)
 
 const storageStore = useStorageStore()
 const { rankIcons } = storeToRefs(storageStore)
@@ -88,7 +89,7 @@ const items = computed(() => [
 
 <template>
   <v-row
-    v-if="!items.length"
+    v-if="!loading && !items.length"
     class="text-h5 my-4"
     justify="center"
   >

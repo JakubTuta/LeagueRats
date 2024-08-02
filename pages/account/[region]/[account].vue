@@ -15,16 +15,13 @@ const accountStore = useAccountStore()
 const restStore = useRestStore()
 
 const loading = ref(false)
-const account = ref<IAccount | null>(null)
-const currentGame = ref<IActiveGame | null>(null)
 const tabLoading = ref(false)
-const gameNotFound = ref(false)
-const accountNotFound = ref(false)
-const leagueEntry = ref<ILeagueEntry[]>([])
 const selectedTab = ref(0)
-const championMasteries = ref<IChampionMastery[]>([])
+const account = ref<IAccount | null>(null)
+const leagueEntry = ref<ILeagueEntry[]>([])
 const matchHistory = ref<any[]>([])
-const matchHistoryNotFound = ref(false)
+const currentGame = ref<IActiveGame | null>(null)
+const championMasteries = ref<IChampionMastery[]>([])
 
 const tabs = computed(() => [
   { text: t('profile.rank.title'), value: 0 },
@@ -34,9 +31,12 @@ const tabs = computed(() => [
 ])
 
 onMounted(async () => {
-  const userDetails = String(route.params.id)
-  const gameName = userDetails.split('-')[0]
-  const tagLine = userDetails.split('-')[1]
+  const paramsData = route.params as { region: string, account: string }
+  const region = paramsData.region
+  const accountData = paramsData.account
+
+  const gameName = accountData.split('-')[0]
+  const tagLine = accountData.split('-')[1]
 
   loading.value = true
   const tmpAccount = await accountStore.findAccount(gameName, tagLine)
@@ -51,7 +51,6 @@ onMounted(async () => {
   const accountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
 
   if (!accountDetails) {
-    accountNotFound.value = true
     loading.value = false
 
     return
@@ -60,26 +59,24 @@ onMounted(async () => {
   const summonerDetails = await restStore.getSummonerDetailsByPuuid(accountDetails.puuid)
 
   if (!summonerDetails) {
-    accountNotFound.value = true
     loading.value = false
 
     return
   }
 
-  account.value = mapAccount(accountDetails, summonerDetails)
+  account.value = mapAccount(accountDetails, summonerDetails, region)
   accountStore.saveAccount(account.value)
 
   loading.value = false
 })
 
 onUnmounted(() => {
-  account.value = null
-  currentGame.value = null
+  loading.value = false
   tabLoading.value = false
-  gameNotFound.value = false
-  accountNotFound.value = false
+  account.value = null
   leagueEntry.value = []
-  selectedTab.value = 0
+  matchHistory.value = []
+  currentGame.value = null
   championMasteries.value = []
 })
 
@@ -128,9 +125,6 @@ async function findMatchHistory() {
   tabLoading.value = true
   matchHistory.value = await restStore.getMatchHistoryByPuuid(account.value.puuid, optionalKeys)
   tabLoading.value = false
-
-  if (!matchHistory.value.length)
-    matchHistoryNotFound.value = true
 }
 
 async function findCurrentGame() {
@@ -139,12 +133,8 @@ async function findCurrentGame() {
 
   tabLoading.value = true
   const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
+  currentGame.value = response
   tabLoading.value = false
-
-  if (response)
-    currentGame.value = response
-  else
-    gameNotFound.value = true
 }
 
 async function findChampions() {
@@ -155,11 +145,6 @@ async function findChampions() {
   championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid)
   tabLoading.value = false
 }
-
-// async function endTabLoading() {
-//   await sleep(500)
-//   tabLoading.value = false
-// }
 </script>
 
 <template>
@@ -205,11 +190,13 @@ async function findChampions() {
         <AccountRank
           v-if="selectedTab === 0"
           :league-entries="leagueEntry"
+          :loading="tabLoading"
         />
 
         <AccountMatchHistory
           v-if="selectedTab === 1"
           :match-ids="matchHistory"
+          :loading="tabLoading"
         />
 
         <AccountCurrentGame
@@ -222,6 +209,7 @@ async function findChampions() {
         <AccountChampions
           v-if="selectedTab === 3"
           :champions="championMasteries"
+          :loading="tabLoading"
         />
       </v-card-text>
     </v-card>

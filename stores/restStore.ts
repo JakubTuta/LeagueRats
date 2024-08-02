@@ -159,6 +159,19 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
+  const findAccountsInAllRegions = async (gameName: string, tagLine: string): Promise<Record<string, IAccountDetails | null>> => {
+    try {
+      const response = await callFirebaseFunction('accounts_in_all_regions', { gameName, tagLine })
+
+      return response
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return {}
+    }
+  }
+
   return {
     testConnection,
     getAccountDetailsByRiotId,
@@ -169,5 +182,6 @@ export const useRestStore = defineStore('rest', () => {
     getLeagueEntryBySummonerId,
     getChampionMasteryByPuuid,
     getMatchHistoryByPuuid,
+    findAccountsInAllRegions,
   }
 })

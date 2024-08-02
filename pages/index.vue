@@ -20,7 +20,7 @@ const tagLineError = ref('')
 const loading = ref(false)
 const userNotExistSnackbar = ref(false)
 const featuredGames = ref<IActiveGame[]>([])
-const region = ref('euw')
+const region = ref('EUW')
 
 const errorMessage = t('rules.requiredField')
 
@@ -40,8 +40,7 @@ onMounted(async () => {
 function regionItemsProps(item: any) {
   return {
     title: item.title,
-    // subtitle: item.subtitle,
-    value: item.value.toLowerCase(),
+    value: item.value,
     subtitle: item.value,
     lines: 'two',
   }
@@ -80,17 +79,18 @@ async function sendToUserView() {
   }
 
   loading.value = true
-
-  if (!(await accountStore.findAccount(gameName.value, tagLine.value))
-    || !(await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value))) {
-    userNotExistSnackbar.value = true
-
-    return
-  }
-
   const accountName = `${gameName.value}-${tagLine.value}`
 
-  router.push(`/account/${accountName}`)
+  const databaseAccount = await accountStore.findAccount(gameName.value, tagLine.value)
+
+  if (!databaseAccount) {
+    const apiAccount = await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value)
+
+    if (!apiAccount)
+      router.push(`/account/unknown-region/${accountName}`)
+  }
+
+  router.push(`/account/${region.value}/${accountName}`)
 }
 
 watch(gameName, (newGameName, oldGameName) => {
@@ -114,10 +114,20 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
     }, 5000)
   }
 })
+
+async function print() {
+  const data = await restStore.findAccountsInAllRegions('ZawodowyLoL', 'xdd')
+
+  console.log(data)
+}
 </script>
 
 <template>
   <v-container>
+    <v-btn @click="print">
+      Print
+    </v-btn>
+
     <v-row
       align-content="center"
       class="my-16"
