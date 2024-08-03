@@ -9,6 +9,7 @@ export const useStorageStore = defineStore('storage', () => {
   const championIcons = ref<Record<number, string>>({})
   const summonerSpellIcons = ref<Record<number, string>>({})
   const rankIcons = ref<Record<string, string>>({})
+  const regionIcons = ref<Record<string, string>>({})
 
   const getChampionIcon = async (championId: number) => {
     if (championIcons.value[championId]) {
@@ -50,12 +51,26 @@ export const useStorageStore = defineStore('storage', () => {
     rankIcons.value[rank] = url
   }
 
+  const getRegionIcon = async (region: string) => {
+    if (regionIcons.value[region]) {
+      return
+    }
+
+    const regionRef = storageRef(storage, `regions/icons/${region.toLowerCase()}.png`)
+
+    const url = await getDownloadURL(regionRef)
+
+    regionIcons.value[region] = url
+  }
+
   return {
     championIcons,
     summonerSpellIcons,
     rankIcons,
+    regionIcons,
     getChampionIcon,
     getSummonerSpellIcon,
     getRankIcon,
+    getRegionIcon,
   }
 })

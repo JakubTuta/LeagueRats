@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { IAccountDetails, ISummoner } from '~/models/account'
+import type { IAccount, IAccountDetails, ISummoner } from '~/models/account'
 import { type IActiveGame, mapActiveGame } from '~/models/activeGame'
 import { type IChampionMastery, mapChampionMastery } from '~/models/championMastery'
 import { type ILeagueEntry, mapLeagueEntry } from '~/models/leagueEntry'
@@ -159,7 +159,7 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const findAccountsInAllRegions = async (gameName: string, tagLine: string): Promise<Record<string, IAccountDetails | null>> => {
+  const findAccountsInAllRegions = async (gameName: string, tagLine: string): Promise<Record<string, IAccount | null>> => {
     try {
       const response = await callFirebaseFunction('accounts_in_all_regions', { gameName, tagLine })
 
