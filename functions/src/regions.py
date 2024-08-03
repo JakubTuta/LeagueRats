@@ -52,3 +52,21 @@ api_regions_2 = {
     "TW": "TW2",
     "VN": "VN2",
 }
+api_regions_2_to_select_regions = {
+    "EUW1": "EUW",
+    "EUN1": "EUNE",
+    "NA1": "NA",
+    "KR": "KR",
+    "BR1": "BR",
+    "JP1": "JP",
+    "LA1": "LAN",
+    "LA2": "LAS",
+    "OC1": "OCE",
+    "PH2": "PH",
+    "RU": "RU",
+    "SG2": "SG",
+    "TH2": "TH",
+    "TR1": "TR",
+    "TW2": "TW",
+    "VN2": "VN",
+}

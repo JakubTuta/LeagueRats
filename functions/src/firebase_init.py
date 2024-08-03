@@ -37,11 +37,11 @@ app = None
 
 
 def initialize_app():
+    global app
+
     credentials = firebase_admin.credentials.Certificate(service_account)
     app = firebase_admin.initialize_app(credentials, config, "League Rats")
 
     firestore_client = firestore.client(app)
 
     collections["accounts"] = firestore_client.collection("accounts")
-
-    return app

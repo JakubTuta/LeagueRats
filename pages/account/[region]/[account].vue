@@ -34,13 +34,28 @@ const tabs = computed(() => [
 ])
 
 onMounted(async () => {
-  const paramsData = route.params as { region: string, account: string }
-  const tmpRegion = paramsData.region.toUpperCase()
-  const accountData = paramsData.account
-  const [gameName, tagLine] = accountData.split('-')
+  let gameName = ''
+  let tagLine = ''
 
-  if (!selectRegions.includes(tmpRegion)) {
-    router.push(`/search-account/${accountData}`)
+  try {
+    const paramsData = route.params as { region: string, account: string }
+    region.value = paramsData.region.toUpperCase()
+    const accountData = paramsData.account
+
+    if (!accountData.includes('-'))
+      throw new Error('Invalid account data')
+
+    gameName = accountData.split('-')[0]
+    tagLine = accountData.split('-')[1]
+  }
+  catch (error) {
+    console.error(error)
+
+    router.replace('/404')
+  }
+
+  if (!selectRegions.includes(region.value)) {
+    router.push(`/search-account/${gameName}-${tagLine}`)
   }
 
   loading.value = true

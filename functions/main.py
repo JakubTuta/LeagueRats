@@ -3,16 +3,17 @@ import json
 import firebase_functions
 import requests
 import src.firebase_init as firebase_init
+import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
 import src.regions as regions
 from firebase_functions import https_fn
-
-app = firebase_init.initialize_app()
 
 cors_options = firebase_functions.options.CorsOptions(
     cors_methods=["POST", "OPTIONS"],
     cors_origins="*",
 )
+
+firebase_init.initialize_app()
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
@@ -51,7 +52,7 @@ def account_details_by_riot_id(
     try:
         response = requests.get(
             request_url,
-            headers={"X-Riot-Token": app.options.get("riot_api_key")},
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -94,7 +95,7 @@ def summoner_details_by_puuid(
     try:
         response = requests.get(
             request_url,
-            headers={"X-Riot-Token": app.options.get("riot_api_key")},
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -135,7 +136,7 @@ def league_entry_by_summoner_id(
     try:
         response = requests.get(
             request_url,
-            headers={"X-Riot-Token": app.options.get("riot_api_key")},
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -176,7 +177,7 @@ def active_game_by_puuid(
     try:
         response = requests.get(
             request_url,
-            headers={"X-Riot-Token": app.options.get("riot_api_key")},
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -249,12 +250,15 @@ def featured_games(
     try:
         response = requests.get(
             base_url,
-            headers={"X-Riot-Token": app.options.get("riot_api_key")},
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        response_data = response.json()
+        game_list = list(response_data["gameList"])
+
+        firestore_functions.save_participants_to_firebase(game_list)
+
+        return https_fn.Response(json.dumps(game_list), status=response.status_code)
 
     except Exception as e:
         return https_fn.Response(
@@ -290,7 +294,7 @@ def champion_mastery_by_puuid(
     try:
         response = requests.get(
             request_url,
-            headers={"X-Riot-Token": app.options.get("riot_api_key")},
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
         # filtered_champions = list(
@@ -340,7 +344,7 @@ def match_history_by_puuid(
     try:
         response = requests.get(
             request_url,
-            headers={"X-Riot-Token": app.options.get("riot_api_key")},
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
         return https_fn.Response(
@@ -377,7 +381,7 @@ def accounts_in_all_regions(
     tag_line = required_data["tagLine"]
 
     try:
-        accounts = help_functions.find_accounts_in_all_regions(game_name, tag_line)
+        accounts = firestore_functions.find_accounts_in_all_regions(game_name, tag_line)
 
         return https_fn.Response(json.dumps(accounts), status=200)
 
