@@ -80,17 +80,33 @@ async function sendToUserView() {
 
   loading.value = true
   const accountName = `${gameName.value}-${tagLine.value}`
+  const lowerCaseRegion = region.value.toLowerCase()
 
-  const databaseAccount = await accountStore.findAccount(gameName.value, tagLine.value)
+  const databaseAccount = await accountStore.findAccount(gameName.value, tagLine.value, region.value)
 
-  if (!databaseAccount) {
-    const apiAccount = await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value)
+  if (databaseAccount) {
+    router.push(`/account/${lowerCaseRegion}/${accountName}`)
 
-    if (!apiAccount)
-      router.push(`/account/unknown-region/${accountName}`)
+    return
   }
 
-  router.push(`/account/${region.value}/${accountName}`)
+  const apiAccount = await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value)
+
+  if (!apiAccount) {
+    router.push(`/account/unknown-region/${accountName}`)
+
+    return
+  }
+
+  const apiSummoner = await restStore.getSummonerDetailsByPuuid(apiAccount.puuid, region.value)
+
+  if (!apiSummoner) {
+    router.push(`/account/unknown-region/${accountName}`)
+
+    return
+  }
+
+  router.push(`/account/${lowerCaseRegion}/${accountName}`)
 }
 
 watch(gameName, (newGameName, oldGameName) => {
@@ -114,20 +130,10 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
     }, 5000)
   }
 })
-
-async function print() {
-  const data = await restStore.findAccountsInAllRegions('ZawodowyLoL', 'xdd')
-
-  console.log(data)
-}
 </script>
 
 <template>
   <v-container>
-    <v-btn @click="print">
-      Print
-    </v-btn>
-
     <v-row
       align-content="center"
       class="my-16"

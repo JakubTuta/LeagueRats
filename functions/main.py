@@ -4,6 +4,7 @@ import firebase_functions
 import requests
 import src.firebase_init as firebase_init
 import src.help_functions as help_functions
+import src.regions as regions
 from firebase_functions import https_fn
 
 app = firebase_init.initialize_app()
@@ -67,8 +68,7 @@ def account_details_by_riot_id(
 def summoner_details_by_puuid(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = "https://eun1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid"
-    required_keys = ["puuid"]
+    required_keys = ["puuid", "region"]
 
     try:
         request_data = req.get_json(force=True)
@@ -85,8 +85,11 @@ def summoner_details_by_puuid(
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
     puuid = required_data["puuid"]
+    region = regions.api_regions_2[required_data["region"]].lower()
 
-    request_url = f"{base_url}/{puuid}"
+    request_url = (
+        f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+    )
 
     try:
         response = requests.get(
@@ -108,8 +111,7 @@ def summoner_details_by_puuid(
 def league_entry_by_summoner_id(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = "https://eun1.api.riotgames.com/lol/league/v4/entries/by-summoner"
-    required_keys = ["summonerId"]
+    required_keys = ["summonerId", "region"]
 
     try:
         request_data = req.get_json(force=True)
@@ -126,8 +128,9 @@ def league_entry_by_summoner_id(
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
     summoner_id = required_data["summonerId"]
+    region = regions.api_regions_2[required_data["region"]].lower()
 
-    request_url = f"{base_url}/{summoner_id}"
+    request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
 
     try:
         response = requests.get(
@@ -149,10 +152,7 @@ def league_entry_by_summoner_id(
 def active_game_by_puuid(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = (
-        "https://eun1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner"
-    )
-    required_keys = ["puuid"]
+    required_keys = ["puuid", "region"]
 
     try:
         request_data = req.get_json(force=True)
@@ -169,8 +169,9 @@ def active_game_by_puuid(
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
     puuid = required_data["puuid"]
+    region = regions.api_regions_2[required_data["region"]].lower()
 
-    request_url = f"{base_url}/{puuid}"
+    request_url = f"https://{region}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}"
 
     try:
         response = requests.get(
@@ -243,7 +244,7 @@ def champion_positions(
 def featured_games(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = "https://eun1.api.riotgames.com/lol/spectator/v5/featured-games"
+    base_url = "https://euw1.api.riotgames.com/lol/spectator/v5/featured-games"
 
     try:
         response = requests.get(
@@ -265,8 +266,7 @@ def featured_games(
 def champion_mastery_by_puuid(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = "https://eun1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid"
-    required_keys = ["puuid"]
+    required_keys = ["puuid", "region"]
 
     try:
         request_data = req.get_json(force=True)
@@ -283,8 +283,9 @@ def champion_mastery_by_puuid(
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
     puuid = required_data["puuid"]
+    region = regions.api_regions_2[required_data["region"]].lower()
 
-    request_url = f"{base_url}/{puuid}"
+    request_url = f"https://{region}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
 
     try:
         response = requests.get(
@@ -310,8 +311,7 @@ def champion_mastery_by_puuid(
 def match_history_by_puuid(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = "https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid"
-    required_keys = ["puuid"]
+    required_keys = ["puuid", "region"]
     optional_keys = ["startTime", "endTime", "queue", "type", "start", "count"]
 
     try:
@@ -329,12 +329,13 @@ def match_history_by_puuid(
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
     puuid = required_data["puuid"]
+    region = regions.api_regions_1[required_data["region"]].lower()
 
     optional_params = "&".join(
         [f"{key}={value}" for key, value in optional_data.items()]
     )
 
-    request_url = f"{base_url}/{puuid}/ids?{optional_params}"
+    request_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{optional_params}"
 
     try:
         response = requests.get(

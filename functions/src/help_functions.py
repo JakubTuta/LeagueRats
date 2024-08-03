@@ -1,61 +1,7 @@
 import requests
 import src.firebase_init as firebase_init
+import src.regions as regions
 from google.cloud.firestore_v1.base_query import FieldFilter
-
-select_regions = [
-    "EUW",
-    "EUNE",
-    "NA",
-    "KR",
-    "BR",
-    "JP",
-    "LAN",
-    "LAS",
-    "OCE",
-    "PH",
-    "RU",
-    "SG",
-    "TH",
-    "TR",
-    "TW",
-    "VN",
-]
-api_regions_1 = {
-    "EUW": "EUROPE",
-    "EUNE": "EUROPE",
-    "NA": "AMERICAS",
-    "KR": "ASIA",
-    "BR": "AMERICAS",
-    "JP": "ASIA",
-    "LAN": "AMERICAS",
-    "LAS": "AMERICAS",
-    "OCE": "ASIA",
-    "PH": "ASIA",
-    "RU": "EUROPE",
-    "SG": "ASIA",
-    "TH": "ASIA",
-    "TR": "EUROPE",
-    "TW": "ASIA",
-    "VN": "ASIA",
-}
-api_regions_2 = {
-    "EUW": "EUW1",
-    "EUNE": "EUN1",
-    "NA": "NA1",
-    "KR": "KR",
-    "BR": "BR1",
-    "JP": "JP1",
-    "LAN": "LA1",
-    "LAS": "LA2",
-    "OCE": "OC1",
-    "PH": "PH2",
-    "RU": "RU",
-    "SG": "SG2",
-    "TH": "TH2",
-    "TR": "TR1",
-    "TW": "TW2",
-    "VN": "VN2",
-}
 
 Account = {
     "gameName": "",
@@ -114,7 +60,7 @@ def find_accounts_in_database(game_name, tag):
 
 
 def find_account_in_region(game_name, tag, region):
-    request_region = api_regions_1[region].lower()
+    request_region = regions.api_regions_1[region].lower()
     url = f"https://{request_region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag}"
 
     try:
@@ -130,7 +76,7 @@ def find_account_in_region(game_name, tag, region):
 
 
 def find_summoner_in_region(puuid, region):
-    request_region = api_regions_2[region].lower()
+    request_region = regions.api_regions_2[region].lower()
     url = f"https://{request_region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
 
     try:
@@ -172,7 +118,7 @@ def find_accounts_in_api(game_name, tag, regions=[]):
 
 
 def find_accounts_in_all_regions(game_name, tag):
-    account_per_region = {region: None for region in select_regions}
+    account_per_region = {region: None for region in regions.select_regions}
 
     database_accounts = find_accounts_in_database(game_name, tag)
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
+import { selectRegions } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import { mapAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
@@ -8,6 +9,7 @@ import type { ILeagueEntry } from '~/models/leagueEntry'
 import { useAccountStore } from '~/stores/accountStore'
 
 const route = useRoute()
+const router = useRouter()
 const { mobile } = useDisplay()
 const { t } = useI18n()
 
@@ -17,6 +19,7 @@ const restStore = useRestStore()
 const loading = ref(false)
 const tabLoading = ref(false)
 const selectedTab = ref(0)
+const region = ref('')
 const account = ref<IAccount | null>(null)
 const leagueEntry = ref<ILeagueEntry[]>([])
 const matchHistory = ref<any[]>([])
@@ -32,17 +35,18 @@ const tabs = computed(() => [
 
 onMounted(async () => {
   const paramsData = route.params as { region: string, account: string }
-  const region = paramsData.region
+  const tmpRegion = paramsData.region.toUpperCase()
   const accountData = paramsData.account
+  const [gameName, tagLine] = accountData.split('-')
 
-  const gameName = accountData.split('-')[0]
-  const tagLine = accountData.split('-')[1]
+  if (!selectRegions.includes(tmpRegion)) {
+    router.push(`/search-account/${accountData}`)
+  }
 
   loading.value = true
-  const tmpAccount = await accountStore.findAccount(gameName, tagLine)
+  account.value = await accountStore.findAccount(gameName, tagLine, region.value)
 
-  if (tmpAccount) {
-    account.value = tmpAccount
+  if (account.value) {
     loading.value = false
 
     return
@@ -56,7 +60,7 @@ onMounted(async () => {
     return
   }
 
-  const summonerDetails = await restStore.getSummonerDetailsByPuuid(accountDetails.puuid)
+  const summonerDetails = await restStore.getSummonerDetailsByPuuid(accountDetails.puuid, region.value)
 
   if (!summonerDetails) {
     loading.value = false
@@ -64,7 +68,7 @@ onMounted(async () => {
     return
   }
 
-  account.value = mapAccount(accountDetails, summonerDetails, region)
+  account.value = mapAccount(accountDetails, summonerDetails, region.value)
   accountStore.saveAccount(account.value)
 
   loading.value = false
@@ -110,7 +114,7 @@ async function findLeagueEntry() {
     return
 
   tabLoading.value = true
-  leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id)
+  leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id, region.value)
   tabLoading.value = false
 }
 
@@ -123,7 +127,7 @@ async function findMatchHistory() {
   }
 
   tabLoading.value = true
-  matchHistory.value = await restStore.getMatchHistoryByPuuid(account.value.puuid, optionalKeys)
+  matchHistory.value = await restStore.getMatchHistoryByPuuid(account.value.puuid, optionalKeys, region.value)
   tabLoading.value = false
 }
 
@@ -132,7 +136,7 @@ async function findCurrentGame() {
     return
 
   tabLoading.value = true
-  const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
+  const response = await restStore.getCurrentGameByPuuid(account.value.puuid, region.value)
   currentGame.value = response
   tabLoading.value = false
 }
@@ -142,7 +146,7 @@ async function findChampions() {
     return
 
   tabLoading.value = true
-  championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid)
+  championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid, region.value)
   tabLoading.value = false
 }
 </script>
