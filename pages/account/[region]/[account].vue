@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
+import { selectRegions } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import { mapAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
@@ -8,6 +9,7 @@ import type { ILeagueEntry } from '~/models/leagueEntry'
 import { useAccountStore } from '~/stores/accountStore'
 
 const route = useRoute()
+const router = useRouter()
 const { mobile } = useDisplay()
 const { t } = useI18n()
 
@@ -15,16 +17,14 @@ const accountStore = useAccountStore()
 const restStore = useRestStore()
 
 const loading = ref(false)
-const account = ref<IAccount | null>(null)
-const currentGame = ref<IActiveGame | null>(null)
 const tabLoading = ref(false)
-const gameNotFound = ref(false)
-const accountNotFound = ref(false)
-const leagueEntry = ref<ILeagueEntry[]>([])
 const selectedTab = ref(0)
-const championMasteries = ref<IChampionMastery[]>([])
+const region = ref('')
+const account = ref<IAccount | null>(null)
+const leagueEntry = ref<ILeagueEntry[]>([])
 const matchHistory = ref<any[]>([])
-const matchHistoryNotFound = ref(false)
+const currentGame = ref<IActiveGame | null>(null)
+const championMasteries = ref<IChampionMastery[]>([])
 
 const tabs = computed(() => [
   { text: t('profile.rank.title'), value: 0 },
@@ -34,15 +34,34 @@ const tabs = computed(() => [
 ])
 
 onMounted(async () => {
-  const userDetails = String(route.params.id)
-  const gameName = userDetails.split('-')[0]
-  const tagLine = userDetails.split('-')[1]
+  let gameName = ''
+  let tagLine = ''
+
+  try {
+    const paramsData = route.params as { region: string, account: string }
+    region.value = paramsData.region.toUpperCase()
+    const accountData = paramsData.account
+
+    if (!accountData.includes('-'))
+      throw new Error('Invalid account data')
+
+    gameName = accountData.split('-')[0]
+    tagLine = accountData.split('-')[1]
+  }
+  catch (error) {
+    console.error(error)
+
+    router.replace('/404')
+  }
+
+  if (!selectRegions.includes(region.value)) {
+    router.push(`/search-account/${gameName}-${tagLine}`)
+  }
 
   loading.value = true
-  const tmpAccount = await accountStore.findAccount(gameName, tagLine)
+  account.value = await accountStore.findAccount(gameName, tagLine, region.value)
 
-  if (tmpAccount) {
-    account.value = tmpAccount
+  if (account.value) {
     loading.value = false
 
     return
@@ -51,35 +70,32 @@ onMounted(async () => {
   const accountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
 
   if (!accountDetails) {
-    accountNotFound.value = true
     loading.value = false
 
     return
   }
 
-  const summonerDetails = await restStore.getSummonerDetailsByPuuid(accountDetails.puuid)
+  const summonerDetails = await restStore.getSummonerDetailsByPuuid(accountDetails.puuid, region.value)
 
   if (!summonerDetails) {
-    accountNotFound.value = true
     loading.value = false
 
     return
   }
 
-  account.value = mapAccount(accountDetails, summonerDetails)
+  account.value = mapAccount(accountDetails, summonerDetails, region.value)
   accountStore.saveAccount(account.value)
 
   loading.value = false
 })
 
 onUnmounted(() => {
-  account.value = null
-  currentGame.value = null
+  loading.value = false
   tabLoading.value = false
-  gameNotFound.value = false
-  accountNotFound.value = false
+  account.value = null
   leagueEntry.value = []
-  selectedTab.value = 0
+  matchHistory.value = []
+  currentGame.value = null
   championMasteries.value = []
 })
 
@@ -113,7 +129,7 @@ async function findLeagueEntry() {
     return
 
   tabLoading.value = true
-  leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id)
+  leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id, region.value)
   tabLoading.value = false
 }
 
@@ -126,11 +142,8 @@ async function findMatchHistory() {
   }
 
   tabLoading.value = true
-  matchHistory.value = await restStore.getMatchHistoryByPuuid(account.value.puuid, optionalKeys)
+  matchHistory.value = await restStore.getMatchHistoryByPuuid(account.value.puuid, optionalKeys, region.value)
   tabLoading.value = false
-
-  if (!matchHistory.value.length)
-    matchHistoryNotFound.value = true
 }
 
 async function findCurrentGame() {
@@ -138,13 +151,9 @@ async function findCurrentGame() {
     return
 
   tabLoading.value = true
-  const response = await restStore.getCurrentGameByPuuid(account.value.puuid)
+  const response = await restStore.getCurrentGameByPuuid(account.value.puuid, region.value)
+  currentGame.value = response
   tabLoading.value = false
-
-  if (response)
-    currentGame.value = response
-  else
-    gameNotFound.value = true
 }
 
 async function findChampions() {
@@ -152,14 +161,9 @@ async function findChampions() {
     return
 
   tabLoading.value = true
-  championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid)
+  championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid, region.value)
   tabLoading.value = false
 }
-
-// async function endTabLoading() {
-//   await sleep(500)
-//   tabLoading.value = false
-// }
 </script>
 
 <template>
@@ -205,11 +209,13 @@ async function findChampions() {
         <AccountRank
           v-if="selectedTab === 0"
           :league-entries="leagueEntry"
+          :loading="tabLoading"
         />
 
         <AccountMatchHistory
           v-if="selectedTab === 1"
           :match-ids="matchHistory"
+          :loading="tabLoading"
         />
 
         <AccountCurrentGame
@@ -222,6 +228,7 @@ async function findChampions() {
         <AccountChampions
           v-if="selectedTab === 3"
           :champions="championMasteries"
+          :loading="tabLoading"
         />
       </v-card-text>
     </v-card>

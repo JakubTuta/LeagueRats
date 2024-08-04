@@ -20,7 +20,7 @@ const tagLineError = ref('')
 const loading = ref(false)
 const userNotExistSnackbar = ref(false)
 const featuredGames = ref<IActiveGame[]>([])
-const region = ref('euw')
+const region = ref('EUW')
 
 const errorMessage = t('rules.requiredField')
 
@@ -40,8 +40,7 @@ onMounted(async () => {
 function regionItemsProps(item: any) {
   return {
     title: item.title,
-    // subtitle: item.subtitle,
-    value: item.value.toLowerCase(),
+    value: item.value,
     subtitle: item.value,
     lines: 'two',
   }
@@ -80,17 +79,34 @@ async function sendToUserView() {
   }
 
   loading.value = true
+  const accountName = `${gameName.value}-${tagLine.value}`
+  const lowerCaseRegion = region.value.toLowerCase()
 
-  if (!(await accountStore.findAccount(gameName.value, tagLine.value))
-    || !(await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value))) {
-    userNotExistSnackbar.value = true
+  const databaseAccount = await accountStore.findAccount(gameName.value, tagLine.value, region.value)
+
+  if (databaseAccount) {
+    router.push(`/account/${lowerCaseRegion}/${accountName}`)
 
     return
   }
 
-  const accountName = `${gameName.value}-${tagLine.value}`
+  const apiAccount = await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value)
 
-  router.push(`/account/${accountName}`)
+  if (!apiAccount) {
+    router.push(`/account/unknown-region/${accountName}`)
+
+    return
+  }
+
+  const apiSummoner = await restStore.getSummonerDetailsByPuuid(apiAccount.puuid, region.value)
+
+  if (!apiSummoner) {
+    router.push(`/account/unknown-region/${accountName}`)
+
+    return
+  }
+
+  router.push(`/account/${lowerCaseRegion}/${accountName}`)
 }
 
 watch(gameName, (newGameName, oldGameName) => {

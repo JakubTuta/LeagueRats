@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
+import { mapApiRegion2ToSelect } from '~/helpers/regions';
 import type { IAccount } from '~/models/account';
 import type { IActiveGame, IParticipant } from '~/models/activeGame';
 
@@ -38,6 +39,13 @@ const teamIds = computed(() => {
     return []
 
   return Array.from(new Set(game.value.participants.map(participant => participant.teamId)))
+})
+
+const region = computed(() => {
+  if (!game.value)
+    return null
+
+  return mapApiRegion2ToSelect(game.value.platformId)
 })
 
 async function sortTeam(participants: IParticipant[]) {
@@ -89,7 +97,10 @@ watch(game, (newGame) => {
 }, { immediate: true })
 
 function sendToProfile(gameName: string, tagLine: string) {
-  router.push(`/account/${gameName}-${tagLine}`)
+  if (!game.value)
+    return
+
+  router.push(`/account/${region.value}/${gameName}-${tagLine}`)
 }
 </script>
 

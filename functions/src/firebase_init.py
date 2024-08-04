@@ -2,6 +2,7 @@ import os
 
 import dotenv
 import firebase_admin
+from firebase_admin import firestore
 
 dotenv.load_dotenv()
 
@@ -31,8 +32,16 @@ config = {
 }
 
 
+collections = {}
+app = None
+
+
 def initialize_app():
+    global app
+
     credentials = firebase_admin.credentials.Certificate(service_account)
     app = firebase_admin.initialize_app(credentials, config, "League Rats")
 
-    return app
+    firestore_client = firestore.client(app)
+
+    collections["accounts"] = firestore_client.collection("accounts")

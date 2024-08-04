@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { IAccountDetails, ISummoner } from '~/models/account'
+import type { IAccount, IAccountDetails, ISummoner } from '~/models/account'
 import { type IActiveGame, mapActiveGame } from '~/models/activeGame'
 import { type IChampionMastery, mapChampionMastery } from '~/models/championMastery'
 import { type ILeagueEntry, mapLeagueEntry } from '~/models/leagueEntry'
@@ -53,9 +53,9 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getSummonerDetailsByPuuid = async (puuid: string): Promise<ISummoner | null> => {
+  const getSummonerDetailsByPuuid = async (puuid: string, region: string): Promise<ISummoner | null> => {
     try {
-      const response = await callFirebaseFunction('summoner_details_by_puuid', { puuid })
+      const response = await callFirebaseFunction('summoner_details_by_puuid', { puuid, region })
 
       return response as ISummoner
     }
@@ -66,9 +66,9 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getCurrentGameByPuuid = async (puuid: string): Promise<IActiveGame | null> => {
+  const getCurrentGameByPuuid = async (puuid: string, region: string): Promise<IActiveGame | null> => {
     try {
-      const response = await callFirebaseFunction('active_game_by_puuid', { puuid })
+      const response = await callFirebaseFunction('active_game_by_puuid', { puuid, region })
 
       const activeGame = mapActiveGame(response)
 
@@ -103,7 +103,7 @@ export const useRestStore = defineStore('rest', () => {
 
       const acceptableGameModes = ['CLASSIC', 'ARAM']
 
-      const games = response.gameList.map(mapActiveGame)
+      const games = response.map(mapActiveGame)
         .filter((game: IActiveGame) => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
 
       if (games.length > 2) {
@@ -119,9 +119,9 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getLeagueEntryBySummonerId = async (summonerId: string): Promise<ILeagueEntry[]> => {
+  const getLeagueEntryBySummonerId = async (summonerId: string, region: string): Promise<ILeagueEntry[]> => {
     try {
-      const response = await callFirebaseFunction('league_entry_by_summoner_id', { summonerId })
+      const response = await callFirebaseFunction('league_entry_by_summoner_id', { summonerId, region })
       const leagueEntry = response.map(mapLeagueEntry)
 
       return leagueEntry
@@ -133,9 +133,9 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getChampionMasteryByPuuid = async (puuid: string): Promise<IChampionMastery[]> => {
+  const getChampionMasteryByPuuid = async (puuid: string, region: string): Promise<IChampionMastery[]> => {
     try {
-      const response = await callFirebaseFunction('champion_mastery_by_puuid', { puuid })
+      const response = await callFirebaseFunction('champion_mastery_by_puuid', { puuid, region })
 
       return response.map(mapChampionMastery)
     }
@@ -146,9 +146,9 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getMatchHistoryByPuuid = async (puuid: string, optionalKeys: object): Promise<string[]> => {
+  const getMatchHistoryByPuuid = async (puuid: string, optionalKeys: object, region: string): Promise<string[]> => {
     try {
-      const response = await callFirebaseFunction('match_history_by_puuid', { puuid, ...optionalKeys })
+      const response = await callFirebaseFunction('match_history_by_puuid', { puuid, ...optionalKeys, region })
 
       return response
     }
@@ -156,6 +156,19 @@ export const useRestStore = defineStore('rest', () => {
       console.error(error)
 
       return []
+    }
+  }
+
+  const findAccountsInAllRegions = async (gameName: string, tagLine: string): Promise<Record<string, IAccount | null>> => {
+    try {
+      const response = await callFirebaseFunction('accounts_in_all_regions', { gameName, tagLine })
+
+      return response
+    }
+    catch (error: any) {
+      console.error(error)
+
+      return {}
     }
   }
 
@@ -169,5 +182,6 @@ export const useRestStore = defineStore('rest', () => {
     getLeagueEntryBySummonerId,
     getChampionMasteryByPuuid,
     getMatchHistoryByPuuid,
+    findAccountsInAllRegions,
   }
 })

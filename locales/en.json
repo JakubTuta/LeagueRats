@@ -33,7 +33,6 @@
   "regions": {
     "title": "Regions",
     "kr": "South Korea",
-    "cn": "China",
     "na": "North America",
     "euw": "Europe West",
     "eune": "Europe Nordic & East",
@@ -77,6 +76,11 @@
     "champions": {
       "title": "Champions",
       "noChampions": "No champions found"
+    },
+    "search": {
+      "title": "{username} #{tag} not found",
+      "subtitle1": "Check if the username and tag are correct",
+      "subtitle2": "Find account in another region"
     }
   },
   "game": {

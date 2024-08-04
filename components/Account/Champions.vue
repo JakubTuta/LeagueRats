@@ -4,9 +4,10 @@ import type { IChampionMastery } from '~/models/championMastery';
 
 const props = defineProps<{
   champions: IChampionMastery[]
+  loading: boolean
 }>()
 
-const { champions } = toRefs(props)
+const { champions, loading } = toRefs(props)
 
 const storageStore = useStorageStore()
 const { championIcons } = storeToRefs(storageStore)
@@ -58,7 +59,7 @@ function loadChampions({ done }: { done: (status: string) => void }) {
 
 <template>
   <v-row
-    v-if="!champions.length"
+    v-if="!champions.length && !loading"
     class="text-h5 my-4"
     justify="center"
   >
@@ -66,7 +67,7 @@ function loadChampions({ done }: { done: (status: string) => void }) {
   </v-row>
 
   <v-row
-    v-else
+    v-else-if="champions.length && !loading"
     justify="center"
   >
     <v-col cols="10">
@@ -105,34 +106,3 @@ function loadChampions({ done }: { done: (status: string) => void }) {
     </v-col>
   </v-row>
 </template>
-
-<!--
-  <v-list
-  lines="three"
-  >
-  <v-list-item
-  v-for="champion in champions"
-  :key="champion.championId"
-  >
-  <v-list-item-title class="text-h6">
-  {{ championIdsToTitles[champion.championId] }}
-  </v-list-item-title>
-
-  <v-list-item-subtitle>
-  {{ formatNumber(champion.championPoints) }}
-  </v-list-item-subtitle>
-
-  <template #prepend>
-  <v-avatar
-  rounded="0"
-  size="70"
-  >
-  <v-img
-  :src="championIcons[champion.championId]"
-  lazy-src="~/assets/default.png"
-  />
-  </v-avatar>
-  </template>
-  </v-list-item>
-  </v-list>
--->

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const props = defineProps<{
   matchIds: string[]
+  loading: boolean
 }>()
 
-const { matchIds } = toRefs(props)
+const { matchIds, loading } = toRefs(props)
 </script>
 
 <template>
-  {{ matchIds }}
+  Coming soon...
 </template>

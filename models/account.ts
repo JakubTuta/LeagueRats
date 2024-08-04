@@ -1,4 +1,4 @@
-import { type DocumentData, Timestamp } from 'firebase/firestore'
+import type { DocumentData } from 'firebase/firestore'
 
 export interface IAccountDetails {
   gameName: string
@@ -8,37 +8,31 @@ export interface IAccountDetails {
 
 export interface ISummoner {
   accountId: string
-  profileIconId: number
-  revisionDate: Timestamp
+  // profileIconId: number
+  // revisionDate: Timestamp
   id: string
-  summonerLevel: number
+  // summonerLevel: number
 }
 
 export interface IAccount extends IAccountDetails, ISummoner {
-  gameName: string
-  tagLine: string
-  puuid: string
-  accountId: string
-  profileIconId: number
-  revisionDate: Timestamp
-  id: string
-  summonerLevel: number
+  region: string
 }
 
-export function mapAccount(accountDetails: IAccountDetails, summoner: ISummoner): IAccount
+export function mapAccount(accountDetails: IAccountDetails, summoner: ISummoner, region: string): IAccount
 export function mapAccount(data: DocumentData): IAccount
-export function mapAccount(arg1: IAccount | DocumentData, arg2?: ISummoner): IAccount {
-  if (arg2) {
-    const summoner = arg2 as ISummoner
-    // @ts-expect-error revisionDate is a number
-    summoner.revisionDate = new Timestamp(summoner.revisionDate / 1000, 0)
-
-    return { ...arg1 as IAccount, ...summoner } as IAccount
+export function mapAccount(arg1: IAccountDetails | DocumentData, summoner?: ISummoner, region?: string): IAccount {
+  if (summoner && region) {
+    return {
+      gameName: arg1.gameName,
+      tagLine: arg1.tagLine,
+      puuid: arg1.puuid,
+      accountId: summoner.accountId,
+      id: summoner.id,
+      region,
+    }
   }
   else {
-    const documentData = (arg1 as DocumentData).data() as IAccount
-    // @ts-expect-error revisionDate is a number
-    documentData.revisionDate = new Timestamp(documentData.revisionDate / 1000, 0)
+    const documentData = (arg1 as DocumentData).data()
 
     return documentData
   }
