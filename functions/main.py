@@ -1,4 +1,5 @@
 import json
+import random
 
 import firebase_functions
 import requests
@@ -245,7 +246,9 @@ def champion_positions(
 def featured_games(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = "https://euw1.api.riotgames.com/lol/spectator/v5/featured-games"
+    regions_to_feature = ["euw1", "na1", "kr"]
+
+    base_url = f"https://{random.choice(regions_to_feature)}.api.riotgames.com/lol/spectator/v5/featured-games"
 
     try:
         response = requests.get(
@@ -256,7 +259,7 @@ def featured_games(
         response_data = response.json()
         game_list = list(response_data["gameList"])
 
-        firestore_functions.save_participants_to_firebase(game_list)
+        # firestore_functions.save_participants_to_firebase(game_list)
 
         return https_fn.Response(json.dumps(game_list), status=response.status_code)
 

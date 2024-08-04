@@ -52,7 +52,7 @@ api_regions_2 = {
     "TW": "TW2",
     "VN": "VN2",
 }
-api_regions_2_to_select_regions = {
+api_region_2_to_select_region = {
     "EUW1": "EUW",
     "EUN1": "EUNE",
     "NA1": "NA",

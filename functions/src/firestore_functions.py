@@ -1,4 +1,5 @@
 import threading
+import time
 
 import requests
 import src.firebase_init as firebase_init
@@ -131,12 +132,12 @@ def find_accounts_in_all_regions(game_name, tag):
     return account_per_region
 
 
-def _save_participant_to_firebase(participant, region):
-    if _find_account_in_firestore(participant["puuid"]):
+def _save_participant_to_firebase(puuid, region):
+    if _find_account_in_firestore(puuid):
         return
 
-    account_details = _find_account_in_region_puuid(participant["puuid"], region)
-    summoner_details = _find_summoner_in_region_puuid(participant["puuid"], region)
+    account_details = _find_account_in_region_puuid(puuid, region)
+    summoner_details = _find_summoner_in_region_puuid(puuid, region)
 
     if account_details is None or summoner_details is None:
         return
@@ -144,7 +145,7 @@ def _save_participant_to_firebase(participant, region):
     account = {
         "gameName": account_details.get("gameName"),
         "tagLine": account_details.get("tagLine"),
-        "puuid": account_details.get("puuid"),
+        "puuid": puuid,
         "region": region,
         "accountId": summoner_details.get("accountId"),
         "id": summoner_details.get("id"),
@@ -154,9 +155,12 @@ def _save_participant_to_firebase(participant, region):
 
 
 def save_participants_to_firebase(game_list):
-    for game in game_list:
-        region = regions.api_regions_2_to_select_regions[game["platformId"]]
-        for participant in game["participants"]:
-            threading.Thread(
-                target=_save_participant_to_firebase, args=(participant, region)
-            ).start()
+    def func():
+        for game in game_list:
+            region = regions.api_region_2_to_select_region[game["platformId"]]
+
+            for participant in game["participants"]:
+                _save_participant_to_firebase(participant["puuid"], region)
+                time.sleep(0.1)
+
+    threading.Thread(target=func).start()
