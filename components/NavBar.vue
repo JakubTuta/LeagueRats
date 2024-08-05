@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// @ts-expect-error działa
-import icon from '../public/favicon.ico';
+import { mouseButton } from '~/helpers/mouse';
 
 const router = useRouter()
 
-const appIcon = ref(icon)
-
-function goHome() {
-  router.push('/')
+function goHome(event: MouseEvent) {
+  if (event.button === mouseButton.MIDDLE)
+    window.open('/', '_blank', 'noopener,noreferrer')
+  else if (event.button === mouseButton.LEFT)
+    router.push('/')
 }
 </script>
 
@@ -19,14 +19,14 @@ function goHome() {
     >
       <template #activator="{props}">
         <v-img
-          :src="appIcon"
+          src="~/assets/default.png"
           max-height="40"
           max-width="40"
           class="ml-4"
           rounded="circle"
           style="cursor: pointer"
           v-bind="props"
-          @click="goHome"
+          @mousedown.prevent="goHome"
         />
       </template>
     </v-tooltip>
@@ -40,7 +40,7 @@ function goHome() {
           <span
             style="cursor: pointer"
             v-bind="props"
-            @click="goHome"
+            @mousedown.prevent="goHome"
           >
             {{ $t('universal.title') }}
           </span>
