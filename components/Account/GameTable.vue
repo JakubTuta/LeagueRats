@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import { mapApiRegion2ToSelect } from '~/helpers/regions';
-import type { IAccount } from '~/models/account';
-import type { IActiveGame, IParticipant } from '~/models/activeGame';
+import { useDisplay } from 'vuetify'
+import { mouseButton } from '~/helpers/mouse'
+import { mapApiRegion2ToSelect } from '~/helpers/regions'
+import type { IAccount } from '~/models/account'
+import type { IActiveGame, IParticipant } from '~/models/activeGame'
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -96,11 +97,17 @@ watch(game, (newGame) => {
   })
 }, { immediate: true })
 
-function sendToProfile(gameName: string, tagLine: string) {
+function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
   if (!game.value)
     return
 
-  router.push(`/account/${region.value}/${gameName}-${tagLine}`)
+  const url = `/account/${region.value}/${gameName}-${tagLine}`
+
+  if (event.button === mouseButton.MIDDLE)
+    window.open(url, '_blank', 'noopener,noreferrer')
+
+  else if (event.button === mouseButton.LEFT)
+    router.push(url)
 }
 </script>
 
@@ -135,7 +142,9 @@ function sendToProfile(gameName: string, tagLine: string) {
             <v-list-item
               v-for="participant in team"
               :key="participant.puuid"
-              @click="() => sendToProfile(participant.gameName, participant.tagLine)"
+              v-ripple
+              style="cursor: pointer"
+              @mousedown.prevent="(event: MouseEvent) => sendToProfile(participant.gameName, participant.tagLine, event)"
             >
               <template #prepend>
                 <v-img
