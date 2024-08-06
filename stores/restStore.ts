@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import axios from 'axios'
 import type { IAccount, IAccountDetails, ISummoner } from '~/models/account'
 import { type IActiveGame, mapActiveGame } from '~/models/activeGame'
@@ -47,7 +48,7 @@ export const useRestStore = defineStore('rest', () => {
       return response as IAccountDetails
     }
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       return null
     }
@@ -60,7 +61,7 @@ export const useRestStore = defineStore('rest', () => {
       return response as ISummoner
     }
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       return null
     }
@@ -78,7 +79,6 @@ export const useRestStore = defineStore('rest', () => {
 
       return activeGame
     }
-    // eslint-disable-next-line unused-imports/no-unused-vars
     catch (error: any) {
       return null
     }
@@ -91,7 +91,7 @@ export const useRestStore = defineStore('rest', () => {
       return response
     }
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       return null
     }
@@ -113,7 +113,7 @@ export const useRestStore = defineStore('rest', () => {
       return games
     }
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       return []
     }
@@ -127,7 +127,7 @@ export const useRestStore = defineStore('rest', () => {
       return leagueEntry
     }
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       return []
     }
@@ -140,7 +140,7 @@ export const useRestStore = defineStore('rest', () => {
       return response.map(mapChampionMastery)
     }
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       return []
     }
@@ -153,7 +153,7 @@ export const useRestStore = defineStore('rest', () => {
       return response
     }
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       return []
     }

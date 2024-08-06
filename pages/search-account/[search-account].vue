@@ -3,6 +3,7 @@ import { selectRegions } from '~/helpers/regions';
 import type { IAccount } from '~/models/account';
 
 const route = useRoute()
+const router = useRouter()
 
 const restStore = useRestStore()
 
@@ -34,8 +35,9 @@ onMounted(() => {
 })
 
 watch(accounts, (newAccounts) => {
-  if (newAccounts)
+  if (newAccounts) {
     loading.value = false
+  }
 }, { deep: true })
 
 const isAnyRegionFound = computed(() => {
@@ -44,6 +46,13 @@ const isAnyRegionFound = computed(() => {
 
   return Object.values(accounts.value).some(account => account !== null)
 })
+
+function sendToProfile(account: IAccount | null) {
+  if (!account)
+    return
+
+  router.push(`/account/${account.region}/${account.gameName}-${account.tagLine}`)
+}
 </script>
 
 <template>
@@ -99,7 +108,7 @@ const isAnyRegionFound = computed(() => {
                   : 'plain'"
                 rounded="xl"
                 class="ma-2"
-                @click="() => {}"
+                @click="() => sendToProfile(account)"
               >
                 <template #prepend>
                   <v-avatar rounded="0">

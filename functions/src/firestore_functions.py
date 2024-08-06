@@ -6,41 +6,51 @@ import src.firebase_init as firebase_init
 import src.regions as regions
 from google.cloud.firestore_v1.base_query import FieldFilter
 
-Account = {
-    "gameName": "",
-    "tagLine": "",
-    "puuid": "",
-    "region": "",
-    "accountId": "",
-    "id": "",
+""" Account
+{
+    "gameName": str,
+    "tagLine": str,
+    "puuid": str,
+    "region": str,
+    "accountId": str,
+    "id": str,   
 }
+"""
 
 
-def _find_accounts_in_firestore(game_name, tag):
-    query = (
-        firebase_init.collections["accounts"]
-        .where(filter=FieldFilter("gameName", "==", game_name))
-        .where(filter=FieldFilter("tagLine", "==", tag))
-    )
-
-    docs = [doc.to_dict() for doc in query.stream()]
-
-    return docs
-
-
-def _find_account_in_firestore(puuid):
-    query = firebase_init.collections["accounts"].where(
-        filter=FieldFilter("puuid", "==", puuid)
-    )
+def _get_account_from_firestore(region, puuid=None, game_name=None, tag_line=None):
+    if puuid:
+        query = (
+            firebase_init.collections["accounts"]
+            .where(filter=FieldFilter("puuid", "==", puuid))
+            .where(filter=FieldFilter("region", "==", region))
+        )
+    elif game_name and tag_line:
+        query = (
+            firebase_init.collections["accounts"]
+            .where(
+                filter=FieldFilter("gameName", "==", game_name),
+            )
+            .where(filter=FieldFilter("tagLine", "==", tag_line))
+            .where(filter=FieldFilter("region", "==", region))
+        )
+    else:
+        return None
 
     docs = list(query.stream())
 
     return docs[0].to_dict() if len(docs) else None
 
 
-def _find_account_in_region_riot_id(game_name, tag, region):
+def _get_account_from_region(region, puuid=None, game_name=None, tag_line=None):
     request_region = regions.api_regions_1[region].lower()
-    url = f"https://{request_region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag}"
+
+    if puuid:
+        url = f"https://{request_region}.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}"
+    elif game_name and tag_line:
+        url = f"https://{request_region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
+    else:
+        return
 
     try:
         response = requests.get(
@@ -54,23 +64,7 @@ def _find_account_in_region_riot_id(game_name, tag, region):
         return None
 
 
-def _find_account_in_region_puuid(puuid, region):
-    request_region = regions.api_regions_1[region].lower()
-    request_url = f"https://{request_region}.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}"
-
-    try:
-        response = requests.get(
-            request_url,
-            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
-        )
-
-        return response.json()
-
-    except:
-        return None
-
-
-def _find_summoner_in_region_puuid(puuid, region):
+def _get_summoner_from_region(region, puuid):
     request_region = regions.api_regions_2[region].lower()
     request_url = f"https://{request_region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
 
@@ -80,64 +74,73 @@ def _find_summoner_in_region_puuid(puuid, region):
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
+        if response.status_code == 404:
+            return None
+
         return response.json()
 
     except:
         return None
 
 
-def _find_accounts_in_api(game_name, tag, regions=[]):
-    accounts = {}
+def get_account(regions, my_region, game_name, tag):
+    account = _get_account_from_firestore(my_region, game_name=game_name, tag_line=tag)
 
-    for region in regions:
-        account = _find_account_in_region_riot_id(game_name, tag, region)
+    if account:
+        regions[my_region] = account
 
-        if not account:
-            continue
+        return
 
-        summoner = _find_summoner_in_region_puuid(account["puuid"], region)
+    account = _get_account_from_region(my_region, game_name=game_name, tag_line=tag)
 
-        if not summoner:
-            continue
+    if not account:
+        return
 
-        accounts[region] = {
-            "gameName": game_name,
-            "tagLine": tag,
-            "puuid": account.get("puuid"),
-            "region": region,
-            "accountId": summoner.get("accountId"),
-            "id": summoner.get("id"),
-        }
+    summoner = _get_summoner_from_region(my_region, account["puuid"])
 
-    return accounts
+    if not summoner:
+        return
+
+    new_account = {
+        "gameName": game_name,
+        "tagLine": tag,
+        "puuid": account["puuid"],
+        "region": my_region,
+        "accountId": summoner["accountId"],
+        "id": summoner["id"],
+    }
+
+    firebase_init.collections["accounts"].add(new_account)
+
+    regions[my_region] = new_account
 
 
-def find_accounts_in_all_regions(game_name, tag):
-    account_per_region = {region: None for region in regions.select_regions}
+def get_accounts_from_all_regions(game_name, tag):
+    account_per_region = {}
+    threads = []
 
-    database_accounts = _find_accounts_in_firestore(game_name, tag)
+    for region in regions.select_regions:
+        account_per_region[region] = None
 
-    for account in database_accounts:
-        account_per_region[account.get("region")] = account
+        new_thread = threading.Thread(
+            target=get_account,
+            args=(account_per_region, region, game_name, tag),
+        )
+        threads.append(new_thread)
+        new_thread.start()
 
-    not_found_regions = [
-        region for region, account in account_per_region.items() if not account
-    ]
-
-    api_accounts = _find_accounts_in_api(game_name, tag, not_found_regions)
-
-    for key, value in api_accounts.items():
-        account_per_region[key] = value
+    for thread in threads:
+        thread.join()
 
     return account_per_region
 
 
 def _save_participant_to_firebase(puuid, region):
-    if _find_account_in_firestore(puuid):
+    if _get_account_from_firestore(region, puuid=puuid):
         return
 
-    account_details = _find_account_in_region_puuid(puuid, region)
-    summoner_details = _find_summoner_in_region_puuid(puuid, region)
+    account_details = _get_account_from_region(region, puuid=puuid)
+    summoner_details = _get_summoner_from_region(region, puuid)
 
     if account_details is None or summoner_details is None:
         return

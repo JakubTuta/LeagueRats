@@ -87,7 +87,12 @@ def summoner_details_by_puuid(
         return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
     puuid = required_data["puuid"]
-    region = regions.api_regions_2[required_data["region"]].lower()
+    region = required_data["region"]
+
+    if region not in regions.api_regions_2:
+        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
+
+    region = regions.api_regions_2[region].lower()
 
     request_url = (
         f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
@@ -384,7 +389,9 @@ def accounts_in_all_regions(
     tag_line = required_data["tagLine"]
 
     try:
-        accounts = firestore_functions.find_accounts_in_all_regions(game_name, tag_line)
+        accounts = firestore_functions.get_accounts_from_all_regions(
+            game_name, tag_line
+        )
 
         return https_fn.Response(json.dumps(accounts), status=200)
 

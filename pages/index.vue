@@ -12,13 +12,11 @@ const router = useRouter()
 const accountStore = useAccountStore()
 const restStore = useRestStore()
 
-const search = ref<string | null>(null)
 const gameName = ref<string | null>(null)
 const tagLine = ref<string | null>(null)
 const gameNameError = ref('')
 const tagLineError = ref('')
 const loading = ref(false)
-const userNotExistSnackbar = ref(false)
 const featuredGames = ref<IActiveGame[]>([])
 const region = ref('EUW')
 
@@ -62,13 +60,11 @@ function clearError() {
 }
 
 function clearValues() {
-  search.value = ''
   gameName.value = ''
   tagLine.value = ''
   gameNameError.value = ''
   tagLineError.value = ''
   loading.value = false
-  userNotExistSnackbar.value = false
 }
 
 async function sendToUserView() {
@@ -122,14 +118,6 @@ watch(tagLine, (newTagLine, oldTagLine) => {
 onUnmounted(() => {
   clearValues()
 })
-
-watch(userNotExistSnackbar, (newValue, oldValue) => {
-  if (!oldValue && newValue) {
-    setTimeout(() => {
-      userNotExistSnackbar.value = false
-    }, 5000)
-  }
-})
 </script>
 
 <template>
@@ -137,6 +125,7 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
     <v-row
       align-content="center"
       class="my-16"
+      dense
     >
       <v-col
         cols="12"
@@ -149,6 +138,7 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
           :label="$t('regions.title')"
           prepend-inner-icon="mdi-earth"
           variant="outlined"
+          @keydown.enter="sendToUserView"
         />
       </v-col>
 
@@ -193,17 +183,6 @@ watch(userNotExistSnackbar, (newValue, oldValue) => {
             </v-btn>
           </template>
         </v-text-field>
-      </v-col>
-
-      <v-col cols="12">
-        <v-alert
-          v-model="userNotExistSnackbar"
-          type="warning"
-          variant="tonal"
-          closable
-        >
-          {{ $t('index.userNotExist') }}
-        </v-alert>
       </v-col>
     </v-row>
 
