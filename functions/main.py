@@ -246,7 +246,7 @@ def champion_positions(
 def featured_games(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    regions_to_feature = ["euw1", "na1", "kr"]
+    regions_to_feature = ["euw1", "na1"]
 
     base_url = f"https://{random.choice(regions_to_feature)}.api.riotgames.com/lol/spectator/v5/featured-games"
 
