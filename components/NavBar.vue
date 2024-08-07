@@ -113,9 +113,10 @@ async function sendToUserView() {
       #extension
     >
       <v-row
-        class="mx-10 mt-4"
         no-gutters
-        justify-center
+        align="center"
+        class="mt-4"
+        style="max-width: 800px; display: flex; flex-wrap: wrap; margin: 0 auto;"
       >
         <v-col
           cols="12"

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { mouseButton } from '~/helpers/mouse'
-import { mapApiRegion2ToSelect } from '~/helpers/regions'
-import type { IAccount } from '~/models/account'
-import type { IActiveGame, IParticipant } from '~/models/activeGame'
+import { mouseButton } from '~/helpers/mouse';
+import { mapApiRegion2ToSelect } from '~/helpers/regions';
+import type { IAccount } from '~/models/account';
+import type { IActiveGame, IParticipant } from '~/models/activeGame';
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -15,7 +14,6 @@ const props = withDefaults(defineProps<{
 const { game, account } = toRefs(props)
 
 const router = useRouter()
-const { mobile } = useDisplay()
 
 const storageStore = useStorageStore()
 const { championIcons, summonerSpellIcons } = storeToRefs(storageStore)
@@ -95,6 +93,10 @@ watch(game, (newGame) => {
     storageStore.getSummonerSpellIcon(participant.spell1Id)
     storageStore.getSummonerSpellIcon(participant.spell2Id)
   })
+
+  newGame.bannedChampions.forEach((bannedChampion) => {
+    storageStore.getChampionIcon(bannedChampion.championId)
+  })
 }, { immediate: true })
 
 function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
@@ -151,46 +153,74 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
                   class="mr-4"
                   :src="championIcons[participant.championId]"
                   lazy-src="~/assets/default.png"
-                  width="40"
-                  height="40"
+                  width="45"
+                  height="45"
                 />
               </template>
 
               <v-list-item-title
                 :class="participant.puuid === account?.puuid
-                  ? 'font-weight-bold'
-                  : ''"
+                  ? 'font-weight-bold ml-7'
+                  : 'ml-7'"
               >
                 {{ participant.gameName }}
 
                 <span
                   :class="teamIndex === 0
-                    ? 'text-subtitle-2 text-grey-darken-2 ml-1'
-                    : 'text-subtitle-2 text-grey-lighten-2 ml-1'"
+                    ? 'text-subtitle-2 text-grey-darken-3 ml-1'
+                    : 'text-subtitle-2 text-grey-lighten-3 ml-1'"
                 >
                   #{{ participant.tagLine }}
                 </span>
               </v-list-item-title>
 
-              <v-list-item-action v-if="!mobile">
+              <v-list-item-action>
                 <v-img
                   :src="summonerSpellIcons[participant.spell1Id]"
-                  style="position: absolute; right: 50px; top: 25%"
+                  style="position: absolute; left: 70px; top: 20%"
                   lazy-src="~/assets/default.png"
-                  width="30"
-                  height="30"
+                  width="20"
+                  height="20"
                 />
 
                 <v-img
                   :src="summonerSpellIcons[participant.spell2Id]"
-                  style="position: absolute; right: 10px; top: 25%"
+                  style="position: absolute; left: 70px; bottom: 20%"
                   lazy-src="~/assets/default.png"
-                  width="30"
-                  height="30"
+                  width="20"
+                  height="20"
                 />
               </v-list-item-action>
             </v-list-item>
           </v-list>
+
+          <v-row
+            v-if="game?.bannedChampions.length"
+            class="text-h6 mx-2 mb-2 mt-2"
+            align="center"
+            justify-space-between
+          >
+            {{ $t('game.bannedChampions') }}
+          </v-row>
+
+          <v-row
+            v-if="game?.bannedChampions.length"
+            class="ma-2"
+          >
+            <v-avatar
+              v-for="bannedChampion in game.bannedChampions.filter(bannedChampion => bannedChampion.teamId === teamIds[teamIndex])"
+              :key="bannedChampion.championId"
+              rounded="0"
+              class="mr-4"
+              width="30"
+              height="30"
+            >
+              <v-img
+                :src="championIcons[bannedChampion.championId]"
+                lazy-src="~/assets/default.png"
+              />
+            </v-avatar>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-col>

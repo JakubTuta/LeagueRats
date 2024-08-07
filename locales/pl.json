@@ -87,7 +87,8 @@
     "team1": "Niebieska drużyna",
     "team2": "Czerwona drużyna",
     "classic": "Klasyczna",
-    "aram": "ARAM"
+    "aram": "ARAM",
+    "bannedChampions": "Zbanowane postacie"
   },
   "queueTypes": {
     "RANKED_SOLO_5x5": "Solo/Duo",

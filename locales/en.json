@@ -87,7 +87,8 @@
     "team1": "Blue team",
     "team2": "Red team",
     "classic": "Classic",
-    "aram": "ARAM"
+    "aram": "ARAM",
+    "bannedChampions": "Banned champions"
   },
   "queueTypes": {
     "RANKED_SOLO_5x5": "Solo/Duo",

@@ -118,6 +118,21 @@ watch(tagLine, (newTagLine, oldTagLine) => {
 onUnmounted(() => {
   clearValues()
 })
+
+function formatTime(time: number) {
+  const minutes = Math.floor(time / 60)
+  const seconds = time % 60
+
+  return `${minutes}:${seconds < 10
+? `0${seconds}`
+: seconds}`
+}
+
+setInterval(() => {
+  for (const game of featuredGames.value) {
+    game.gameLength += 1
+  }
+}, 1000)
 </script>
 
 <template>
@@ -227,6 +242,12 @@ onUnmounted(() => {
 
                   <span style="position: absolute; left: 60px;">
                     {{ $t(`game.${game.gameMode.toLowerCase()}`) }}
+                  </span>
+
+                  <span
+                    style="position: absolute; right: 75px"
+                  >
+                    {{ formatTime(game.gameLength) }}
                   </span>
                 </v-expansion-panel-title>
 

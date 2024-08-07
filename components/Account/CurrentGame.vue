@@ -9,6 +9,20 @@ const props = defineProps<{
 }>()
 
 const { currentGame, account, loading } = toRefs(props)
+
+function formatTime(time: number) {
+  const minutes = Math.floor(time / 60)
+  const seconds = time % 60
+
+  return `${minutes}:${seconds < 10
+? `0${seconds}`
+: seconds}`
+}
+
+setInterval(() => {
+  if (currentGame.value)
+    currentGame.value.gameLength += 1
+}, 1000)
 </script>
 
 <template>
@@ -25,8 +39,15 @@ const { currentGame, account, loading } = toRefs(props)
     elevation="24"
     class="my-2"
   >
-    <v-card-title>
+    <v-card-title
+      style="display: flex; justify-content: space-between"
+      class="mx-4"
+    >
       {{ $t('profile.currentGame.usersGame', {"username": `${account.gameName} #${account.tagLine}`}) }}
+
+      <v-spacer />
+
+      {{ formatTime(currentGame.gameLength) }}
     </v-card-title>
 
     <v-card-text>
