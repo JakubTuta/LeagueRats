@@ -35,12 +35,15 @@ export interface IActiveGame {
   bannedChampions: IBannedChampion[]
   participants: IParticipant[]
   platformId: string
+  gameQueueConfigId: 'NORMAL' | 'SOLOQ' | 'FLEXQ'
 }
 
 export function mapActiveGame(data: IActiveGame): IActiveGame {
   // @ts-expect-error gameStartTime is a number
   data.gameStartTime = new Timestamp(data.gameStartTime / 1000, 0)
   data.participants = data.participants.map(mapParticipant)
+  // @ts-expect-error gameQueueConfigId is a number
+  data.gameQueueConfigId = mapGameConfig(data.gameQueueConfigId)
 
   return data
 }
@@ -51,4 +54,16 @@ function mapParticipant(participant: IParticipant): IParticipant {
     gameName: participant.riotId.split('#')[0],
     tagLine: participant.riotId.split('#')[1],
   } as IParticipant
+}
+
+function mapGameConfig(gameQueueConfigId: number): 'NORMAL' | 'SOLOQ' | 'FLEXQ' {
+  switch (gameQueueConfigId) {
+    case 420:
+      return 'SOLOQ'
+    case 440:
+      return 'FLEXQ'
+    case 450:
+    default:
+      return 'NORMAL'
+  }
 }

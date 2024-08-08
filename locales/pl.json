@@ -92,7 +92,10 @@
   },
   "queueTypes": {
     "RANKED_SOLO_5x5": "Solo/Duo",
-    "RANKED_FLEX_SR": "Flex",
-    "CHERRY": "ARENA"
+    "RANKED_FLEX_SR": "Flex 5v5",
+    "CHERRY": "ARENA",
+    "NORMAL": "Normal",
+    "SOLOQ": "Solo/Duo",
+    "FLEXQ": "Flex 5v5"
   }
 }

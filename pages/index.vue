@@ -242,6 +242,7 @@ setInterval(() => {
 
                   <span style="position: absolute; left: 60px;">
                     {{ $t(`game.${game.gameMode.toLowerCase()}`) }}
+                    {{ $t(`queueTypes.${game.gameQueueConfigId}`) }}
                   </span>
 
                   <span
