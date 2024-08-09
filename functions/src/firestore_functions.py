@@ -1,3 +1,4 @@
+import re
 import threading
 import time
 
@@ -14,6 +15,30 @@ from google.cloud.firestore_v1.base_query import FieldFilter
     "region": str,
     "accountId": str,
     "id": str,   
+}
+"""
+
+
+"""Rune
+{
+    "id": int,
+    "key": str,
+    "icon": str,
+    "name": str,
+    "slots": [
+        {
+            "runes": [
+                {
+                    "id": int,
+                    "key": str,
+                    "icon": str,
+                    "name": str,
+                    "shortDesc": str,
+                    "longDesc": str,
+                }
+            ]
+        }
+    ]
 }
 """
 
@@ -167,3 +192,35 @@ def save_participants_to_firebase(game_list):
                 time.sleep(0.1)
 
     threading.Thread(target=func).start()
+
+
+def save_current_version(version):
+    firebase_init.collections["help"].document("current_version").set(
+        {"version": version}
+    )
+
+
+def get_current_version():
+    doc = firebase_init.collections["help"].document("current_version").get()
+
+    return doc.to_dict()["version"] if doc.exists else None
+
+
+def _clear_text(text):
+    text = text.encode().decode("unicode_escape")
+
+    clean_text = re.sub(r"<.*?>", "", text)
+
+    return clean_text
+
+
+def save_rune_data(rune_data_per_language):
+    for language, rune_data in rune_data_per_language.items():
+        for rune_tree in rune_data:
+            for slot in rune_tree["slots"]:
+                for rune_row in slot:
+                    for rune in rune_row["runes"]:
+                        rune["shortDesc"] = _clear_text(rune["shortDesc"])
+                        rune["longDesc"] = _clear_text(rune["longDesc"])
+
+    firebase_init.collections["runes"].document(language).set({"runes": rune_data})

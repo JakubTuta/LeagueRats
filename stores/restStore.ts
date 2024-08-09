@@ -172,6 +172,18 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
+  const test = async (): Promise<void> => {
+    try {
+      const response = await callFirebaseFunction('rune_description_request', {})
+
+      // eslint-disable-next-line no-console
+      console.log(response)
+    }
+    catch (error: any) {
+      console.error(error)
+    }
+  }
+
   return {
     testConnection,
     getAccountDetailsByRiotId,
@@ -183,5 +195,6 @@ export const useRestStore = defineStore('rest', () => {
     getChampionMasteryByPuuid,
     getMatchHistoryByPuuid,
     findAccountsInAllRegions,
+    test,
   }
 })

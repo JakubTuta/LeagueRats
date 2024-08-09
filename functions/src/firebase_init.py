@@ -45,3 +45,4 @@ def initialize_app():
     firestore_client = firestore.client(app)
 
     collections["accounts"] = firestore_client.collection("accounts")
+    collections["help"] = firestore_client.collection("help")
