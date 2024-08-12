@@ -19,27 +19,29 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 """
 
 
-"""Rune
-{
-    "id": int,
-    "key": str,
-    "icon": str,
-    "name": str,
-    "slots": [
-        {
-            "runes": [
-                {
-                    "id": int,
-                    "key": str,
-                    "icon": str,
-                    "name": str,
-                    "shortDesc": str,
-                    "longDesc": str,
-                }
-            ]
-        }
-    ]
-}
+"""Rune data
+[
+    {
+        "id": int,
+        "key": str,
+        "icon": str,
+        "name": str,
+        "slots": [
+            {
+                "runes": [
+                    {
+                        "id": int,
+                        "key": str,
+                        "icon": str,
+                        "name": str,
+                        "shortDesc": str,
+                        "longDesc": str,
+                    }
+                ]
+            }
+        ]
+    }
+]
 """
 
 
@@ -208,19 +210,20 @@ def get_current_version():
 
 def _clear_text(text):
     text = text.encode().decode("unicode_escape")
+    text = text.encode("latin1").decode("utf-8")
 
     clean_text = re.sub(r"<.*?>", "", text)
+    clean_text = re.sub(r"&([a-zA-Z0-9]+);", r"\1", clean_text)
 
     return clean_text
 
 
 def save_rune_data(rune_data_per_language):
-    for language, rune_data in rune_data_per_language.items():
-        for rune_tree in rune_data:
-            for slot in rune_tree["slots"]:
-                for rune_row in slot:
-                    for rune in rune_row["runes"]:
-                        rune["shortDesc"] = _clear_text(rune["shortDesc"])
-                        rune["longDesc"] = _clear_text(rune["longDesc"])
+    for rune_data in rune_data_per_language.values():
+        for rune_data_item in rune_data:
+            for slot in rune_data_item["slots"]:
+                for rune in slot["runes"]:
+                    rune["shortDesc"] = _clear_text(rune["shortDesc"])
+                    rune["longDesc"] = _clear_text(rune["longDesc"])
 
-    firebase_init.collections["runes"].document(language).set({"runes": rune_data})
+    firebase_init.collections["help"].document("runes").set(rune_data_per_language)

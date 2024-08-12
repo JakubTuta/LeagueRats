@@ -103,12 +103,22 @@ export const useRestStore = defineStore('rest', () => {
 
       const acceptableGameModes = ['CLASSIC', 'ARAM']
 
-      const games = response.map(mapActiveGame)
-        .filter((game: IActiveGame) => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
+      const games = (response.map(mapActiveGame) as IActiveGame[])
+        .filter(game => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
 
-      if (games.length > 2) {
+      games.sort((a, b) => {
+        if (a.gameMode === 'CLASSIC' && b.gameMode !== 'CLASSIC') {
+          return -1
+        }
+        if (a.gameMode !== 'CLASSIC' && b.gameMode === 'CLASSIC') {
+          return 1
+        }
+
+        return 0
+      })
+
+      if (games.length > 2)
         return games.slice(0, 2)
-      }
 
       return games
     }

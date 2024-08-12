@@ -133,20 +133,10 @@ setInterval(() => {
     game.gameLength += 1
   }
 }, 1000)
-
-function test() {
-  restStore.test()
-}
 </script>
 
 <template>
   <v-container>
-    <v-btn
-      @click="test"
-    >
-      xdd
-    </v-btn>
-
     <v-row
       align-content="center"
       class="my-16"

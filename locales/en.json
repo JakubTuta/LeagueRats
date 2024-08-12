@@ -97,5 +97,15 @@
     "NORMAL": "Normal",
     "SOLOQ": "Solo/Duo",
     "FLEXQ": "Flex 5v5"
+  },
+  "runeTypes": {
+    "PRECISION": "Precision",
+    "DOMINATION": "Domination",
+    "SORCERY": "Sorcery",
+    "RESOLVE": "Resolve",
+    "INSPIRATION": "Inspiration"
+  },
+  "runeTable": {
+    "title": "Runes"
   }
 }

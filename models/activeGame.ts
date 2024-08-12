@@ -8,7 +8,7 @@ export interface IPerks {
 
 export interface IParticipant {
   championId: number
-  perks: IPerks[]
+  perks: IPerks
   teamId: number
   summonerId: string
   riotId: string

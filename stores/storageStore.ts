@@ -10,6 +10,7 @@ export const useStorageStore = defineStore('storage', () => {
   const summonerSpellIcons = ref<Record<number, string>>({})
   const rankIcons = ref<Record<string, string>>({})
   const regionIcons = ref<Record<string, string>>({})
+  const runeIcons = ref<Record<number, string>>({})
 
   const getChampionIcon = async (championId: number) => {
     if (championIcons.value[championId]) {
@@ -63,14 +64,32 @@ export const useStorageStore = defineStore('storage', () => {
     regionIcons.value[region] = url
   }
 
+  const getRuneIcons = async (runePathPerId: Record<number, string>) => {
+    for (const id in runePathPerId) {
+      if (runeIcons.value[id]) {
+        continue
+      }
+
+      const runePath = runePathPerId[id]
+      const runeRef = storageRef(storage, runePath)
+
+      // eslint-disable-next-line no-await-in-loop
+      const url = await getDownloadURL(runeRef)
+
+      runeIcons.value[id] = url
+    }
+  }
+
   return {
     championIcons,
     summonerSpellIcons,
     rankIcons,
     regionIcons,
+    runeIcons,
     getChampionIcon,
     getSummonerSpellIcon,
     getRankIcon,
     getRegionIcon,
+    getRuneIcons,
   }
 })

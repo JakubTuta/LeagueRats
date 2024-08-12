@@ -97,5 +97,15 @@
     "NORMAL": "Normal",
     "SOLOQ": "Solo/Duo",
     "FLEXQ": "Flex 5v5"
+  },
+  "runeTypes": {
+    "PRECISION": "Precyzja",
+    "DOMINATION": "Dominacja",
+    "SORCERY": "Czarnoksięstwo",
+    "RESOLVE": "Zdeterminowanie",
+    "INSPIRATION": "Inspiracja"
+  },
+  "runeTable": {
+    "title": "Runy"
   }
 }

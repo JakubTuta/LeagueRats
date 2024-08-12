@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { mouseButton } from '~/helpers/mouse';
-import { mapApiRegion2ToSelect } from '~/helpers/regions';
-import type { IAccount } from '~/models/account';
-import type { IActiveGame, IParticipant } from '~/models/activeGame';
+import { useDisplay } from 'vuetify'
+import { mouseButton } from '~/helpers/mouse'
+import { mapApiRegion2ToSelect } from '~/helpers/regions'
+import type { IAccount } from '~/models/account'
+import type { IActiveGame, IParticipant } from '~/models/activeGame'
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -14,6 +15,7 @@ const props = withDefaults(defineProps<{
 const { game, account } = toRefs(props)
 
 const router = useRouter()
+const { mobile } = useDisplay()
 
 const storageStore = useStorageStore()
 const { championIcons, summonerSpellIcons } = storeToRefs(storageStore)
@@ -95,12 +97,14 @@ watch(game, (newGame) => {
   })
 
   newGame.bannedChampions.forEach((bannedChampion) => {
-    storageStore.getChampionIcon(bannedChampion.championId)
+    if (bannedChampion.championId !== -1)
+      storageStore.getChampionIcon(bannedChampion.championId)
   })
 }, { immediate: true })
 
 function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
-  if (!game.value)
+  // @ts-expect-error event.target.className
+  if (!game.value || event.target?.className === 'v-btn__content')
     return
 
   const url = `/account/${region.value}/${gameName}-${tagLine}`
@@ -162,16 +166,38 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
                 :class="participant.puuid === account?.puuid
                   ? 'font-weight-bold ml-7'
                   : 'ml-7'"
+                style="display: flex; align-items: center; justify-content: space-between"
               >
-                {{ participant.gameName }}
+                <span>
+                  {{ participant.gameName }}
 
-                <span
-                  :class="teamIndex === 0
-                    ? 'text-subtitle-2 text-grey-darken-3 ml-1'
-                    : 'text-subtitle-2 text-grey-lighten-3 ml-1'"
-                >
-                  #{{ participant.tagLine }}
+                  <span
+                    :class="teamIndex === 0
+                      ? 'text-subtitle-2 text-grey-darken-3 ml-1'
+                      : 'text-subtitle-2 text-grey-lighten-3 ml-1'"
+                  >
+                    #{{ participant.tagLine }}
+                  </span>
                 </span>
+
+                <v-btn
+                  v-if="account && !mobile"
+                >
+                  {{ $t('runeTable.title') }}
+                  <v-icon
+                    class="ml-2"
+                    size="x-large"
+                    icon="mdi-menu-down"
+                  />
+
+                  <v-menu
+                    activator="parent"
+                    :close-on-content-click="false"
+                    location="start"
+                  >
+                    <AccountRuneTable :runes="participant.perks" />
+                  </v-menu>
+                </v-btn>
               </v-list-item-title>
 
               <v-list-item-action>
@@ -216,7 +242,9 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
               height="30"
             >
               <v-img
-                :src="championIcons[bannedChampion.championId]"
+                :src="bannedChampion.championId === -1
+                  ? '~/assets/none.png'
+                  : championIcons[bannedChampion.championId]"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>

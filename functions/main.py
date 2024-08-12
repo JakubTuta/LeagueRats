@@ -401,45 +401,6 @@ def accounts_in_all_regions(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
-def rune_description_request(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    recent_version = firestore_functions.get_current_version()
-
-    if not recent_version:
-        return https_fn.Response(
-            json.dumps({"Firebase error": "No current version"}), status=500
-        )
-
-    languages = ["en_US", "pl_PL"]
-    rune_data_per_language = {}
-
-    for language in languages:
-        base_url = f"https://ddragon.leagueoflegends.com/cdn/{recent_version}/data/{language}/runesReforged.json"
-
-        try:
-            response = requests.get(base_url)
-            rune_data = response.json()
-            short_language = language.split("_")[0]
-            rune_data_per_language[short_language] = rune_data
-        except Exception as e:
-            print(f"Error occurred: {str(e)}")
-
-            return https_fn.Response(
-                json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
-            )
-
-    try:
-        firestore_functions.save_rune_data(rune_data_per_language)
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
-        )
-
-    return https_fn.Response(json.dumps(rune_data_per_language), status=200)
-
-
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
 def current_version(
     event: scheduler_fn.ScheduledEvent,
