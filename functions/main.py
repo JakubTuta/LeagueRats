@@ -10,7 +10,7 @@ import src.regions as regions
 from firebase_functions import https_fn, scheduler_fn
 
 cors_options = firebase_functions.options.CorsOptions(
-    cors_methods=["POST", "OPTIONS"],
+    cors_methods=["GET", "POST", "OPTIONS"],
     cors_origins="*",
 )
 
@@ -398,6 +398,44 @@ def accounts_in_all_regions(
     except Exception as e:
         return https_fn.Response(
             json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
+        )
+
+
+@https_fn.on_request(region="europe-central2", cors=cors_options)
+def match_data(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    try:
+        match_id = req.path.split("/")[1]
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    try:
+        region = match_id.split("_")[0]
+
+        request_region = regions.api_region_2_to_server_region[region]
+    except:
+        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
+
+    request_url = (
+        f"https://{request_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+    )
+
+    try:
+        response = requests.get(
+            request_url,
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+        )
+
+        return https_fn.Response(
+            json.dumps(response.json()), status=response.status_code
+        )
+
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
         )
 
 

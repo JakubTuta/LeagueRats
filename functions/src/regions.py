@@ -15,6 +15,7 @@ select_regions = [
     "TR",
     "TW",
     "VN",
+    "ME",
 ]
 api_regions_1 = {
     "EUW": "EUROPE",
@@ -33,6 +34,7 @@ api_regions_1 = {
     "TR": "EUROPE",
     "TW": "ASIA",
     "VN": "ASIA",
+    "ME": "EUROPE",
 }
 api_regions_2 = {
     "EUW": "EUW1",
@@ -51,6 +53,7 @@ api_regions_2 = {
     "TR": "TR1",
     "TW": "TW2",
     "VN": "VN2",
+    "ME": "ME1",
 }
 api_region_2_to_select_region = {
     "EUW1": "EUW",
@@ -69,4 +72,24 @@ api_region_2_to_select_region = {
     "TR1": "TR",
     "TW2": "TW",
     "VN2": "VN",
+    "ME1": "ME",
+}
+api_region_2_to_server_region = {
+    "NA1": "AMERICAS",
+    "BR1": "AMERICAS",
+    "LA1": "AMERICAS",
+    "LA2": "AMERICAS",
+    "KR": "ASIA",
+    "JP1": "ASIA",
+    "EUW1": "EUROPE",
+    "EUN1": "EUROPE",
+    "RU": "EUROPE",
+    "TR1": "EUROPE",
+    "ME1": "EUROPE",
+    "OC1": "SEA",
+    "PH2": "SEA",
+    "SG2": "SEA",
+    "TH2": "SEA",
+    "TW2": "SEA",
+    "VN2": "SEA",
 }

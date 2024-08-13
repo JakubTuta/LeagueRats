@@ -43,7 +43,7 @@ onUnmounted(() => {
 
   <v-card
     v-else-if="currentGame && account"
-    elevation="24"
+    elevation="0"
     class="my-2"
   >
     <v-card-title
@@ -52,10 +52,6 @@ onUnmounted(() => {
         ? 'display: flex; flex-direction: column; align-items: start'
         : 'display: flex; justify-content: space-between; align-items: center'"
     >
-      <span style="width: 1px">
-        {{ $t('profile.currentGame.usersGame', {"username": `${account.gameName} #${account.tagLine}`}) }}
-      </span>
-
       <div
         style="display: flex; justify-content: center; align-items: center"
         class="my-3"

@@ -4,6 +4,7 @@ import type { IAccount, IAccountDetails, ISummoner } from '~/models/account'
 import { type IActiveGame, mapActiveGame } from '~/models/activeGame'
 import { type IChampionMastery, mapChampionMastery } from '~/models/championMastery'
 import { type ILeagueEntry, mapLeagueEntry } from '~/models/leagueEntry'
+import { type IMatchData, mapMatchData } from '~/models/matchData'
 
 export const useRestStore = defineStore('rest', () => {
   const baseURL = 'https://europe-central2-league-rats.cloudfunctions.net'
@@ -19,8 +20,18 @@ export const useRestStore = defineStore('rest', () => {
     })
   }
 
-  const callFirebaseFunction = async (functionName: string, data: any): Promise<any> => {
+  const postFirebaseFunction = async (functionName: string, data: any): Promise<any> => {
     const response = await getAxios().post(`/${functionName}`, data)
+
+    if (response.status !== 200) {
+      throw new Error(response.data)
+    }
+
+    return response.data
+  }
+
+  const getFirebaseFunction = async (functionName: string): Promise<any> => {
+    const response = await getAxios().get(`/${functionName}`)
 
     if (response.status !== 200) {
       throw new Error(response.data)
@@ -31,7 +42,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const testConnection = async (): Promise<void> => {
     try {
-      const response = await callFirebaseFunction('test_connection', {})
+      const response = await postFirebaseFunction('test_connection', {})
 
       // eslint-disable-next-line no-console
       console.log(response)
@@ -43,7 +54,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getAccountDetailsByRiotId = async (username: string, tag: string): Promise<IAccountDetails | null> => {
     try {
-      const response = await callFirebaseFunction('account_details_by_riot_id', { username, tag })
+      const response = await postFirebaseFunction('account_details_by_riot_id', { username, tag })
 
       return response as IAccountDetails
     }
@@ -56,7 +67,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getSummonerDetailsByPuuid = async (puuid: string, region: string): Promise<ISummoner | null> => {
     try {
-      const response = await callFirebaseFunction('summoner_details_by_puuid', { puuid, region })
+      const response = await postFirebaseFunction('summoner_details_by_puuid', { puuid, region })
 
       return response as ISummoner
     }
@@ -69,7 +80,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getCurrentGameByPuuid = async (puuid: string, region: string): Promise<IActiveGame | null> => {
     try {
-      const response = await callFirebaseFunction('active_game_by_puuid', { puuid, region })
+      const response = await postFirebaseFunction('active_game_by_puuid', { puuid, region })
 
       const activeGame = mapActiveGame(response)
 
@@ -86,7 +97,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const findChampionsPositions = async (championIds: number[]): Promise<Record<number, string> | null> => {
     try {
-      const response = await callFirebaseFunction('champion_positions', { championIds })
+      const response = await postFirebaseFunction('champion_positions', { championIds })
 
       return response
     }
@@ -99,7 +110,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getFeaturedGames = async (): Promise<IActiveGame[]> => {
     try {
-      const response = await callFirebaseFunction('featured_games', {})
+      const response = await postFirebaseFunction('featured_games', {})
 
       const acceptableGameModes = ['CLASSIC', 'ARAM']
 
@@ -131,7 +142,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getLeagueEntryBySummonerId = async (summonerId: string, region: string): Promise<ILeagueEntry[]> => {
     try {
-      const response = await callFirebaseFunction('league_entry_by_summoner_id', { summonerId, region })
+      const response = await postFirebaseFunction('league_entry_by_summoner_id', { summonerId, region })
       const leagueEntry = response.map(mapLeagueEntry)
 
       return leagueEntry
@@ -145,7 +156,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getChampionMasteryByPuuid = async (puuid: string, region: string): Promise<IChampionMastery[]> => {
     try {
-      const response = await callFirebaseFunction('champion_mastery_by_puuid', { puuid, region })
+      const response = await postFirebaseFunction('champion_mastery_by_puuid', { puuid, region })
 
       return response.map(mapChampionMastery)
     }
@@ -158,7 +169,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const getMatchHistoryByPuuid = async (puuid: string, optionalKeys: object, region: string): Promise<string[]> => {
     try {
-      const response = await callFirebaseFunction('match_history_by_puuid', { puuid, ...optionalKeys, region })
+      const response = await postFirebaseFunction('match_history_by_puuid', { puuid, ...optionalKeys, region })
 
       return response
     }
@@ -171,7 +182,7 @@ export const useRestStore = defineStore('rest', () => {
 
   const findAccountsInAllRegions = async (gameName: string, tagLine: string): Promise<Record<string, IAccount | null>> => {
     try {
-      const response = await callFirebaseFunction('accounts_in_all_regions', { gameName, tagLine })
+      const response = await postFirebaseFunction('accounts_in_all_regions', { gameName, tagLine })
 
       return response
     }
@@ -182,15 +193,16 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const test = async (): Promise<void> => {
+  const getMatchData = async (gameId: string): Promise<IMatchData | null> => {
     try {
-      const response = await callFirebaseFunction('rune_description_request', {})
+      const response = await getFirebaseFunction(`match_data/${gameId}`)
 
-      // eslint-disable-next-line no-console
-      console.log(response)
+      return mapMatchData(response)
     }
     catch (error: any) {
       console.error(error)
+
+      return null
     }
   }
 
@@ -205,6 +217,6 @@ export const useRestStore = defineStore('rest', () => {
     getChampionMasteryByPuuid,
     getMatchHistoryByPuuid,
     findAccountsInAllRegions,
-    test,
+    getMatchData,
   }
 })

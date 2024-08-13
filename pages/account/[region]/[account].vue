@@ -138,7 +138,7 @@ async function findMatchHistory() {
     return
 
   const optionalKeys = {
-    count: 5,
+    count: 1,
   }
 
   tabLoading.value = true
