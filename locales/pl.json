@@ -94,9 +94,11 @@
     "RANKED_SOLO_5x5": "Solo/Duo",
     "RANKED_FLEX_SR": "Flex 5v5",
     "CHERRY": "ARENA",
-    "NORMAL": "Normal",
+    "NORMAL_BLIND": "Normal Blind",
+    "NORMAL_DRAFT": "Normal Draft",
     "SOLOQ": "Solo/Duo",
-    "FLEXQ": "Flex 5v5"
+    "FLEXQ": "Flex 5v5",
+    "ARAM": "ARAM"
   },
   "runeTypes": {
     "PRECISION": "Precyzja",

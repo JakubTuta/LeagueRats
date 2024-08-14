@@ -167,9 +167,9 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getMatchHistoryByPuuid = async (puuid: string, optionalKeys: object, region: string): Promise<string[]> => {
+  const getAccountMatchHistory = async (account: IAccount, optionalKeys: object): Promise<string[]> => {
     try {
-      const response = await postFirebaseFunction('match_history_by_puuid', { puuid, ...optionalKeys, region })
+      const response = await postFirebaseFunction('match_history_by_puuid', { puuid: account.puuid, region: account.region, ...optionalKeys })
 
       return response
     }
@@ -197,6 +197,8 @@ export const useRestStore = defineStore('rest', () => {
     try {
       const response = await getFirebaseFunction(`match_data/${gameId}`)
 
+      console.log(response)
+
       return mapMatchData(response)
     }
     catch (error: any) {
@@ -215,7 +217,7 @@ export const useRestStore = defineStore('rest', () => {
     getFeaturedGames,
     getLeagueEntryBySummonerId,
     getChampionMasteryByPuuid,
-    getMatchHistoryByPuuid,
+    getAccountMatchHistory,
     findAccountsInAllRegions,
     getMatchData,
   }

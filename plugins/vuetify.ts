@@ -13,8 +13,8 @@ export default defineNuxtPlugin((app) => {
           colors: {
             'primary': '#A87676',
             'secondary': '#76A8A8',
-            'league-blue': '#4cb4f5',
-            'league-red': '#f73b3b',
+            'league-blue': '#23a7fa',
+            'league-red': '#fc2626',
           },
         },
         dark: {
@@ -22,8 +22,8 @@ export default defineNuxtPlugin((app) => {
           colors: {
             'primary': '#A87676',
             'secondary': '#87CACA',
-            'league-blue': '#4cb4f5',
-            'league-red': '#f73b3b',
+            'league-blue': '#23a7fa',
+            'league-red': '#fc2626',
           },
         },
       },

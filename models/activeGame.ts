@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore'
+import { queueIdToType } from '~/helpers/queueTypes'
 
 export interface IPerks {
   perkIds: number[]
@@ -57,13 +58,11 @@ function mapParticipant(participant: IParticipant): IParticipant {
 }
 
 function mapGameConfig(gameQueueConfigId: number): 'NORMAL' | 'SOLOQ' | 'FLEXQ' {
-  switch (gameQueueConfigId) {
-    case 420:
-      return 'SOLOQ'
-    case 440:
-      return 'FLEXQ'
-    case 450:
-    default:
-      return 'NORMAL'
+  try {
+    return queueIdToType[gameQueueConfigId] as 'NORMAL' | 'SOLOQ' | 'FLEXQ'
+  }
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  catch (error: any) {
+    return 'NORMAL'
   }
 }

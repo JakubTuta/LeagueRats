@@ -112,9 +112,6 @@ function handleTabData() {
     case 0:
       findLeagueEntry()
       break
-    case 1:
-      findMatchHistory()
-      break
     case 2:
       findCurrentGame()
       break
@@ -130,19 +127,6 @@ async function findLeagueEntry() {
 
   tabLoading.value = true
   leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id, region.value)
-  tabLoading.value = false
-}
-
-async function findMatchHistory() {
-  if (!account.value)
-    return
-
-  const optionalKeys = {
-    count: 1,
-  }
-
-  tabLoading.value = true
-  matchHistory.value = await restStore.getMatchHistoryByPuuid(account.value.puuid, optionalKeys, region.value)
   tabLoading.value = false
 }
 
@@ -214,8 +198,7 @@ async function findChampions() {
 
         <AccountMatchHistory
           v-if="selectedTab === 1"
-          :match-ids="matchHistory"
-          :loading="tabLoading"
+          :account="account"
         />
 
         <AccountCurrentGame
