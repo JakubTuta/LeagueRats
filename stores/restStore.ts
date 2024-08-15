@@ -197,8 +197,6 @@ export const useRestStore = defineStore('rest', () => {
     try {
       const response = await getFirebaseFunction(`match_data/${gameId}`)
 
-      console.log(response)
-
       return mapMatchData(response)
     }
     catch (error: any) {

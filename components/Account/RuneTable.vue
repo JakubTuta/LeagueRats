@@ -30,10 +30,10 @@ watch(runes, async (newRunes) => {
     await runeStore.getRuneInfo()
 
   if (!runeInfo.value)
-    return []
+    return
 
-  primaryRuneTree.value = runeInfo.value[locale.value].find(rune => rune.id === runes.value.perkStyle) || null
-  secondaryRuneTree.value = runeInfo.value[locale.value].find(rune => rune.id === runes.value.perkSubStyle) || null
+  primaryRuneTree.value = runeInfo.value[locale.value].find(rune => rune.id === newRunes.perkStyle) || null
+  secondaryRuneTree.value = runeInfo.value[locale.value].find(rune => rune.id === newRunes.perkSubStyle) || null
 
   primaryRunes.value = primaryRuneTree.value?.slots.flatMap(slot => slot.runes).filter(rune => newRunes.perkIds.includes(rune.id)) || []
   secondaryRunes.value = secondaryRuneTree.value?.slots.flatMap(slot => slot.runes).filter(rune => newRunes.perkIds.includes(rune.id)) || []
@@ -41,24 +41,7 @@ watch(runes, async (newRunes) => {
   keyRune.value = primaryRunes.value[0]
   primaryRunes.value = primaryRunes.value.slice(1)
 
-  const mappedRunes: Record<number, string> = {}
-
-  mappedRunes[primaryRuneTree.value?.id || -1] = primaryRuneTree.value?.icon || ''
-  mappedRunes[secondaryRuneTree.value?.id || -1] = secondaryRuneTree.value?.icon || ''
-
-  mappedRunes[keyRune.value?.id || -1] = keyRune.value?.icon || ''
-
-  primaryRunes.value.forEach((rune) => {
-    mappedRunes[rune.id] = rune.icon
-  })
-  secondaryRunes.value.forEach((rune) => {
-    mappedRunes[rune.id] = rune.icon
-  })
-
-  if (mappedRunes[-1])
-    delete mappedRunes[-1]
-
-  storageStore.getRuneIcons(mappedRunes)
+  runeStore.getRuneIcons(newRunes)
 }, { immediate: true })
 </script>
 

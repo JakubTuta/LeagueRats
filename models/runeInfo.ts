@@ -1,3 +1,12 @@
+export interface IRuneData {
+  id: number
+  key: string
+  icon: string
+  name: string
+  shortDesc: string
+  longDesc: string
+}
+
 export interface IRuneTree {
   id: number
   key: string
@@ -6,15 +15,6 @@ export interface IRuneTree {
   slots: {
     runes: IRuneData[]
   }[]
-}
-
-export interface IRuneData {
-  id: number
-  key: string
-  icon: string
-  name: string
-  shortDesc: string
-  longDesc: string
 }
 
 export interface IRuneInfo {

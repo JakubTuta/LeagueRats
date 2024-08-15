@@ -22,8 +22,7 @@ const matchHistoryPerRegion = ref<Record<string, IMatchData[]>>({})
 const tabs = computed(() => [
   { title: t('queueTypes.RANKED_SOLO_5x5'), value: 'SOLOQ' },
   { title: t('queueTypes.RANKED_FLEX_SR'), value: 'FLEXQ' },
-  { title: t('queueTypes.NORMAL_DRAFT'), value: 'NORMAL_DRAFT' },
-  { title: t('queueTypes.NORMAL_BLIND'), value: 'NORMAL_BLIND' },
+  { title: t('queueTypes.NORMAL_DRAFT'), value: 'NORMAL' },
   { title: t('queueTypes.ARAM'), value: 'ARAM' },
 ])
 
@@ -98,14 +97,13 @@ async function getMatchHistory() {
     />
   </v-card>
 
-  <v-list>
-    <v-list-item
-      v-for="match in matchHistoryPerRegion[selectedTab]"
-      :key="match.metadata.matchId"
-    >
-      <v-list-item-title>
-        {{ match.info.participants.find(participant => participant.puuid === account?.puuid)!.win }}
-      </v-list-item-title>
-    </v-list-item>
-  </v-list>
+  <v-spacer class="my-4" />
+
+  <AccountGameData
+    v-for="match in matchHistoryPerRegion[selectedTab]"
+    :key="match.metadata.matchId"
+    class="mb-4"
+    :account="account"
+    :game="match"
+  />
 </template>

@@ -1,15 +1,17 @@
+// 400 - normal draft
+// 420 - soloq
+// 430 - normal blind
+// 440 - flexq
+// 450 - aram
+
 export const queueTypes: { [key: string]: { id: number, name: string } } = {
-  NORMAL_DRAFT: {
+  NORMAL: {
     id: 400,
     name: 'normal',
   },
   SOLOQ: {
     id: 420,
     name: 'ranked',
-  },
-  NORMAL_BLIND: {
-    id: 430,
-    name: 'normal',
   },
   FLEXQ: {
     id: 440,
@@ -22,9 +24,9 @@ export const queueTypes: { [key: string]: { id: number, name: string } } = {
 }
 
 export const queueIdToType: { [key: number]: string } = {
-  400: 'NORMAL_DRAFT',
+  400: 'NORMAL',
   420: 'SOLOQ',
-  430: 'NORMAL_BLIND',
+  430: 'NORMAL',
   440: 'FLEXQ',
   450: 'ARAM',
 }

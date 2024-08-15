@@ -94,6 +94,7 @@
     "RANKED_SOLO_5x5": "Solo/Duo",
     "RANKED_FLEX_SR": "Flex 5v5",
     "CHERRY": "ARENA",
+    "NORMAL": "Normal",
     "NORMAL_BLIND": "Normal Blind",
     "NORMAL_DRAFT": "Normal Draft",
     "SOLOQ": "Solo/Duo",
@@ -109,5 +110,15 @@
   },
   "runeTable": {
     "title": "Runes"
+  },
+  "gameHistory": {
+    "win": "Win",
+    "loss": "Loss",
+    "minutesAgo": "{time} minutes ago",
+    "hoursAgo": "{time} hours ago",
+    "daysAgo": "{time} days ago",
+    "weeksAgo": "{time} weeks ago",
+    "monthsAgo": "{time} months ago",
+    "yearAgo": "Over a year ago"
   }
 }
