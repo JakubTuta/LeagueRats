@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { IPerks } from '~/models/activeGame';
-import type { IRuneData, IRuneTree } from '~/models/runeInfo';
+import type { IMatchHistoryPerks } from '~/models/matchData';
+import type { IRuneData } from '~/models/runeInfo';
 
 const props = defineProps<{
-  runes: IPerks
+  runes?: IPerks | null
+  extendedRunes?: IMatchHistoryPerks | null
 }>()
 
-const { runes } = toRefs(props)
+const { runes, extendedRunes } = toRefs(props)
 
 const storageStore = useStorageStore()
 const { runeIcons } = storeToRefs(storageStore)
@@ -16,8 +18,6 @@ const { runeInfo } = storeToRefs(runeStore)
 
 const { locale } = useI18n()
 
-const primaryRuneTree = ref<IRuneTree | null>(null)
-const secondaryRuneTree = ref<IRuneTree | null>(null)
 const keyRune = ref<IRuneData | null>(null)
 const primaryRunes = ref<IRuneData[]>([])
 const secondaryRunes = ref<IRuneData[]>([])
@@ -32,16 +32,47 @@ watch(runes, async (newRunes) => {
   if (!runeInfo.value)
     return
 
-  primaryRuneTree.value = runeInfo.value[locale.value].find(rune => rune.id === newRunes.perkStyle) || null
-  secondaryRuneTree.value = runeInfo.value[locale.value].find(rune => rune.id === newRunes.perkSubStyle) || null
+  const primaryRuneTree = runeInfo.value[locale.value].find(rune => rune.id === newRunes.perkStyle) || null
+  const secondaryRuneTree = runeInfo.value[locale.value].find(rune => rune.id === newRunes.perkSubStyle) || null
 
-  primaryRunes.value = primaryRuneTree.value?.slots.flatMap(slot => slot.runes).filter(rune => newRunes.perkIds.includes(rune.id)) || []
-  secondaryRunes.value = secondaryRuneTree.value?.slots.flatMap(slot => slot.runes).filter(rune => newRunes.perkIds.includes(rune.id)) || []
+  primaryRunes.value = primaryRuneTree?.slots.flatMap(slot => slot.runes).filter(rune => newRunes.perkIds.includes(rune.id)) || []
+  secondaryRunes.value = secondaryRuneTree?.slots.flatMap(slot => slot.runes).filter(rune => newRunes.perkIds.includes(rune.id)) || []
 
   keyRune.value = primaryRunes.value[0]
   primaryRunes.value = primaryRunes.value.slice(1)
 
   runeStore.getRuneIcons(newRunes)
+}, { immediate: true })
+
+watch(extendedRunes, async (newRunes) => {
+  if (!newRunes)
+    return
+
+  if (!runeInfo.value)
+    await runeStore.getRuneInfo()
+
+  if (!runeInfo.value)
+    return
+
+  let primaryRuneIds = newRunes.styles.find(style => style.description === 'primaryStyle')?.selections.map(selection => selection.perk) || []
+  const secondaryRuneIds = newRunes.styles.find(style => style.description === 'subStyle')?.selections.map(selection => selection.perk) || []
+
+  const keyRuneId = primaryRuneIds[0]
+  primaryRuneIds = primaryRuneIds.slice(1)
+
+  const allRunes = runeInfo.value[locale.value].flatMap(rune => rune.slots.flatMap(slot => slot.runes))
+
+  keyRune.value = allRunes.find(rune => rune.id === keyRuneId) || null
+  primaryRunes.value = allRunes.filter(rune => primaryRuneIds.includes(rune.id))
+  secondaryRunes.value = allRunes.filter(rune => secondaryRuneIds.includes(rune.id))
+
+  const mappedRunes: IPerks = {
+    perkIds: newRunes.styles.flatMap(style => style.selections.map(selection => selection.perk)),
+    perkStyle: newRunes.styles.find(style => style.description === 'primaryStyle')?.style || -1,
+    perkSubStyle: newRunes.styles.find(style => style.description === 'subStyle')?.style || -1,
+  }
+
+  runeStore.getRuneIcons(mappedRunes)
 }, { immediate: true })
 </script>
 

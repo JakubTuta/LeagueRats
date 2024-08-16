@@ -1,14 +1,15 @@
-export const selectRegions = ['EUW', 'EUNE', 'NA', 'KR', 'BR', 'JP', 'LAN', 'LAS', 'OCE', 'PH', 'RU', 'SG', 'TH', 'TR', 'TW', 'VN']
+export const selectRegions = ['EUW', 'EUNE', 'NA', 'KR', 'BR', 'JP', 'LAN', 'LAS', 'OCE', 'PH', 'RU', 'SG', 'TH', 'TR', 'TW', 'VN', 'ME']
+export type TSelectRegions = 'EUW' | 'EUNE' | 'NA' | 'KR' | 'BR' | 'JP' | 'LAN' | 'LAS' | 'OCE' | 'PH' | 'RU' | 'SG' | 'TH' | 'TR' | 'TW' | 'VN' | 'ME'
 export type TApiRegions1 = 'AMERICAS' | 'ASIA' | 'EUROPE' | 'ESPORTS'
-export type TApiRegions2 = 'EUW1' | 'EUN1' | 'NA1' | 'KR' | 'BR1' | 'JP1' | 'LA1' | 'LA2' | 'ME1' | 'OC1' | 'PH2' | 'RU' | 'SG2' | 'TH2' | 'TR1' | 'TW2' | 'VN2'
+export type TApiRegions2 = 'EUW1' | 'EUN1' | 'NA1' | 'KR' | 'BR1' | 'JP1' | 'LA1' | 'LA2' | 'ME1' | 'OC1' | 'PH2' | 'RU' | 'SG2' | 'TH2' | 'TR1' | 'TW2' | 'VN2' | 'ME1'
 
-export function mapSelectRegionToApiRegion1(region: string) {
+export function mapSelectRegionToApiRegion1(region: TSelectRegions): TApiRegions1 {
   switch (region) {
     case 'EUW':
     case 'EUNE':
     case 'RU':
     case 'TR':
-    case 'ME1':
+    case 'ME':
       return 'EUROPE'
     case 'KR':
     case 'JP':
@@ -25,11 +26,11 @@ export function mapSelectRegionToApiRegion1(region: string) {
     case 'BR':
       return 'AMERICAS'
     default:
-      return ''
+      throw new Error(`Invalid region: ${region}`)
   }
 }
 
-export function mapSelectRegionToApiRegion2(region: string) {
+export function mapSelectRegionToApiRegion2(region: string): TApiRegions2 {
   switch (region) {
     case 'EUW':
       return 'EUW1'
@@ -63,12 +64,14 @@ export function mapSelectRegionToApiRegion2(region: string) {
       return 'TW2'
     case 'VN':
       return 'VN2'
+    case 'ME':
+      return 'ME1'
     default:
-      return ''
+      throw new Error(`Invalid region: ${region}`)
   }
 }
 
-export function mapApiRegion2ToSelect(region: string) {
+export function mapApiRegion2ToSelect(region: TApiRegions2): TSelectRegions {
   switch (region) {
     case 'EUW1':
       return 'EUW'
@@ -102,7 +105,9 @@ export function mapApiRegion2ToSelect(region: string) {
       return 'TW'
     case 'VN2':
       return 'VN'
+    case 'ME1':
+      return 'ME'
     default:
-      return ''
+      throw new Error(`Invalid region: ${region}`)
   }
 }

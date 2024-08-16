@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore'
-import type { IPerks } from './activeGame'
+import type { TApiRegions2 } from '~/helpers/regions'
 
 interface IMatchMetadata {
   matchId: string
@@ -45,7 +45,25 @@ interface ITeam {
   win: boolean
 }
 
-interface IParticipantStats {
+export interface IMatchHistoryPerks {
+  statPerks: {
+    defense: number
+    flex: number
+    offense: number
+  }
+  styles: {
+    description: string
+    selections: {
+      perk: number
+      var1: number
+      var2: number
+      var3: number
+    }[]
+    style: number
+  }[]
+}
+
+export interface IParticipantStats {
   kills: number
   assists: number
   deaths: number
@@ -70,10 +88,10 @@ interface IParticipantStats {
   neutralMinionsKilled: number
   totalMinionsKilled: number
   participantId: number
-  perks: IPerks
+  perks: IMatchHistoryPerks
   puuid: string
   riotIdGameName: string
-  riotIdTagLine: string
+  riotIdTagline: string
   summoner1Id: number
   summoner2Id: number
   summonerId: string
@@ -95,7 +113,7 @@ interface IMatchInfo {
   gameVersion: string
   mapId: number
   participants: IParticipantStats[]
-  platformId: string
+  platformId: TApiRegions2
   queueId: number
   teams: ITeam[]
 }
@@ -148,7 +166,7 @@ export function mapMatchData(data: any): IMatchData {
         perks: participant?.perks || {},
         puuid: participant?.puuid || '',
         riotIdGameName: participant?.riotIdGameName || '',
-        riotIdTagLine: participant?.riotIdTagLine || '',
+        riotIdTagline: participant?.riotIdTagline || 'ppx',
         summoner1Id: participant?.summoner1Id || 0,
         summoner2Id: participant?.summoner2Id || 0,
         summonerId: participant?.summonerId || '',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
 import { mouseButton } from '~/helpers/mouse'
-import { mapApiRegion2ToSelect } from '~/helpers/regions'
+import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import type { IActiveGame, IParticipant } from '~/models/activeGame'
 
@@ -46,7 +46,7 @@ const region = computed(() => {
   if (!game.value)
     return null
 
-  return mapApiRegion2ToSelect(game.value.platformId)
+  return mapApiRegion2ToSelect(game.value.platformId as TApiRegions2)
 })
 
 async function sortTeam(participants: IParticipant[]) {
