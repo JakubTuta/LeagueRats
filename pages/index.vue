@@ -75,34 +75,16 @@ async function sendToUserView() {
   }
 
   loading.value = true
-  const accountName = `${gameName.value}-${tagLine.value}`
-  const lowerCaseRegion = region.value.toLowerCase()
 
-  const databaseAccount = await accountStore.findAccount(gameName.value, tagLine.value, region.value)
+  const response = await accountStore.getAccount(gameName.value, tagLine.value, region.value, false)
 
-  if (databaseAccount) {
-    router.push(`/account/${lowerCaseRegion}/${accountName}`)
+  if (!response) {
+    router.push(`/search-account/${gameName.value}-${tagLine.value}`)
 
     return
   }
 
-  const apiAccount = await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value)
-
-  if (!apiAccount) {
-    router.push(`/account/unknown-region/${accountName}`)
-
-    return
-  }
-
-  const apiSummoner = await restStore.getSummonerDetailsByPuuid(apiAccount.puuid, region.value)
-
-  if (!apiSummoner) {
-    router.push(`/account/unknown-region/${accountName}`)
-
-    return
-  }
-
-  router.push(`/account/${lowerCaseRegion}/${accountName}`)
+  router.push(`/account/${region.value}/${gameName.value}-${tagLine.value}`)
 }
 
 watch(gameName, (newGameName, oldGameName) => {

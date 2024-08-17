@@ -1,6 +1,5 @@
 import re
 import threading
-import time
 
 import requests
 import src.firebase_init as firebase_init
@@ -184,14 +183,12 @@ def _save_participant_to_firebase(puuid, region):
     firebase_init.collections["accounts"].add(account)
 
 
-def save_participants_to_firebase(game_list):
+def save_participants_to_firebase(puuids, game_region):
     def func():
-        for game in game_list:
-            region = regions.api_region_2_to_select_region[game["platformId"]]
+        request_region = regions.api_region_2_to_select_region[game_region]
 
-            for participant in game["participants"]:
-                _save_participant_to_firebase(participant["puuid"], region)
-                time.sleep(0.1)
+        for puuid in puuids:
+            _save_participant_to_firebase(puuid, request_region)
 
     threading.Thread(target=func).start()
 

@@ -166,7 +166,7 @@ export function mapMatchData(data: any): IMatchData {
         perks: participant?.perks || {},
         puuid: participant?.puuid || '',
         riotIdGameName: participant?.riotIdGameName || '',
-        riotIdTagline: participant?.riotIdTagline || 'ppx',
+        riotIdTagline: participant?.riotIdTagline || '',
         summoner1Id: participant?.summoner1Id || 0,
         summoner2Id: participant?.summoner2Id || 0,
         summonerId: participant?.summonerId || '',

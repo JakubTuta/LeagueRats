@@ -22,6 +22,8 @@ const { championIcons, summonerSpellIcons, runeIcons, itemIcons } = storeToRefs(
 const runeStore = useRuneStore()
 const { runeInfo } = storeToRefs(runeStore)
 
+const accountStore = useAccountStore()
+
 const team1 = ref<IParticipantStats[]>([])
 const team2 = ref<IParticipantStats[]>([])
 
@@ -168,15 +170,25 @@ function whenWasGame() {
   return t('gameHistory.yearAgo')
 }
 
-function sendToProfile(participant: IParticipantStats, event: MouseEvent) {
+async function sendToProfile(participant: IParticipantStats, event: MouseEvent) {
   if (participant.puuid === gamer.value.puuid)
     return
 
   const region = mapApiRegion2ToSelect(game.value.info.platformId as TApiRegions2)
-  const summonerName = participant.summonerName
-  const tagLine = participant.riotIdTagline
+  let summonerName = participant.riotIdGameName || participant.summonerName
+  let tagLine = participant.riotIdTagline
 
-  const url = `/account/${region.toLowerCase()}/${summonerName}-${tagLine}`
+  if (!tagLine || !summonerName) {
+    const account = await accountStore.getAccount(participant.puuid, region, false)
+
+    if (!account)
+      return
+
+    summonerName = account.gameName
+    tagLine = account.tagLine
+  }
+
+  const url = `/account/${region}/${summonerName}-${tagLine}`
 
   if (event.button === mouseButton.MIDDLE)
     window.open(url, '_blank', 'noopener,noreferrer')
@@ -365,7 +377,7 @@ function sendToProfile(participant: IParticipantStats, event: MouseEvent) {
                   />
                 </v-avatar>
 
-                {{ participant.riotIdGameName }}
+                {{ participant.riotIdGameName || participant.summonerName }}
               </v-list-item>
             </v-list>
           </v-col>

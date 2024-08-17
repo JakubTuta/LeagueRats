@@ -2,7 +2,6 @@
 import { useDisplay } from 'vuetify'
 import { selectRegions } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
-import { mapAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
 import type { IChampionMastery } from '~/models/championMastery'
 import type { ILeagueEntry } from '~/models/leagueEntry'
@@ -59,32 +58,16 @@ onMounted(async () => {
   }
 
   loading.value = true
-  account.value = await accountStore.findAccount(gameName, tagLine, region.value)
 
-  if (account.value) {
-    loading.value = false
+  const response = await accountStore.getAccount(gameName, tagLine, region.value, true)
 
-    return
-  }
-
-  const accountDetails = await restStore.getAccountDetailsByRiotId(gameName, tagLine)
-
-  if (!accountDetails) {
-    loading.value = false
+  if (!response) {
+    router.push(`/search-account/${gameName}-${tagLine}`)
 
     return
   }
 
-  const summonerDetails = await restStore.getSummonerDetailsByPuuid(accountDetails.puuid, region.value)
-
-  if (!summonerDetails) {
-    loading.value = false
-
-    return
-  }
-
-  account.value = mapAccount(accountDetails, summonerDetails, region.value)
-  accountStore.saveAccount(account.value)
+  account.value = response
 
   loading.value = false
 })

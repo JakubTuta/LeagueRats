@@ -9,7 +9,6 @@ const { mobile } = useDisplay()
 const { t } = useI18n()
 
 const accountStore = useAccountStore()
-const restStore = useRestStore()
 
 const loading = ref(false)
 const gameName = ref<string | null>(null)
@@ -71,37 +70,16 @@ async function sendToUserView() {
   }
 
   loading.value = true
-  const accountName = `${gameName.value}-${tagLine.value}`
-  const lowerCaseRegion = region.value.toLowerCase()
 
-  const databaseAccount = await accountStore.findAccount(gameName.value, tagLine.value, region.value)
+  const response = await accountStore.getAccount(gameName.value, tagLine.value, region.value, false)
 
-  if (databaseAccount) {
-    router.push(`/account/${lowerCaseRegion}/${accountName}`)
-    loading.value = false
+  if (!response) {
+    router.push(`/search-account/${gameName.value}-${tagLine.value}`)
 
     return
   }
 
-  const apiAccount = await restStore.getAccountDetailsByRiotId(gameName.value, tagLine.value)
-
-  if (!apiAccount) {
-    router.push(`/account/unknown-region/${accountName}`)
-    loading.value = false
-
-    return
-  }
-
-  const apiSummoner = await restStore.getSummonerDetailsByPuuid(apiAccount.puuid, region.value)
-
-  if (!apiSummoner) {
-    router.push(`/account/unknown-region/${accountName}`)
-    loading.value = false
-
-    return
-  }
-
-  router.push(`/account/${lowerCaseRegion}/${accountName}`)
+  router.push(`/account/${region.value.toLowerCase()}/${gameName.value}-${tagLine.value}`)
   loading.value = false
 }
 </script>

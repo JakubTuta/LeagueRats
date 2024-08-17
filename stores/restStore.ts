@@ -52,17 +52,40 @@ export const useRestStore = defineStore('rest', () => {
     }
   }
 
-  const getAccountDetailsByRiotId = async (username: string, tag: string): Promise<IAccountDetails | null> => {
-    try {
-      const response = await postFirebaseFunction('account_details_by_riot_id', { username, tag })
+  function getAccountDetails(puuid: string): Promise<IAccountDetails | null>
+  function getAccountDetails(username: string, tag: string): Promise<IAccountDetails | null>
+  async function getAccountDetails(...args: any[]): Promise<IAccountDetails | null> {
+    if (args.length === 1) {
+      const puuid = args[0] as string
 
-      return response as IAccountDetails
-    }
-    catch (error: any) {
-      // console.error(error)
+      try {
+        const response = await postFirebaseFunction('account_details', { puuid })
 
-      return null
+        return response as IAccountDetails
+      }
+      catch (error: any) {
+        // console.error(error)
+
+        return null
+      }
     }
+    else if (args.length === 2) {
+      const username = args[0] as string
+      const tag = args[1] as string
+
+      try {
+        const response = await postFirebaseFunction('account_details', { username, tag })
+
+        return response as IAccountDetails
+      }
+      catch (error: any) {
+        // console.error(error)
+
+        return null
+      }
+    }
+
+    return null
   }
 
   const getSummonerDetailsByPuuid = async (puuid: string, region: string): Promise<ISummoner | null> => {
@@ -208,7 +231,7 @@ export const useRestStore = defineStore('rest', () => {
 
   return {
     testConnection,
-    getAccountDetailsByRiotId,
+    getAccountDetails,
     getSummonerDetailsByPuuid,
     getCurrentGameByPuuid,
     findChampionsPositions,

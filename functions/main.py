@@ -25,11 +25,10 @@ def test_connection(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_options)
-def account_details_by_riot_id(
+def account_details(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    base_url = "https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id"
-    required_keys = ["username", "tag"]
+    base_url = "https://europe.api.riotgames.com/riot/account/v1/accounts"
 
     try:
         request_data = req.get_json(force=True)
@@ -39,16 +38,18 @@ def account_details_by_riot_id(
         )
 
     try:
-        required_data, _ = help_functions.get_existing_request_data(
-            request_data, required_keys
+        username = request_data.get("username", None)
+        tag = request_data.get("tag", None)
+        puuid = request_data.get("puuid", None)
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
         )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
 
-    username = required_data["username"]
-    tag = required_data["tag"]
-
-    request_url = f"{base_url}/{username}/{tag}"
+    if puuid:
+        request_url = f"{base_url}/by-puuid/{puuid}"
+    else:
+        request_url = f"{base_url}/by-riot-id/{username}/{tag}"
 
     try:
         response = requests.get(
@@ -264,8 +265,6 @@ def featured_games(
         response_data = response.json()
         game_list = list(response_data["gameList"])
 
-        # firestore_functions.save_participants_to_firebase(game_list)
-
         return https_fn.Response(json.dumps(game_list), status=response.status_code)
 
     except Exception as e:
@@ -429,9 +428,16 @@ def match_data(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
+        response_data = response.json()
+
+        participant_puuids = response_data["metadata"]["participants"]
+        game_region = response_data["info"]["platformId"]
+
+        firestore_functions.save_participants_to_firebase(
+            participant_puuids, game_region
         )
+
+        return https_fn.Response(json.dumps(response_data), status=response.status_code)
 
     except Exception as e:
         return https_fn.Response(

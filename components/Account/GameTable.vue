@@ -104,7 +104,7 @@ watch(game, (newGame) => {
 
 function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
   // @ts-expect-error event.target.className
-  if (!game.value || event.target?.className === 'v-btn__content')
+  if (!game.value || !region.value || event.target?.className === 'v-btn__content')
     return
 
   const url = `/account/${region.value}/${gameName}-${tagLine}`
