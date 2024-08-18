@@ -119,6 +119,9 @@
     "daysAgo": "{time} days ago",
     "weeksAgo": "{time} weeks ago",
     "monthsAgo": "{time} months ago",
-    "yearAgo": "Over a year ago"
+    "yearAgo": "Over a year ago",
+    "percentageDmgDealt": "% of team's damage dealt",
+    "percentageDmgTaken": "% of team's damage taken",
+    "perfect": "Perfect"
   }
 }

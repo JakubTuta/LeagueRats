@@ -64,7 +64,9 @@ async function getMatchHistory() {
 
   const matchData = await Promise.all(promises)
 
-  matchHistoryPerRegion.value[selectedTab.value] = matchData.filter(item => item !== null)
+  matchHistoryPerRegion.value[selectedTab.value] = matchData.filter(item => item !== null
+  && item.info.participants.length
+  && !item.info.participants[0]?.gameEndedInEarlySurrender) as IMatchData[]
 
   loading.value = false
 }
@@ -102,7 +104,7 @@ async function getMatchHistory() {
   <AccountGameData
     v-for="match in matchHistoryPerRegion[selectedTab]"
     :key="match.metadata.matchId"
-    class="mb-4"
+    class="mt-4"
     :account="account"
     :game="match"
   />

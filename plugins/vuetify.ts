@@ -43,7 +43,7 @@ export default defineNuxtPlugin((app) => {
         variant: 'outlined',
       },
       VContainer: {
-        style: 'max-width: 1500px',
+        style: 'max-width: 1300px',
       },
     },
     display: {

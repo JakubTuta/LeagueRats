@@ -101,6 +101,7 @@ export interface IParticipantStats {
   totalHealsOnTeammates: number
   visionScore: number
   win: boolean
+  gameEndedInEarlySurrender: boolean
 }
 
 interface IMatchInfo {
@@ -176,6 +177,7 @@ export function mapMatchData(data: any): IMatchData {
         totalHealsOnTeammates: participant?.totalHealsOnTeammates || 0,
         visionScore: participant?.visionScore || 0,
         win: participant?.win || false,
+        gameEndedInEarlySurrender: participant?.gameEndedInEarlySurrender || false,
       })) || [],
       platformId: data.info?.platformId || '',
       queueId: data.info?.queueId || 0,

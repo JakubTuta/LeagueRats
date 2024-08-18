@@ -119,6 +119,9 @@
     "daysAgo": "{time} dni temu",
     "weeksAgo": "{time} tygodni temu",
     "monthsAgo": "{time} miesięcy temu",
-    "yearAgo": "Ponad rok temu"
+    "yearAgo": "Ponad rok temu",
+    "percentageDmgDealt": "% obrażeń zadanych druż.",
+    "percentageDmgTaken": "% obrażeń otrzymanych druż.",
+    "perfect": "Perfekcyjnie"
   }
 }

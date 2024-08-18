@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify'
+import { mapKDAToColor } from '~/helpers/kdaColors'
 import { mouseButton } from '~/helpers/mouse'
 import { queueIdToType } from '~/helpers/queueTypes'
 import type { TApiRegions2 } from '~/helpers/regions'
@@ -15,6 +17,7 @@ const { account, game } = toRefs(props)
 
 const { t, locale } = useI18n()
 const router = useRouter()
+const { xs } = useDisplay()
 
 const storageStore = useStorageStore()
 const { championIcons, summonerSpellIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
@@ -38,6 +41,11 @@ const teamIds = computed(() => {
 
   return Array.from(new Set(game.value.info.participants.map(participant => participant.teamId)))
 })
+const kda = computed(() => (gamer.value.kills + gamer.value.assists) / gamer.value.deaths)
+// const teamDamageDealt = computed(() => game.value.info.participants.reduce((acc, participant) => acc + participant.physicalDamageDealtToChampions + participant.magicDamageDealtToChampions + participant.trueDamageDealtToChampions, 0))
+// const teamDamageTaken = computed(() => game.value.info.participants.reduce((acc, participant) => acc + participant.physicalDamageTaken + participant.magicDamageTaken + participant.trueDamageTaken, 0))
+// const playerDamageDealt = computed(() => gamer.value.physicalDamageDealtToChampions + gamer.value.magicDamageDealtToChampions + gamer.value.trueDamageDealtToChampions)
+// const playerDamageTaken = computed(() => gamer.value.physicalDamageTaken + gamer.value.magicDamageTaken + gamer.value.trueDamageTaken)
 
 const mapPositions: { [key: string]: number } = {
   TOP: 1,
@@ -198,11 +206,13 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
 }
 </script>
 
+<!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
   <v-card
     :color="isWin
-      ? 'rgba(35, 167, 250, 0.6)'
-      : 'rgba(252, 38, 38, 0.6)'"
+      ? 'rgba(35, 167, 250, 0.5)'
+      : 'rgba(252, 38, 38, 0.5)'"
+    class="pa-1"
   >
     <v-row
       no-gutters
@@ -212,12 +222,13 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
       <v-col
         cols="6"
         sm="2"
+        order="1"
       >
         <p>
           {{ $t(`queueTypes.${queueIdToType[game.info.queueId]}`) }}
         </p>
 
-        <p>
+        <p class="font-weight-bold">
           {{ isWin
             ? $t('gameHistory.win')
             : $t('gameHistory.loss') }}
@@ -235,8 +246,12 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
       </v-col>
 
       <v-col
-        cols="6"
-        sm="4"
+        class="mb-5 mt-1"
+        cols="12"
+        sm="3"
+        :order="xs
+          ? 3
+          : 2"
       >
         <v-row
           align="center"
@@ -328,23 +343,80 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
         </v-row>
       </v-col>
 
-      <v-col cols="2">
+      <v-col
+        cols="6"
+        sm="2"
+        :order="xs
+          ? 2
+          : 3"
+      >
         <p class="text-h6">
-          {{ `${gamer.kills} / ${gamer.deaths} / ${gamer.assists}` }}
+          <span class="font-weight-bold">
+            {{ gamer.kills }}
+          </span>
+
+          /
+
+          <span
+            class="font-weight-bold"
+            color="red"
+          >
+            {{ gamer.deaths }}
+          </span>
+
+          /
+
+          <span class="font-weight-bold">
+            {{ gamer.assists }}
+          </span>
         </p>
 
         <v-spacer class="my-2" />
 
         <p>
-          {{ `KDA: ${((gamer.kills + gamer.assists) / gamer.deaths).toFixed(2)}` }}
+          KDA:
+          <span
+            v-if="gamer.deaths === 0 && gamer.kills + gamer.assists === 0"
+            class="font-weight-bold"
+            color="gold"
+          >
+            {{ $t('gameHistory.perfect') }}
+          </span>
+
+          <span
+            v-else-if="gamer.deaths === 0"
+            class="font-weight-bold"
+          >
+            0
+          </span>
+
+          <span
+            v-else
+            :class="`font-weight-bold text-${mapKDAToColor(kda)}`"
+          >
+            {{ kda.toFixed(2) }}
+          </span>
         </p>
 
         <p>
-          {{ `CS: ${minions} (${(minions / (game.info.gameDuration / 60)).toFixed(1)})` }}
+          CS:
+          <span class="font-weight-bold">
+            {{ `${minions} (${(minions / (game.info.gameDuration / 60)).toFixed(1)})` }}
+          </span>
         </p>
       </v-col>
 
-      <v-col cols="4">
+      <v-col
+        cols="0"
+        sm="1"
+        order="4"
+      />
+
+      <v-col
+        cols="12"
+        sm="4"
+        order="4"
+      >
         <v-row no-gutters>
           <v-col
             v-for="(team, teamIndex) in [
@@ -354,32 +426,37 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
             :key="teamIndex"
             cols="6"
           >
-            <v-list
-              :bg-color="isWin
-                ? 'rgba(0, 0, 0, 0)'
-                : 'rgba(0, 0, 0, 0)'"
-              density="compact"
-              :lines="false"
-            >
-              <v-list-item
-                v-for="(participant, index) in team"
-                :key="index"
-                style="cursor: pointer"
-                @mousedown.prevent="(event: MouseEvent) => sendToProfile(participant, event)"
-              >
-                <v-avatar
-                  size="25"
-                  rounded="0"
+            <table>
+              <tbody>
+                <tr
+                  v-for="(participant, index) in team"
+                  :key="index"
+                  style="cursor: pointer"
+                  @mousedown.prevent="(event: MouseEvent) => sendToProfile(participant, event)"
                 >
-                  <v-img
-                    :src="championIcons[participant.championId]"
-                    lazy-src="~/assets/default.png"
-                  />
-                </v-avatar>
+                  <td>
+                    <v-avatar
+                      size="20"
+                      rounded="0"
+                      class="mr-1"
+                    >
+                      <v-img
+                        :src="championIcons[participant.championId]"
+                        lazy-src="~/assets/default.png"
+                      />
+                    </v-avatar>
+                  </td>
 
-                {{ participant.riotIdGameName || participant.summonerName }}
-              </v-list-item>
-            </v-list>
+                  <td
+                    :class="participant.puuid === gamer.puuid
+                      ? 'font-weight-bold'
+                      : ''"
+                  >
+                    {{ participant.riotIdGameName || participant.summonerName }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </v-col>
         </v-row>
       </v-col>
