@@ -40,9 +40,9 @@ watch(tagLine, (newTagLine, oldTagLine) => {
 
 function regionItemsProps(item: any) {
   return {
-    title: item.title,
+    title: item.value,
     value: item.value,
-    subtitle: item.value,
+    subtitle: item.title,
     lines: 'two',
   }
 }

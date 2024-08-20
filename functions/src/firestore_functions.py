@@ -224,3 +224,13 @@ def save_rune_data(rune_data_per_language):
                     rune["longDesc"] = _clear_text(rune["longDesc"])
 
     firebase_init.collections["help"].document("runes").set(rune_data_per_language)
+
+
+def get_updated_accounts(date):
+    query = firebase_init.collections["accounts"].where(
+        filter=FieldFilter("revisionDate", ">=", date)
+    )
+
+    docs = list(query.stream())
+
+    return [(doc.to_dict(), doc.ref) for doc in docs]

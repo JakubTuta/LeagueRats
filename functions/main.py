@@ -3,6 +3,7 @@ import random
 
 import firebase_functions
 import requests
+import scheduled_functions
 import src.firebase_init as firebase_init
 import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
@@ -449,39 +450,14 @@ def match_data(
 def current_version(
     event: scheduler_fn.ScheduledEvent,
 ) -> None:
-    base_url = "https://ddragon.leagueoflegends.com/api/versions.json"
-
-    try:
-        response = requests.get(base_url)
-
-        current_version = response.json()[0]
-
-        firestore_functions.save_current_version(current_version)
-
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
+    scheduled_functions.current_version(event)
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
-    recent_version = firestore_functions.get_current_version()
+    scheduled_functions.rune_description(event)
 
-    if not recent_version:
-        return
 
-    languages = ["en_US", "pl_PL"]
-    rune_data_per_language = {}
-
-    for language in languages:
-        base_url = f"https://ddragon.leagueoflegends.com/cdn/{recent_version}/data/{language}/runesReforged.json"
-
-        try:
-            response = requests.get(base_url)
-            rune_data = response.json()
-        except Exception as e:
-            print(f"Error occurred: {str(e)}")
-
-        short_language = language.split("_")[0]
-        rune_data_per_language[short_language] = rune_data
-
-    firestore_functions.save_rune_data(rune_data_per_language)
+# @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
+# def account_revision_date(event: scheduler_fn.ScheduledEvent) -> None:
+#     scheduled_functions.account_revision_date(event)
