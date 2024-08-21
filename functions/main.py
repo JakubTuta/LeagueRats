@@ -9,6 +9,7 @@ import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
 import src.regions as regions
 from firebase_functions import https_fn, scheduler_fn
+from src.models.match_history import MatchData
 
 cors_options = firebase_functions.options.CorsOptions(
     cors_methods=["GET", "POST", "OPTIONS"],
@@ -419,6 +420,16 @@ def match_data(
     except:
         return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
 
+    try:
+        firebase_match_data = firestore_functions.get_match_data_from_firebase(match_id)
+
+        if firebase_match_data:
+            return https_fn.Response(json.dumps(firebase_match_data), status=200)
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
+        )
+
     request_url = (
         f"https://{request_region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
     )
@@ -433,12 +444,14 @@ def match_data(
 
         participant_puuids = response_data["metadata"]["participants"]
         game_region = response_data["info"]["platformId"]
-
         firestore_functions.save_participants_to_firebase(
             participant_puuids, game_region
         )
 
-        return https_fn.Response(json.dumps(response_data), status=response.status_code)
+        match_data = MatchData.from_dict(response_data).to_dict()
+        firestore_functions.save_match_to_firebase(match_data)
+
+        return https_fn.Response(json.dumps(match_data), status=response.status_code)
 
     except Exception as e:
         return https_fn.Response(

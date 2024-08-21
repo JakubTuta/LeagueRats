@@ -46,3 +46,4 @@ def initialize_app():
 
     collections["accounts"] = firestore_client.collection("accounts")
     collections["help"] = firestore_client.collection("help")
+    collections["match_history"] = firestore_client.collection("match_history")

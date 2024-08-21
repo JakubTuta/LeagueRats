@@ -5,6 +5,7 @@ import requests
 import src.firebase_init as firebase_init
 import src.regions as regions
 from google.cloud.firestore_v1.base_query import FieldFilter
+from src.models.match_history import MatchData
 
 """ Account
 {
@@ -234,3 +235,23 @@ def get_updated_accounts(date):
     docs = list(query.stream())
 
     return [(doc.to_dict(), doc.ref) for doc in docs]
+
+
+def get_match_data_from_firebase(match_id):
+    doc = firebase_init.collections["match_history"].document(match_id).get()
+
+    if not doc.exists:
+        return None
+
+    model = MatchData.from_dict(doc.to_dict())
+
+    return model.to_dict()
+
+
+def save_match_to_firebase(match):
+    def func():
+        firebase_init.collections["match_history"].document(
+            match["metadata"]["matchId"]
+        ).set(match)
+
+    threading.Thread(target=func).start()

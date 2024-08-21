@@ -337,7 +337,6 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
           >
             <v-img
               :src="itemIcons[item]"
-              lazy-src="~/assets/default.png"
             />
           </v-avatar>
         </v-row>

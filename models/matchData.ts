@@ -24,18 +24,6 @@ interface ITeam {
       first: boolean
       kills: number
     }
-    horde: {
-      first: boolean
-      kills: number
-    }
-    inhibitor: {
-      first: boolean
-      kills: number
-    }
-    riftHerald: {
-      first: boolean
-      kills: number
-    }
     tower: {
       first: boolean
       kills: number
@@ -106,9 +94,7 @@ export interface IParticipantStats {
 
 interface IMatchInfo {
   gameDuration: number // in seconds
-  gameId: number
   gameMode: string
-  gameName: string
   gameStartTimestamp: Timestamp
   gameType: string
   gameVersion: string
@@ -132,9 +118,7 @@ export function mapMatchData(data: any): IMatchData {
     },
     info: {
       gameDuration: data.info?.gameDuration || 0,
-      gameId: data.info?.gameId || 0,
       gameMode: data.info?.gameMode || '',
-      gameName: data.info?.gameName || '',
       gameStartTimestamp: new Timestamp(data.info?.gameStartTimestamp / 1000 || 0, 0),
       gameType: data.info?.gameType || '',
       gameVersion: data.info?.gameVersion || '',
@@ -198,18 +182,6 @@ export function mapMatchData(data: any): IMatchData {
           dragon: {
             first: team?.objectives?.dragon?.first || false,
             kills: team?.objectives?.dragon?.kills || 0,
-          },
-          horde: {
-            first: team?.objectives?.horde?.first || false,
-            kills: team?.objectives?.horde?.kills || 0,
-          },
-          inhibitor: {
-            first: team?.objectives?.inhibitor?.first || false,
-            kills: team?.objectives?.inhibitor?.kills || 0,
-          },
-          riftHerald: {
-            first: team?.objectives?.riftHerald?.first || false,
-            kills: team?.objectives?.riftHerald?.kills || 0,
           },
           tower: {
             first: team?.objectives?.tower?.first || false,

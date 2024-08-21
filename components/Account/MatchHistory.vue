@@ -46,6 +46,7 @@ async function getMatchHistory() {
     count: 5,
     queue: requestQueueType.id,
     type: requestQueueType.name,
+    endTime: new Date(new Date().getFullYear(), 0, 1).getTime(),
   }
 
   const matchIds = await restStore.getAccountMatchHistory(account.value, optionalKeys)
@@ -67,6 +68,9 @@ async function getMatchHistory() {
   matchHistoryPerRegion.value[selectedTab.value] = matchData.filter(item => item !== null
   && item.info.participants.length
   && !item.info.participants[0]?.gameEndedInEarlySurrender) as IMatchData[]
+
+  matchHistoryPerRegion.value[selectedTab.value] = matchHistoryPerRegion.value[selectedTab.value]
+    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
 
   loading.value = false
 }
