@@ -33,7 +33,7 @@ const team2 = ref<IParticipantStats[]>([])
 const gamer = computed(() => game.value.info.participants.find(participant => participant.puuid === account.value!.puuid)!)
 const isWin = computed(() => gamer.value.win)
 const keyRuneId = computed(() => (gamer.value.perks.styles.find(style => style.description === 'primaryStyle')!.selections[0].perk))
-const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5])
+const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5].filter(item => item !== 0))
 const minions = computed(() => gamer.value.neutralMinionsKilled + gamer.value.totalMinionsKilled)
 const teamIds = computed(() => {
   if (!game.value)

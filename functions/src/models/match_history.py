@@ -5,7 +5,7 @@ import typing
 
 @dataclasses.dataclass(kw_only=True, frozen=True, order=False)
 class Metadata:
-    matchId: str
+    matchId: str = ""
     participants: typing.List[str] = dataclasses.field(default_factory=list)
 
     def to_dict(self):
@@ -51,44 +51,44 @@ class Perks:
 
 @dataclasses.dataclass(kw_only=True, frozen=True, order=False)
 class Participant:
-    kills: int
-    assists: int
-    deaths: int
-    champLevel: int
-    championId: int
-    championName: str
-    goldEarned: int
-    damageDealtToBuildings: int
-    item0: int
-    item1: int
-    item2: int
-    item3: int
-    item4: int
-    item5: int
-    item6: int
-    physicalDamageDealtToChampions: int
-    physicalDamageTaken: int
-    magicDamageDealtToChampions: int
-    magicDamageTaken: int
-    trueDamageDealtToChampions: int
-    trueDamageTaken: int
-    neutralMinionsKilled: int
-    totalMinionsKilled: int
-    participantId: int
+    kills: int = 0
+    assists: int = 0
+    deaths: int = 0
+    champLevel: int = 0
+    championId: int = 0
+    championName: str = ""
+    goldEarned: int = 0
+    damageDealtToBuildings: int = 0
+    item0: int = 0
+    item1: int = 0
+    item2: int = 0
+    item3: int = 0
+    item4: int = 0
+    item5: int = 0
+    item6: int = 0
+    physicalDamageDealtToChampions: int = 0
+    physicalDamageTaken: int = 0
+    magicDamageDealtToChampions: int = 0
+    magicDamageTaken: int = 0
+    trueDamageDealtToChampions: int = 0
+    trueDamageTaken: int = 0
+    neutralMinionsKilled: int = 0
+    totalMinionsKilled: int = 0
+    participantId: int = 0
     perks: Perks
-    puuid: str
-    riotIdGameName: str
-    riotIdTagline: str
-    summoner1Id: int
-    summoner2Id: int
-    summonerId: str
-    summonerName: str
-    teamId: int
-    teamPosition: str  # TOP | JUNGLE | MIDDLE | BOTTOM | UTILITY
-    totalHealsOnTeammates: int
-    visionScore: int
-    win: bool
-    gameEndedInEarlySurrender: bool
+    puuid: str = ""
+    riotIdGameName: str = ""
+    riotIdTagline: str = ""
+    summoner1Id: int = 0
+    summoner2Id: int = 0
+    summonerId: str = ""
+    summonerName: str = ""
+    teamId: int = 0
+    teamPosition: str = ""  # TOP | JUNGLE | MIDDLE | BOTTOM | UTILITY
+    totalHealsOnTeammates: int = 0
+    visionScore: int = 0
+    win: bool = False
+    gameEndedInEarlySurrender: bool = False
 
     def to_dict(self):
         return dataclasses.asdict(self)
@@ -127,8 +127,8 @@ class Team:
             },
         }
     )
-    teamId: int
-    win: bool
+    teamId: int = 0
+    win: bool = False
 
     def to_dict(self):
         return dataclasses.asdict(self)
@@ -146,15 +146,15 @@ class Team:
 
 @dataclasses.dataclass(kw_only=True, frozen=True, order=False)
 class GameInfo:
-    gameDuration: int
-    gameMode: str
-    gameStartTimestamp: int
-    gameType: str
-    gameVersion: str
-    mapId: int
+    gameDuration: int = 0
+    gameMode: str = ""
+    gameStartTimestamp: int = 0
+    gameType: str = ""
+    gameVersion: str = ""
+    mapId: int = 0
     participants: typing.List[Participant] = dataclasses.field(default_factory=list)
-    platformId: str
-    queueId: int
+    platformId: str = ""
+    queueId: int = 0
     teams: typing.List[Team] = dataclasses.field(default_factory=list)
 
     def to_dict(self):
