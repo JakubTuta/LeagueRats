@@ -21,7 +21,14 @@ export const useRestStore = defineStore('rest', () => {
   }
 
   const postFirebaseFunction = async (functionName: string, data: any): Promise<any> => {
-    const response = await getAxios().post(`/${functionName}`, data)
+    let response: any
+
+    try {
+      response = await getAxios().post(`/${functionName}`, data)
+    }
+    catch (error: any) {
+      console.error(error)
+    }
 
     if (response.status !== 200) {
       throw new Error(response.data)
@@ -31,7 +38,14 @@ export const useRestStore = defineStore('rest', () => {
   }
 
   const getFirebaseFunction = async (functionName: string): Promise<any> => {
-    const response = await getAxios().get(`/${functionName}`)
+    let response: any
+
+    try {
+      response = await getAxios().get(`/${functionName}`)
+    }
+    catch (error: any) {
+      console.error(error)
+    }
 
     if (response.status !== 200) {
       throw new Error(response.data)
@@ -165,7 +179,8 @@ export const useRestStore = defineStore('rest', () => {
 
   const getLeagueEntryBySummonerId = async (summonerId: string, region: string): Promise<ILeagueEntry[]> => {
     try {
-      const response = await postFirebaseFunction('league_entry_by_summoner_id', { summonerId, region })
+      // const response = await postFirebaseFunction('league_entry_by_summoner_id', { summonerId, region })
+      const response = await getFirebaseFunction(`league_entry/${region}/${summonerId}`)
       const leagueEntry = response.map(mapLeagueEntry)
 
       return leagueEntry

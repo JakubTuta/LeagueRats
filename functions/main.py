@@ -13,6 +13,10 @@ cors_options = firebase_functions.options.CorsOptions(
     cors_methods=["GET", "POST", "OPTIONS"],
     cors_origins="*",
 )
+cors_get_options = firebase_functions.options.CorsOptions(
+    cors_methods=["GET", "OPTIONS"],
+    cors_origins="*",
+)
 
 firebase_init.initialize_app()
 
@@ -115,28 +119,26 @@ def summoner_details_by_puuid(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
-def league_entry_by_summoner_id(
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def league_entry(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    required_keys = ["summonerId", "region"]
+    # url: /league_entry/{region}/{summonerId}
 
     try:
-        request_data = req.get_json(force=True)
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+        summoner_id = url_params[2]
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
 
     try:
-        required_data, _ = help_functions.get_existing_request_data(
-            request_data, required_keys
-        )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
-
-    summoner_id = required_data["summonerId"]
-    region = regions.api_regions_2[required_data["region"]].lower()
+        region = regions.api_regions_2[region].lower()
+    except:
+        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
 
     request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
 
@@ -400,10 +402,12 @@ def accounts_in_all_regions(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def match_data(
     req: https_fn.Request,
 ) -> https_fn.Response:
+    # url: /match_data/{match_id}
+
     try:
         match_id = req.path.split("/")[1]
     except:
