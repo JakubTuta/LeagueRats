@@ -12,7 +12,8 @@
   },
   "navbar": {
     "home": "Strona głowna",
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "proPlayers": "Pro gracze"
   },
   "settings": {
     "title": "Ustawienia",
@@ -123,5 +124,8 @@
     "percentageDmgDealt": "% obrażeń zadanych druż.",
     "percentageDmgTaken": "% obrażeń otrzymanych druż.",
     "perfect": "Perfekcyjnie"
+  },
+  "proPlayers": {
+    
   }
 }

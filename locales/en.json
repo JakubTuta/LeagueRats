@@ -12,7 +12,8 @@
   },
   "navbar": {
     "home": "Home",
-    "settings": "Settings"
+    "settings": "Settings",
+    "proPlayers": "Pro players"
   },
   "settings": {
     "title": "Settings",
