@@ -175,9 +175,13 @@ async function sendToUserView() {
       rounded="circle"
     />
 
-    <span class="text-h6 ml-4">
+    <span
+      z-1
+      class="text-h6 ml-4"
+    >
       <NuxtLink
-        style="cursor: pointer; text-decoration: none; color: inherit; width: 1px;"
+        class="pa-1"
+        style="cursor: pointer; text-decoration: none; color: inherit;"
         to="/"
       >
         <v-tooltip
@@ -192,7 +196,7 @@ async function sendToUserView() {
 
     <v-tabs
       v-if="!mobile"
-      min-width="200px"
+      height="50px"
       style="position: absolute; left: 0; right: 0"
       align-tabs="center"
       color="primary"
