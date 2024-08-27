@@ -118,76 +118,91 @@ setInterval(() => {
 </script>
 
 <template>
-  <v-container>
-    <v-row
-      align-content="center"
-      class="my-16"
-      dense
+  <v-container
+    style="max-width: 1000px; height: 100%"
+    class="d-flex flex-column justify-center"
+  >
+    <v-spacer />
+
+    <v-card
+      class="my-auto"
+      min-height="200px"
     >
-      <v-col
-        cols="12"
-        sm="3"
+      <v-card-text
+        class="d-flex align-center justify-center"
+        style="height: 100%"
       >
-        <v-select
-          v-model="region"
-          :items="regions"
-          :item-props="regionItemsProps"
-          :label="$t('regions.title')"
-          prepend-inner-icon="mdi-earth"
-          variant="outlined"
-          @keydown.enter="sendToUserView"
-        />
-      </v-col>
-
-      <v-col
-        cols="12"
-        sm="6"
-      >
-        <v-text-field
-          v-model="gameName"
-          :label="$t('index.gameName')"
-          prepend-inner-icon="mdi-account-outline"
-          variant="outlined"
-          :error-messages="gameNameError"
-          @keydown.enter="sendToUserView"
-        />
-      </v-col>
-
-      <v-col
-        cols="12"
-        sm="3"
-      >
-        <v-text-field
-          v-model="tagLine"
-          :label="$t('index.tagLine')"
-          prepend-inner-icon="mdi-pound"
-          center-affix
-          :rules="[lengthRule($t, 5)]"
-          :error-messages="tagLineError"
-          @keydown.enter="sendToUserView"
+        <v-row
+          dense
+          align="center"
         >
-          <template #append>
-            <v-btn
-              icon
-              size="small"
-              :loading="loading"
-              @click="sendToUserView"
-            >
-              <v-icon
-                icon="mdi-chevron-right"
-                size="x-large"
-              />
-            </v-btn>
-          </template>
-        </v-text-field>
-      </v-col>
-    </v-row>
+          <v-col
+            cols="12"
+            sm="3"
+          >
+            <v-select
+              v-model="region"
+              :items="regions"
+              :item-props="regionItemsProps"
+              :label="$t('regions.title')"
+              prepend-inner-icon="mdi-earth"
+              variant="outlined"
+              @keydown.enter="sendToUserView"
+            />
+          </v-col>
 
-    <v-spacer class="my-16" />
+          <v-col
+            cols="12"
+            sm="6"
+          >
+            <v-text-field
+              v-model="gameName"
+              :label="$t('index.gameName')"
+              prepend-inner-icon="mdi-account-outline"
+              variant="outlined"
+              :error-messages="gameNameError"
+              @keydown.enter="sendToUserView"
+            />
+          </v-col>
+
+          <v-col
+            cols="12"
+            sm="3"
+          >
+            <v-text-field
+              v-model="tagLine"
+              :label="$t('index.tagLine')"
+              prepend-inner-icon="mdi-pound"
+              center-affix
+              :rules="[lengthRule($t, 5)]"
+              :error-messages="tagLineError"
+              @keydown.enter="sendToUserView"
+            >
+              <template #append>
+                <v-btn
+                  icon
+                  size="small"
+                  :loading="loading"
+                  @click="sendToUserView"
+                >
+                  <v-icon
+                    icon="mdi-chevron-right"
+                    size="x-large"
+                  />
+                </v-btn>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+
+    <v-spacer class="mb-10" />
 
     <v-card
       v-if="featuredGames.length > 0"
       variant="flat"
+      class="mt-auto"
     >
       <v-card-title>
         {{ $t('index.featuredGames') }}

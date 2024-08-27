@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import imgLec from '~/assets/regions/lec.png'
-import imgLcs from '~/assets/regions/lcs.png'
-import imgLck from '~/assets/regions/lck.png'
-import imgLpl from '~/assets/regions/lpl.png'
+// @ts-expect-error correct path
+import imgLck from '~/assets/regions/lck.png';
+// @ts-expect-error correct path
+import imgLcs from '~/assets/regions/lcs.png';
+// @ts-expect-error correct path
+import imgLec from '~/assets/regions/lec.png';
+// @ts-expect-error correct path
+import imgLpl from '~/assets/regions/lpl.png';
 
 const selectedRegion = ref('lec')
 
@@ -43,11 +47,12 @@ const regions = [
             sm="6"
             md="3"
           >
+            <!-- primary-transparent -->
             <v-card
               elevation="0"
               style="cursor: pointer;"
               :color="region.value === selectedRegion
-                ? 'rgba(168, 118, 118, 0.25)'
+                ? 'rgba(142, 147, 108, 0.25)'
                 : ''"
               @click.stop="() => selectedRegion = region.value"
             >
