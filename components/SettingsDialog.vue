@@ -58,6 +58,13 @@ watch(language, (newLang) => {
                 value="pl"
                 min-width="150px"
               >
+                <v-avatar
+                  size="25"
+                  class="mx-1"
+                >
+                  <v-img src="~/assets/flags/pl.png" />
+                </v-avatar>
+
                 {{ $t('universal.polish') }}
               </v-btn>
 
@@ -65,6 +72,13 @@ watch(language, (newLang) => {
                 value="en"
                 min-width="150px"
               >
+                <v-avatar
+                  size="25"
+                  class="mx-1"
+                >
+                  <v-img src="~/assets/flags/uk.png" />
+                </v-avatar>
+
                 {{ $t('universal.english') }}
               </v-btn>
             </v-btn-toggle>

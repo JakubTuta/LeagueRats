@@ -33,7 +33,7 @@ const team2 = ref<IParticipantStats[]>([])
 const gamer = computed(() => game.value.info.participants.find(participant => participant.puuid === account.value!.puuid)!)
 const isWin = computed(() => gamer.value.win)
 const keyRuneId = computed(() => (gamer.value.perks.styles.find(style => style.description === 'primaryStyle')!.selections[0].perk))
-const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5])
+const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5].filter(item => item !== 0))
 const minions = computed(() => gamer.value.neutralMinionsKilled + gamer.value.totalMinionsKilled)
 const teamIds = computed(() => {
   if (!game.value)
@@ -212,8 +212,8 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
   <!-- league-red-transparent -->
   <v-card
     :color="isWin
-      ? 'rgba(35, 167, 250, 0.5)'
-      : 'rgba(252, 38, 38, 0.5)'"
+      ? 'rgba(35, 167, 250, 0.3)'
+      : 'rgba(252, 38, 38, 0.3)'"
     class="pa-1"
   >
     <v-row
@@ -339,7 +339,6 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
           >
             <v-img
               :src="itemIcons[item]"
-              lazy-src="~/assets/default.png"
             />
           </v-avatar>
         </v-row>
@@ -378,23 +377,22 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
         <p>
           KDA:
           <span
-            v-if="gamer.deaths === 0 && gamer.kills + gamer.assists === 0"
-            class="font-weight-bold"
-            color="gold"
+            v-if="gamer.deaths === 0 && gamer.kills + gamer.assists !== 0"
+            class="font-weight-bold text-yellow-accent-4 text-subtitle-1"
           >
             {{ $t('gameHistory.perfect') }}
           </span>
 
           <span
             v-else-if="gamer.deaths === 0"
-            class="font-weight-bold"
+            class="font-weight-bold text-subtitle-1 text-gray"
           >
             0
           </span>
 
           <span
             v-else
-            :class="`font-weight-bold text-${mapKDAToColor(kda)}`"
+            :class="`font-weight-bold text-${mapKDAToColor(kda)} text-subtitle-1`"
           >
             {{ kda.toFixed(2) }}
           </span>
@@ -402,7 +400,7 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
 
         <p>
           CS:
-          <span class="font-weight-bold">
+          <span class="font-weight-medium text-subtitle-1">
             {{ `${minions} (${(minions / (game.info.gameDuration / 60)).toFixed(1)})` }}
           </span>
         </p>
@@ -417,7 +415,7 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
       <v-col
         cols="12"
         sm="4"
-        order="4"
+        order="5"
       >
         <v-row no-gutters>
           <v-col

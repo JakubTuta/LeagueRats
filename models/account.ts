@@ -1,4 +1,5 @@
 import type { DocumentData } from 'firebase/firestore'
+import { Timestamp } from 'firebase/firestore'
 
 export interface IAccountDetails {
   gameName: string
@@ -8,10 +9,10 @@ export interface IAccountDetails {
 
 export interface ISummoner {
   accountId: string
-  // profileIconId: number
-  // revisionDate: Timestamp
+  profileIconId: number
+  revisionDate: Timestamp
   id: string
-  // summonerLevel: number
+  summonerLevel: number
 }
 
 export interface IAccount extends IAccountDetails, ISummoner {
@@ -29,6 +30,10 @@ export function mapAccount(arg1: IAccountDetails | DocumentData, summoner?: ISum
       accountId: summoner.accountId,
       id: summoner.id,
       region,
+      profileIconId: summoner.profileIconId,
+      // @ts-expect-error summoner.revisionDate is a number
+      revisionDate: new Timestamp(summoner.revisionDate / 1000, 0),
+      summonerLevel: summoner.summonerLevel,
     }
   }
   else {

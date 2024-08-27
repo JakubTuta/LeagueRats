@@ -43,9 +43,10 @@ async function getMatchHistory() {
   const requestQueueType = queueTypes[selectedTab.value]
 
   const optionalKeys = {
-    count: 2,
+    count: 5,
     queue: requestQueueType.id,
     type: requestQueueType.name,
+    endTime: new Date(new Date().getFullYear(), 0, 1).getTime(),
   }
 
   const matchIds = await restStore.getAccountMatchHistory(account.value, optionalKeys)
@@ -68,8 +69,26 @@ async function getMatchHistory() {
   && item.info.participants.length
   && !item.info.participants[0]?.gameEndedInEarlySurrender) as IMatchData[]
 
+  matchHistoryPerRegion.value[selectedTab.value] = matchHistoryPerRegion.value[selectedTab.value]
+    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
+
   loading.value = false
 }
+
+// function loadGames({ done }: { done: (status: string) => void }) {
+//   const newGames = matchHistoryPerRegion.value[selectedTab.value]?.slice(loadedMatches.value.length, loadedMatches.value.length + 5) || []
+
+//   console.log(newGames)
+//   if (!newGames?.length) {
+//     done('empty')
+
+//     return
+//   }
+
+//   loadedMatches.value.push(...newGames)
+
+//   done('ok')
+// }
 </script>
 
 <template>
@@ -109,3 +128,23 @@ async function getMatchHistory() {
     :game="match"
   />
 </template>
+
+<!--
+  <v-infinite-scroll
+  v-if="loadedMatches.length"
+  height="70vh"
+  :items="loadedMatches"
+  @load="loadGames"
+  >
+  <template
+  v-for="match in loadedMatches"
+  :key="match.metadata.matchId"
+  >
+  <AccountGameData
+  class="mt-4"
+  :account="account"
+  :game="match"
+  />
+  </template>
+  </v-infinite-scroll>
+-->
