@@ -25,7 +25,7 @@
     "gameName": "Nazwa użytkownika",
     "tagLine": "Tag",
     "userNotExist": "Użytkownik nie istnieje",
-    "featuredGames": "Gry na żywo"
+    "featuredGames": "Losowe gry na żywo"
   },
   "rules": {
     "requiredField": "To pole jest wymagane",

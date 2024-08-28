@@ -53,6 +53,7 @@ watch(language, (newLang) => {
               v-model="language"
               color="primary"
               divided
+              mandatory
             >
               <v-btn
                 value="pl"
@@ -97,6 +98,7 @@ watch(language, (newLang) => {
               v-model="theme"
               color="primary"
               divided
+              mandatory
             >
               <v-btn
                 value="light"

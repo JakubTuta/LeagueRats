@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { selectRegions } from '~/helpers/regions'
-import { lengthRule } from '~/helpers/rules'
+import { useDisplay } from 'vuetify';
+import { selectRegions } from '~/helpers/regions';
+import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
@@ -16,6 +16,9 @@ const tagLine = ref<string | null>(null)
 const region = ref('EUW')
 const gameNameError = ref('')
 const tagLineError = ref('')
+
+const themeStore = useThemeStore()
+const { isDark } = storeToRefs(themeStore)
 
 const tabs = computed(() => [
   {
@@ -89,12 +92,21 @@ async function sendToUserView() {
   router.push(`/account/${region.value.toLowerCase()}/${gameName.value}-${tagLine.value}`)
   loading.value = false
 }
+
+const isExtension = computed(() => !mobile.value && route.path !== '/')
 </script>
 
 <template>
-  <v-app-bar>
+  <v-app-bar
+    rounded="xl"
+    flat
+    extension-height="60"
+    :color="isDark
+      ? 'rgba(50, 50, 50, 0.75)'
+      : 'rgba(200, 200, 200, 0.75)'"
+  >
     <template
-      v-if="!mobile && route.path !== '/'"
+      v-if="isExtension"
       #extension
     >
       <v-row

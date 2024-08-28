@@ -25,7 +25,7 @@
     "gameName": "Username",
     "tagLine": "Tag",
     "userNotExist": "User doesn't exist",
-    "featuredGames": "Featured games"
+    "featuredGames": "Random featured games"
   },
   "rules": {
     "requiredField": "This field is required",
