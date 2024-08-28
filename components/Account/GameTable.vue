@@ -128,10 +128,12 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
       cols="12"
       md="6"
     >
+      <!-- league-blue-transparent -->
+      <!-- league-red-transparent -->
       <v-card
         :color="teamIndex === 0
-          ? 'league-blue'
-          : 'league-red'"
+          ? 'rgba(35, 167, 250, 0.7)'
+          : 'rgba(252, 38, 38, 0.7)'"
       >
         <v-card-title>
           {{ $t(`game.team${teamIndex + 1}`) }}
@@ -141,9 +143,7 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
           <v-list
             v-model:opened="opened"
             lines="two"
-            :bg-color="teamIndex === 0
-              ? 'league-blue'
-              : 'league-red'"
+            bg-color="rgba(0, 0, 0, 0)"
           >
             <v-list-item
               v-for="participant in team"

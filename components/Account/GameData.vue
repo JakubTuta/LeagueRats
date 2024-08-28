@@ -208,6 +208,8 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
+  <!-- league-blue-transparent -->
+  <!-- league-red-transparent -->
   <v-card
     :color="isWin
       ? 'rgba(35, 167, 250, 0.3)'

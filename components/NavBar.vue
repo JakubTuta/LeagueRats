@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import { selectRegions } from '~/helpers/regions';
-import { lengthRule } from '~/helpers/rules';
+import { useDisplay } from 'vuetify'
+import { selectRegions } from '~/helpers/regions'
+import { lengthRule } from '~/helpers/rules'
 
 const router = useRouter()
 const route = useRoute()
@@ -16,6 +16,13 @@ const tagLine = ref<string | null>(null)
 const region = ref('EUW')
 const gameNameError = ref('')
 const tagLineError = ref('')
+
+const tabs = computed(() => [
+  {
+    title: t('navbar.proPlayers'),
+    to: '/pro-players',
+  },
+])
 
 const errorMessage = t('rules.requiredField')
 
@@ -93,7 +100,7 @@ async function sendToUserView() {
       <v-row
         no-gutters
         align="center"
-        class="mt-4"
+        class="mt-6"
         style="max-width: 800px; display: flex; flex-wrap: wrap; margin: 0 auto;"
       >
         <v-col
@@ -168,21 +175,39 @@ async function sendToUserView() {
       rounded="circle"
     />
 
-    <v-app-bar-title>
-      <v-tooltip
-        :text="$t('navbar.home')"
-        location="bottom"
+    <span
+      z-1
+      class="text-h6 ml-4"
+    >
+      <NuxtLink
+        class="pa-1"
+        style="cursor: pointer; text-decoration: none; color: inherit;"
+        to="/"
       >
-        <template #activator="{props}">
-          <NuxtLink
-            style="cursor: pointer; text-decoration: none; color: inherit;"
-            v-bind="props"
-            to="/"
-          >
-            {{ $t('universal.title') }}
-          </NuxtLink>
-        </template>
-      </v-tooltip>
-    </v-app-bar-title>
+        <v-tooltip
+          activator="parent"
+          location="bottom"
+          :text="$t('navbar.home')"
+        />
+
+        {{ $t('universal.title') }}
+      </NuxtLink>
+    </span>
+
+    <v-tabs
+      v-if="!mobile"
+      height="50px"
+      style="position: absolute; left: 0; right: 0"
+      align-tabs="center"
+      color="primary"
+    >
+      <v-tab
+        v-for="tab in tabs"
+        :key="tab.title"
+        :to="tab.to"
+      >
+        {{ tab.title }}
+      </v-tab>
+    </v-tabs>
   </v-app-bar>
 </template>
