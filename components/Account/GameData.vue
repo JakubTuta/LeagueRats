@@ -35,6 +35,18 @@ const isWin = computed(() => gamer.value.win)
 const keyRuneId = computed(() => (gamer.value.perks.styles.find(style => style.description === 'primaryStyle')!.selections[0].perk))
 const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5].filter(item => item !== 0))
 const minions = computed(() => gamer.value.neutralMinionsKilled + gamer.value.totalMinionsKilled)
+const multikill = computed(() => {
+  if (gamer.value.pentaKills)
+    return 5
+  else if (gamer.value.quadraKills)
+    return 4
+  else if (gamer.value.tripleKills)
+    return 3
+  else if (gamer.value.doubleKills)
+    return 2
+  else
+    return 1
+})
 const teamIds = computed(() => {
   if (!game.value)
     return []
@@ -203,6 +215,36 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
 
   else if (event.button === mouseButton.LEFT)
     router.push(url)
+}
+
+function chipText() {
+  switch (multikill.value) {
+    case 5:
+      return 'Penta Kill'
+    case 4:
+      return 'Quadra Kill'
+    case 3:
+      return 'Triple Kill'
+    case 2:
+      return 'Double Kill'
+    default:
+      return ''
+  }
+}
+
+function chipColor() {
+  switch (multikill.value) {
+    case 5:
+      return 'yellow-accent-4'
+    case 4:
+      return 'red-lighten-1'
+    case 3:
+      return 'green-lighten-1'
+    case 2:
+      return 'gray'
+    default:
+      return 'gray'
+  }
 }
 </script>
 
@@ -403,6 +445,17 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
           <span class="font-weight-medium text-subtitle-1">
             {{ `${minions} (${(minions / (game.info.gameDuration / 60)).toFixed(1)})` }}
           </span>
+        </p>
+
+        <p class="my-1">
+          <v-chip
+            v-if="multikill > 1"
+            :color="chipColor()"
+            density="compact"
+            variant="tonal"
+          >
+            {{ chipText() }}
+          </v-chip>
         </p>
       </v-col>
 

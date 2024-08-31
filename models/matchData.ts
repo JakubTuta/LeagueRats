@@ -90,6 +90,10 @@ export interface IParticipantStats {
   visionScore: number
   win: boolean
   gameEndedInEarlySurrender: boolean
+  doubleKills: number
+  tripleKills: number
+  quadraKills: number
+  pentaKills: number
 }
 
 interface IMatchInfo {
@@ -162,6 +166,10 @@ export function mapMatchData(data: any): IMatchData {
         visionScore: participant?.visionScore || 0,
         win: participant?.win || false,
         gameEndedInEarlySurrender: participant?.gameEndedInEarlySurrender || false,
+        doubleKills: participant?.doubleKills || 0,
+        tripleKills: participant?.tripleKills || 0,
+        quadraKills: participant?.quadraKills || 0,
+        pentaKills: participant?.pentaKills || 0,
       })) || [],
       platformId: data.info?.platformId || '',
       queueId: data.info?.queueId || 0,
