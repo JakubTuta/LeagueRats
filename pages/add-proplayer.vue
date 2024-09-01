@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { collection, doc, setDoc } from 'firebase/firestore';
+import { proRegions, teamPerRegion } from '~/helpers/regions';
 import { useFirebase } from '~/helpers/useFirebase';
 
 const { firestore } = useFirebase()
@@ -15,14 +16,7 @@ const name = ref('')
 const accountName = ref('')
 const accountTag = ref('')
 
-const regions = ['LCK', 'LPL', 'LCS', 'LEC']
 const roles = ['TOP', 'JNG', 'MID', 'ADC', 'SUP']
-const teamPerRegion: { [key: string]: string[] } = {
-  LCK: ['T1', 'GENG', 'DK', 'DRX', 'HLE', 'KDF', 'KT', 'FOX', 'BRO', 'NS'],
-  LPL: ['AL', 'BLG', 'EDG', 'FPX', 'IG', 'JDG', 'LGD', 'LNG', 'NIP', 'OMG', 'RA', 'RNG', 'WE', 'TES', 'TT', 'UP', 'WBG'],
-  LCS: ['TL', 'C9', 'FLY', 'DIG', '100', 'NRG', 'SR', 'IMT'],
-  LEC: ['FNC', 'G2', 'GX', 'KC', 'MAD', 'RGE', 'SK', 'BDS', 'TH', 'VIT'],
-}
 
 function mapRegion() {
   switch (region.value) {
@@ -47,6 +41,7 @@ function add() {
     tagLine: accountTag.value,
     region: mapRegion(),
     role: role.value,
+    team: team.value,
   }).catch(error => console.error(error))
 
   // region.value = null
@@ -60,6 +55,19 @@ function add() {
 watch(password, (value) => {
   isCorrectPassword.value = value === correctPassword
 })
+
+// function addTeams() {
+//   proRegions.forEach((region) => {
+//     teamPerRegion[region].forEach(async (team) => {
+//       const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
+//       const querySnapshot = await getDocs(collectionRef)
+
+//       querySnapshot.forEach((document) => {
+//         updateDoc(document.ref, { team })
+//       })
+//     })
+//   })
+// }
 
 // function changeNames() {
 //   regions.forEach((region) => {
@@ -102,7 +110,7 @@ watch(password, (value) => {
       <v-select
         v-model="region"
         variant="outlined"
-        :items="regions"
+        :items="proRegions"
         label="region"
       />
 
@@ -150,6 +158,14 @@ watch(password, (value) => {
       <!--
         <v-btn @click="changeNames">
         Change names
+        </v-btn>
+      -->
+
+      <!--
+        <v-btn
+        @click="addTeams"
+        >
+        Add teams
         </v-btn>
       -->
     </v-card-text>

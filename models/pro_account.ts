@@ -5,6 +5,7 @@ export interface IProAccount {
   puuid: string | null
   region: 'LEC' | 'LCS' | 'LCK' | 'LPL'
   role: 'Top' | 'JNG' | 'MID' | 'ADC' | 'SUP'
+  team: string
 }
 
 export function mapIProAccount(data: any): IProAccount {
@@ -15,5 +16,6 @@ export function mapIProAccount(data: any): IProAccount {
     puuid: data.puuid || null,
     region: data.region,
     role: data.role,
+    team: data.team,
   }
 }

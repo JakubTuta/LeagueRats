@@ -271,3 +271,11 @@ def save_match_to_firebase(match):
         ).set(match)
 
     threading.Thread(target=func).start()
+
+
+def get_pro_players(region, team):
+    player_docs = firebase_init.firestore_client.collection(
+        f"pro_players/{region}/{team}"
+    ).stream()
+
+    return list(player_docs)

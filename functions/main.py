@@ -463,16 +463,40 @@ def match_data(
         )
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
 def current_version(
     event: scheduler_fn.ScheduledEvent,
 ) -> None:
     scheduled_functions.current_version(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:02")
+def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    try:
+        scheduled_functions.update_pro_accounts("LEC")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:04")
+def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    try:
+        scheduled_functions.update_pro_accounts("LCS")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
+def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    try:
+        scheduled_functions.update_pro_accounts("LCK")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
 
 
 # @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")

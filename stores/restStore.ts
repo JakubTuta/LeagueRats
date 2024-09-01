@@ -45,6 +45,8 @@ export const useRestStore = defineStore('rest', () => {
     }
     catch (error: any) {
       console.error(error)
+
+      throw new Error(error)
     }
 
     if (response.status !== 200) {

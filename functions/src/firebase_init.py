@@ -34,10 +34,12 @@ config = {
 
 collections = {}
 app = None
+firestore_client = None
 
 
 def initialize_app():
     global app
+    global firestore_client
 
     credentials = firebase_admin.credentials.Certificate(service_account)
     app = firebase_admin.initialize_app(credentials, config, "League Rats")

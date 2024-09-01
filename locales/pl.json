@@ -5,6 +5,7 @@
     "english": "English",
     "light": "Jasny",
     "dark": "Ciemny",
+    "selectAll": "Wybierz wszystko",
     "form": {
       "close": "Zamknij",
       "save": "Zapisz"
@@ -126,6 +127,8 @@
     "perfect": "Perfekcyjnie"
   },
   "proPlayers": {
-    
+    "loadingPlayers": "Ładowanie graczy",
+    "roles": "Role",
+    "teams": "Drużyny"
   }
 }

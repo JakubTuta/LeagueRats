@@ -5,6 +5,7 @@
     "english": "English",
     "light": "Light",
     "dark": "Dark",
+    "selectAll": "Select all",
     "form": {
       "close": "Close",
       "save": "Save"
@@ -124,5 +125,10 @@
     "percentageDmgDealt": "% of team's damage dealt",
     "percentageDmgTaken": "% of team's damage taken",
     "perfect": "Perfect"
+  },
+  "proPlayers": {
+    "loadingPlayers": "Loading players",
+    "roles": "Roles",
+    "teams": "Teams"
   }
 }

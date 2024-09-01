@@ -111,3 +111,64 @@ export function mapApiRegion2ToSelect(region: TApiRegions2): TSelectRegions {
       throw new Error(`Invalid region: ${region}`)
   }
 }
+
+export const proRegions = ['LCK', 'LPL', 'LCS', 'LEC']
+
+export const teamPerRegion: { [key: string]: string[] } = {
+  LCK: ['T1', 'GENG', 'DK', 'DRX', 'HLE', 'KDF', 'KT', 'FOX', 'BRO', 'NS'],
+  LPL: ['AL', 'BLG', 'EDG', 'FPX', 'IG', 'JDG', 'LGD', 'LNG', 'NIP', 'OMG', 'RA', 'RNG', 'WE', 'TES', 'TT', 'UP', 'WBG'],
+  LCS: ['TL', 'C9', 'FLY', 'DIG', '100', 'NRG', 'SR', 'IMT'],
+  LEC: ['FNC', 'G2', 'GX', 'KC', 'MAD', 'RGE', 'SK', 'BDS', 'TH', 'VIT'],
+}
+
+export const teamFullName: { [key: string]: string } = {
+  T1: 'T1',
+  GENG: 'Gen.G',
+  DK: 'Dplus KIA',
+  DRX: 'DRX',
+  HLE: 'Hanwha Life Esports',
+  KDF: 'Kwangdong Freecs',
+  KT: 'kt Rolster',
+  FOX: 'BNK FearX',
+  BRO: 'OKSavingsBank BRION',
+  NS: 'NongShim REDFORCE',
+  AL: 'Anyone\'s Legend',
+  BLG: 'Bilibili Gaming',
+  EDG: 'Edward Gaming',
+  FPX: 'FunPlus Phoenix',
+  IG: 'Invictus Gaming',
+  JDG: 'JD Gaming',
+  LGD: 'LGD Gaming',
+  LNG: 'LNG Esports',
+  NIP: 'Ninjas in Pyjamas',
+  OMG: 'Oh My God',
+  RA: 'Rare Atom',
+  RNG: 'Royal Never Give Up',
+  WE: 'Team WE',
+  TES: 'Top Esports',
+  TT: 'TT Gaming',
+  UP: 'Ultra Prime',
+  WBG: 'Weibo Gaming',
+  TL: 'Team Liquid',
+  C9: 'Cloud9',
+  FLY: 'FlyQuest',
+  DIG: 'Dignitas',
+  100: '100 Thieves',
+  NRG: 'NRG',
+  SR: 'Evil Geniuses',
+  IMT: 'Immortals',
+  FNC: 'Fnatic',
+  G2: 'G2 Esports',
+  GX: 'Excel Esports',
+  KC: 'Karmine Corp',
+  MAD: 'MAD Lions',
+  RGE: 'Rogue',
+  SK: 'SK Gaming',
+  BDS: 'Team BDS',
+  TH: 'Team Heretics',
+  VIT: 'Team Vitality',
+}
+
+export function mapTeamToFullName(teams: string[]): string[] {
+  return teams.map(team => teamFullName[team])
+}
