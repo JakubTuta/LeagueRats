@@ -269,51 +269,29 @@ setInterval(() => {
                     style="position: absolute; left: 10px"
                   />
 
-            <v-col
-              cols="12"
-              sm="6"
-            >
-              <v-text-field
-                v-model="gameName"
-                :label="$t('index.gameName')"
-                prepend-inner-icon="mdi-account-outline"
-                variant="outlined"
-                :error-messages="gameNameError"
-                @keydown.enter="sendToUserView"
-              />
-            </v-col>
+                  <v-img
+                    v-else
+                    src="~/assets/aram_icon.png"
+                    lazy-src="~/assets/default.png"
+                    width="30"
+                    height="30"
+                    style="position: absolute; left: 10px"
+                  />
 
-            <v-col
-              cols="12"
-              sm="3"
-            >
-              <v-text-field
-                v-model="tagLine"
-                :label="$t('index.tagLine')"
-                prepend-inner-icon="mdi-pound"
-                center-affix
-                :rules="[lengthRule($t, 5)]"
-                :error-messages="tagLineError"
-                @keydown.enter="sendToUserView"
-              >
-                <template #append>
-                  <v-btn
-                    icon
-                    size="small"
-                    :loading="loading"
-                    @click="sendToUserView"
+                  <span style="position: absolute; left: 60px;">
+                    {{ $t(`game.${game.gameMode.toLowerCase()}`) }}
+
+                    <span v-if="game.gameMode !== 'ARAM'">
+                      {{ $t(`queueTypes.${game.gameQueueConfigId}`) }}
+                    </span>
+                  </span>
+
+                  <span
+                    style="position: absolute; right: 75px"
                   >
-                    <v-icon
-                      icon="mdi-chevron-right"
-                      size="x-large"
-                    />
-                  </v-btn>
-                </template>
-              </v-text-field>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+                    {{ formatTime(game.gameLength) }}
+                  </span>
+                </v-expansion-panel-title>
 
                 <v-expansion-panel-text
                   :style="isDark
@@ -333,11 +311,3 @@ setInterval(() => {
     </v-card>
   </v-container>
 </template>
-
-<style scoped>
-.bg-image {
-  background-image: url('~/assets/bg2.jpg');
-  background-size: cover;
-  background-position: center;
-}
-</style>
