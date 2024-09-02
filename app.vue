@@ -27,8 +27,6 @@ onMounted(() => {
         <NavBar />
 
         <NuxtPage />
-
-        <Settings />
       </v-main>
     </v-app>
   </NuxtLayout>
@@ -36,7 +34,7 @@ onMounted(() => {
 
 <style scoped>
 .bg-image {
-  background-image: url('~/assets/bg2.jpg');
+  background-image: url('~/assets/backgrounds/lec_bg1.jpg');
   background-size: cover;
   background-position: center;
 }

@@ -157,10 +157,10 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
           >
             <v-select
               v-model="filterRoles"
-              multiple
               chips
               clearable
               single-line
+              multiple
               :label="$t('proPlayers.roles')"
               :items="[
                 'TOP',

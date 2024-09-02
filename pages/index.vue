@@ -134,8 +134,8 @@ setInterval(() => {
       >
         <v-card
           :color="isDark
-            ? 'rgba(50, 50, 50, 0.75)'
-            : 'rgba(200, 200, 200, 0.75)'"
+            ? 'rgba(50, 50, 50, 0.85)'
+            : 'rgba(200, 200, 200, 0.85)'"
           :class="isDark
             ? 'text-h3 text-grey-lighten-1 my-1'
             : 'text-h3 text-grey-darken-3 my-1'"
@@ -152,8 +152,8 @@ setInterval(() => {
 
     <v-card
       :color="isDark
-        ? 'rgba(50, 50, 50, 0.75)'
-        : 'rgba(200, 200, 200, 0.75)'"
+        ? 'rgba(50, 50, 50, 0.85)'
+        : 'rgba(200, 200, 200, 0.85)'"
       class="my-auto"
       min-height="150px"
     >
@@ -231,8 +231,8 @@ setInterval(() => {
     <v-card
       v-if="featuredGames.length > 0"
       :color="isDark
-        ? 'rgba(50, 50, 50, 0.75)'
-        : 'rgba(200, 200, 200, 0.75)'"
+        ? 'rgba(50, 50, 50, 0.85)'
+        : 'rgba(200, 200, 200, 0.85)'"
       variant="flat"
       class="mt-auto"
     >
@@ -250,8 +250,8 @@ setInterval(() => {
           >
             <v-expansion-panels
               :color="isDark
-                ? 'rgba(50, 50, 50, 0.75)'
-                : 'rgba(200, 200, 200, 0.75)'"
+                ? 'rgba(50, 50, 50, 0.85)'
+                : 'rgba(200, 200, 200, 0.85)'"
             >
               <v-expansion-panel>
                 <v-expansion-panel-title

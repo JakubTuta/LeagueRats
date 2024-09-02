@@ -16,6 +16,7 @@ const tagLine = ref<string | null>(null)
 const region = ref('EUW')
 const gameNameError = ref('')
 const tagLineError = ref('')
+const isShowSettings = ref(false)
 
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
@@ -94,6 +95,10 @@ async function sendToUserView() {
 }
 
 const isExtension = computed(() => !mobile.value && route.path !== '/')
+
+function toggleSettings() {
+  isShowSettings.value = !isShowSettings.value
+}
 </script>
 
 <template>
@@ -102,8 +107,8 @@ const isExtension = computed(() => !mobile.value && route.path !== '/')
     flat
     extension-height="60"
     :color="isDark
-      ? 'rgba(50, 50, 50, 0.75)'
-      : 'rgba(200, 200, 200, 0.75)'"
+      ? 'rgba(50, 50, 50, 0.85)'
+      : 'rgba(200, 200, 200, 0.85)'"
   >
     <template
       v-if="isExtension"
@@ -221,5 +226,22 @@ const isExtension = computed(() => !mobile.value && route.path !== '/')
         {{ tab.title }}
       </v-tab>
     </v-tabs>
+
+    <template #append>
+      <v-btn
+        icon
+        class="mr-2"
+        @click="toggleSettings"
+      >
+        <v-icon
+          icon="mdi-cog-outline"
+        />
+      </v-btn>
+    </template>
   </v-app-bar>
+
+  <SettingsDialog
+    :is-show="isShowSettings"
+    @close="toggleSettings"
+  />
 </template>
