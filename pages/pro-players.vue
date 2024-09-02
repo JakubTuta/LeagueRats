@@ -87,11 +87,13 @@ watch(selectedRegion, (region) => {
   proStore.resetPlayers()
 
   filterTeams.value = teamPerRegion[upperCaseRegion].sort((a, b) => a.localeCompare(b))
-  const newTeam = filterTeams.value[0]
-  savedTeams.value = [newTeam]
+  const newTeams = filterTeams.value.slice(0, 2)
+  savedTeams.value = newTeams
 
-  proStore.getProPlayersFromTeam(upperCaseRegion, newTeam)
-  storageStore.getTeamLogo(upperCaseRegion, newTeam)
+  newTeams.forEach((team) => {
+    proStore.getProPlayersFromTeam(upperCaseRegion, team)
+    storageStore.getTeamLogo(upperCaseRegion, team)
+  })
 
   loading.value = false
 }, { immediate: true })
