@@ -72,19 +72,11 @@ const mapTeamItems = computed(() => {
 
 watch(selectedRegion, (region) => {
   loading.value = true
-
   const upperCaseRegion = region.toUpperCase()
 
-  proStore.resetPlayers(upperCaseRegion)
+  proStore.resetPlayers()
 
   filterTeams.value = teamPerRegion[upperCaseRegion].sort((a, b) => a.localeCompare(b))
-
-  if (!filterTeams.value.length) {
-    loading.value = false
-
-    return
-  }
-
   const newTeam = filterTeams.value[0]
   savedTeams.value = [newTeam]
 
@@ -108,7 +100,6 @@ async function loadPlayers({ done }: { done: (status: string) => void }) {
   }
 
   const newTeam = notSavedTeams[0]
-  console.log(newTeam)
 
   proStore.getProPlayersFromTeam(selectedRegion.value.toUpperCase(), newTeam)
   storageStore.getTeamLogo(selectedRegion.value.toUpperCase(), newTeam)
@@ -185,6 +176,8 @@ const imageWidth = computed(() => {
           </v-col>
         </v-row>
       </v-card-title>
+
+      <v-spacer class="my-2" />
 
       <v-card-text
         v-if="loading"

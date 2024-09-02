@@ -10,8 +10,8 @@ export const useProPlayerStore = defineStore('proplayer', () => {
 
   const { firestore } = useFirebase()
 
-  const resetPlayers = (region: string) => {
-    players.value = playersPerRegion[region] || []
+  const resetPlayers = () => {
+    players.value = []
   }
 
   const getProPlayersForRegion = async (region: string): Promise<void> => {
@@ -46,6 +46,8 @@ export const useProPlayerStore = defineStore('proplayer', () => {
 
   const getProPlayersFromTeam = async (region: string, team: string) => {
     if (playersPerTeam[team]) {
+      players.value.push(...playersPerTeam[team])
+
       return
     }
 
@@ -55,13 +57,6 @@ export const useProPlayerStore = defineStore('proplayer', () => {
 
       const playerData = querySnapshot.docs.map(docData => mapIProAccount(docData.data()))
       playersPerTeam[team] = playerData
-
-      if (playersPerRegion[region]) {
-        playersPerRegion[region].push(...playerData)
-      }
-      else {
-        playersPerRegion[region] = playerData
-      }
 
       players.value.push(...playerData)
     }

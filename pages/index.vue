@@ -226,88 +226,100 @@ setInterval(() => {
       </v-card-text>
     </v-card>
 
-    <v-spacer class="mb-10" />
+    <v-spacer />
 
-    <v-card
+    <v-spacer />
+
+    <v-spacer />
+
+    <v-spacer />
+
+    <v-spacer />
+
+    <v-spacer />
+
+    <!--
+      <v-card
       v-if="featuredGames.length > 0"
       :color="isDark
-        ? 'rgba(50, 50, 50, 0.85)'
-        : 'rgba(200, 200, 200, 0.85)'"
+      ? 'rgba(50, 50, 50, 0.85)'
+      : 'rgba(200, 200, 200, 0.85)'"
       variant="flat"
       class="mt-auto"
-    >
+      >
       <v-card-title align="center">
-        {{ $t('index.featuredGames') }}
+      {{ $t('index.featuredGames') }}
       </v-card-title>
 
       <v-card-text>
-        <v-row>
-          <v-col
-            v-for="game in featuredGames"
-            :key="game.gameId"
-            cols="12"
-            class="my-3"
-          >
-            <v-expansion-panels
-              :color="isDark
-                ? 'rgba(50, 50, 50, 0.85)'
-                : 'rgba(200, 200, 200, 0.85)'"
-            >
-              <v-expansion-panel>
-                <v-expansion-panel-title
-                  style="height: 70px;"
-                  :color="isDark
-                    ? 'rgba(50, 50, 50, 1)'
-                    : 'rgba(200, 200, 200, 1)'"
-                >
-                  <v-img
-                    v-if="game.gameMode === 'CLASSIC'"
-                    src="~/assets/classic_icon.png"
-                    lazy-src="~/assets/default.png"
-                    width="30"
-                    height="30"
-                    style="position: absolute; left: 10px"
-                  />
+      <v-row>
+      <v-col
+      v-for="game in featuredGames"
+      :key="game.gameId"
+      cols="12"
+      class="my-3"
+      >
+      <v-expansion-panels
+      :color="isDark
+      ? 'rgba(50, 50, 50, 0.85)'
+      : 'rgba(200, 200, 200, 0.85)'"
+      >
+      <v-expansion-panel>
+      <v-expansion-panel-title
+      style="height: 70px;"
+      :color="isDark
+      ? 'rgba(50, 50, 50, 1)'
+      : 'rgba(200, 200, 200, 1)'"
+      >
+      <v-img
+      v-if="game.gameMode === 'CLASSIC'"
+      src="~/assets/classic_icon.png"
+      lazy-src="~/assets/default.png"
+      width="30"
+      height="30"
+      style="position: absolute; left: 10px"
+      />
 
-                  <v-img
-                    v-else
-                    src="~/assets/aram_icon.png"
-                    lazy-src="~/assets/default.png"
-                    width="30"
-                    height="30"
-                    style="position: absolute; left: 10px"
-                  />
+      <v-img
+      v-else
+      src="~/assets/aram_icon.png"
+      lazy-src="~/assets/default.png"
+      width="30"
+      height="30"
+      style="position: absolute; left: 10px"
+      />
 
-                  <span style="position: absolute; left: 60px;">
-                    {{ $t(`game.${game.gameMode.toLowerCase()}`) }}
+      <span style="position: absolute; left: 60px;">
+      {{ $t(`game.${game.gameMode.toLowerCase()}`) }}
 
-                    <span v-if="game.gameMode !== 'ARAM'">
-                      {{ $t(`queueTypes.${game.gameQueueConfigId}`) }}
-                    </span>
-                  </span>
+      <span v-if="game.gameMode !== 'ARAM'">
+      {{ $t(`queueTypes.${game.gameQueueConfigId}`) }}
+      </span>
+      </span>
 
-                  <span
-                    style="position: absolute; right: 75px"
-                  >
-                    {{ formatTime(game.gameLength) }}
-                  </span>
-                </v-expansion-panel-title>
+      <span
+      style="position: absolute; right: 75px"
+      >
+      {{ formatTime(game.gameLength) }}
+      </span>
+      </v-expansion-panel-title>
 
-                <v-expansion-panel-text
-                  :style="isDark
-                    ? 'background-color: rgba(50, 50, 50, 1);'
-                    : 'background-color: rgba(200, 200, 200, 1);'"
-                  class="black"
-                >
-                  <AccountGameTable
-                    :game="game"
-                  />
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-col>
-        </v-row>
+      <v-expansion-panel-text
+      :style="isDark
+      ? 'background-color: rgba(50, 50, 50, 1);'
+      : 'background-color: rgba(200, 200, 200, 1);'"
+      class="black"
+      >
+      <AccountGameTable
+      :game="game"
+      />
+      </v-expansion-panel-text>
+      </v-expansion-panel>
+      </v-expansion-panels>
+      </v-col>
+      </v-row>
       </v-card-text>
-    </v-card>
+      </v-card>
+    -->
   </v-container>
 </template>
