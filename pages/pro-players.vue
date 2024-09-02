@@ -118,7 +118,7 @@ async function loadPlayers({ done }: { done: (status: string) => void }) {
 
   savedTeams.value.push(newTeam)
 
-  await new Promise(resolve => setTimeout(resolve, 100))
+  await new Promise(resolve => setTimeout(resolve, 150))
 
   done('ok')
 }
@@ -287,6 +287,7 @@ function getPlayerRoleIcon(player: { role: string }) {
         <v-infinite-scroll
           :height="scrollHeight"
           empty-text=""
+          :margin="100"
           :items="filteredPlayers"
           @load="loadPlayers"
         >
