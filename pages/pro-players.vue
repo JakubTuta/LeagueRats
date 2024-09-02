@@ -287,7 +287,6 @@ function getPlayerRoleIcon(player: { role: string }) {
         <v-infinite-scroll
           :height="scrollHeight"
           empty-text=""
-          :margin="500"
           :items="filteredPlayers"
           @load="loadPlayers"
         >
