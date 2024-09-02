@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import imgLck from '~/assets/regions/lck.png'
 // @ts-expect-error correct path
@@ -8,16 +9,20 @@ import imgLec from '~/assets/regions/lec.png'
 // @ts-expect-error correct path
 import imgLpl from '~/assets/regions/lpl.png'
 import { teamFullName, teamPerRegion } from '~/helpers/regions'
-import type { IProAccount } from '~/models/pro_account'
+
+const { mdAndUp, sm } = useDisplay()
 
 const proStore = useProPlayerStore()
 const { players } = storeToRefs(proStore)
 
+const storageStore = useStorageStore()
+const { teamLogos } = storeToRefs(storageStore)
+
 const loading = ref(false)
 const selectedRegion = ref('lec')
-const loadedPlayers = ref<IProAccount[]>([])
 const filterRoles = ref(['TOP', 'JNG', 'MID', 'ADC', 'SUP'])
 const filterTeams = ref<string[]>([])
+const savedTeams = ref<string[]>([])
 
 const mapRole: { [key: string]: number } = {
   TOP: 1,
@@ -51,7 +56,7 @@ const regions = [
 ]
 
 const filteredPlayers = computed(() => {
-  return loadedPlayers.value.filter(player => filterTeams.value.includes(player.team))
+  return players.value.filter(player => filterTeams.value.includes(player.team))
     .filter(player => filterRoles.value.includes(player.role))
     .sort((a, b) => mapRole[a.role] - mapRole[b.role])
     .sort((a, b) => a.team.localeCompare(b.team))
@@ -65,14 +70,18 @@ const mapTeamItems = computed(() => {
     }))
 })
 
-watch(selectedRegion, async (region) => {
+watch(selectedRegion, (region) => {
   loading.value = true
+  const upperCaseRegion = region.toUpperCase()
 
-  filterTeams.value = teamPerRegion[region.toUpperCase()]
+  proStore.resetPlayers()
 
-  await proStore.getProPlayersForRegion(region)
+  filterTeams.value = teamPerRegion[upperCaseRegion].sort((a, b) => a.localeCompare(b))
+  const newTeam = filterTeams.value[0]
+  savedTeams.value = [newTeam]
 
-  loadedPlayers.value = players.value.splice(0, 10)
+  proStore.getProPlayersFromTeam(upperCaseRegion, newTeam)
+  storageStore.getTeamLogo(upperCaseRegion, newTeam)
 
   loading.value = false
 }, { immediate: true })
@@ -81,16 +90,23 @@ watch(filterRoles, () => {
   filterRoles.value = filterRoles.value.sort((a, b) => mapRole[a] - mapRole[b])
 })
 
-function loadPlayers({ done }: { done: (status: string) => void }) {
-  const newPlayers = players.value.slice(loadedPlayers.value.length, loadedPlayers.value.length + 10)
+async function loadPlayers({ done }: { done: (status: string) => void }) {
+  const notSavedTeams = filterTeams.value.filter(team => !savedTeams.value.includes(team))
 
-  if (!newPlayers.length) {
+  if (!notSavedTeams.length) {
     done('empty')
 
     return
   }
 
-  loadedPlayers.value.push(...newPlayers)
+  const newTeam = notSavedTeams[0]
+
+  proStore.getProPlayersFromTeam(selectedRegion.value.toUpperCase(), newTeam)
+  storageStore.getTeamLogo(selectedRegion.value.toUpperCase(), newTeam)
+
+  savedTeams.value.push(newTeam)
+
+  await new Promise(resolve => setTimeout(resolve, 100))
 
   done('ok')
 }
@@ -98,6 +114,32 @@ function loadPlayers({ done }: { done: (status: string) => void }) {
 function teamCustomFilter(_value: string, query: string, item: { title: string, props: { subtitle: string } }) {
   return item.title.toLowerCase().includes(query.toLowerCase()) || item.props.subtitle.toLowerCase().includes(query.toLowerCase())
 }
+
+const scrollHeight = computed(() => {
+  const height = window.innerHeight
+
+  if (height < 1000)
+    return '50vh'
+  else if (height < 1250)
+    return '55vh'
+  else if (height < 1500)
+    return '60vh'
+  else if (height < 1750)
+    return '65vh'
+  else if (height < 2000)
+    return '70vh'
+  else
+    return '75vh'
+})
+
+const imageWidth = computed(() => {
+  if (mdAndUp.value)
+    return 75
+  else if (sm.value)
+    return 50
+  else
+    return 25
+})
 </script>
 
 <template>
@@ -110,8 +152,7 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
             :key="region.value"
             align="center"
             cols="12"
-            sm="6"
-            md="3"
+            sm="3"
           >
             <!-- primary-transparent -->
             <v-card
@@ -124,8 +165,7 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
             >
               <v-img
                 :src="region.image"
-                max-width="100"
-                max-height="100"
+                :max-width="imageWidth"
                 aspect-ratio="1"
                 cover
                 class="mb-5"
@@ -136,6 +176,8 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
           </v-col>
         </v-row>
       </v-card-title>
+
+      <v-spacer class="my-2" />
 
       <v-card-text
         v-if="loading"
@@ -157,10 +199,10 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
           >
             <v-select
               v-model="filterRoles"
-              multiple
               chips
               clearable
               single-line
+              multiple
               :label="$t('proPlayers.roles')"
               :items="[
                 'TOP',
@@ -193,7 +235,6 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
           >
             <v-autocomplete
               v-model="filterTeams"
-              style="cursor: pointer;"
               multiple
               chips
               single-line
@@ -215,8 +256,9 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
         </v-row>
 
         <v-infinite-scroll
-          height="70vh"
+          :height="scrollHeight"
           empty-text=""
+          :margin="1000"
           :items="filteredPlayers"
           @load="loadPlayers"
         >
@@ -224,7 +266,21 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
             v-for="player in filteredPlayers"
             :key="player.player"
           >
-            <v-list-item class="my-2">
+            <v-list-item
+              class="my-2"
+            >
+              <template #prepend>
+                <v-avatar
+                  rounded="0"
+                  size="70"
+                >
+                  <v-img
+                    :src="teamLogos[player.team]"
+                    lazy-src="~/assets/default.png"
+                  />
+                </v-avatar>
+              </template>
+
               {{ player.player }}
             </v-list-item>
           </template>

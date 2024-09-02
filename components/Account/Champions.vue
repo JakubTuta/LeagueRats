@@ -20,7 +20,7 @@ watch(champions, (newChampions) => {
 
   loadedChampions.value = newChampions.slice(0, 10)
 
-  newChampions.forEach((champion) => {
+  loadedChampions.value.forEach((champion) => {
     storageStore.getChampionIcon(champion.championId)
   })
 })
@@ -51,10 +51,28 @@ function loadChampions({ done }: { done: (status: string) => void }) {
     return
   }
 
+  newChampions.forEach((champion) => {
+    storageStore.getChampionIcon(champion.championId)
+  })
   loadedChampions.value.push(...newChampions)
 
   done('ok')
 }
+
+const scrollHeight = computed(() => {
+  const height = window.innerHeight
+
+  if (height < 1000)
+    return '50vh'
+  else if (height < 1500)
+    return '55vh'
+  else if (height < 2000)
+    return '60vh'
+  else if (height < 2500)
+    return '65vh'
+  else
+    return '70vh'
+})
 </script>
 
 <template>
@@ -72,7 +90,7 @@ function loadChampions({ done }: { done: (status: string) => void }) {
   >
     <v-col cols="10">
       <v-infinite-scroll
-        height="70vh"
+        :height="scrollHeight"
         :items="loadedChampions"
         @load="loadChampions"
       >
