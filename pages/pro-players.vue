@@ -8,6 +8,16 @@ import imgLcs from '~/assets/regions/lcs.png'
 import imgLec from '~/assets/regions/lec.png'
 // @ts-expect-error correct path
 import imgLpl from '~/assets/regions/lpl.png'
+// @ts-expect-error correct path
+import topIcon from '~/assets/roles/top.png'
+// @ts-expect-error correct path
+import jngIcon from '~/assets/roles/jng.png'
+// @ts-expect-error correct path
+import midIcon from '~/assets/roles/mid.png'
+// @ts-expect-error correct path
+import adcIcon from '~/assets/roles/adc.png'
+// @ts-expect-error correct path
+import supIcon from '~/assets/roles/sup.png'
 import { teamFullName, teamPerRegion } from '~/helpers/regions'
 
 const { mdAndUp, sm } = useDisplay()
@@ -140,6 +150,23 @@ const imageWidth = computed(() => {
   else
     return 25
 })
+
+function getPlayerRoleIcon(player: { role: string }) {
+  switch (player.role) {
+    case 'TOP':
+      return topIcon
+    case 'JNG':
+      return jngIcon
+    case 'MID':
+      return midIcon
+    case 'ADC':
+      return adcIcon
+    case 'SUP':
+      return supIcon
+    default:
+      return ''
+  }
+}
 </script>
 
 <template>
@@ -269,19 +296,46 @@ const imageWidth = computed(() => {
             <v-list-item
               class="my-2"
             >
-              <template #prepend>
+              <template
+                #prepend
+              >
                 <v-avatar
                   rounded="0"
                   size="70"
                 >
                   <v-img
-                    :src="teamLogos[player.team]"
-                    lazy-src="~/assets/default.png"
+                    src="~/assets/default.png"
                   />
                 </v-avatar>
+
+                <span>
+                  <p>
+                    <v-avatar
+                      rounded="0"
+                      size="35"
+                    >
+                      <v-img :src="teamLogos[player.team]" />
+                    </v-avatar>
+                  </p>
+
+                  <p>
+                    <v-avatar
+                      rounded="0"
+                      size="35"
+                    >
+                      <v-img :src="getPlayerRoleIcon(player)" />
+                    </v-avatar>
+                  </p>
+                </span>
               </template>
 
-              {{ player.player }}
+              <v-list-item-title class="text-h6 ml-1">
+                {{ player.player }}
+              </v-list-item-title>
+
+              <v-list-item-subtitle class="text-subtitle-2 ml-1">
+                {{ teamFullName[player.team] }}
+              </v-list-item-subtitle>
             </v-list-item>
           </template>
         </v-infinite-scroll>
