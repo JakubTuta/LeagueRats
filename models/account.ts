@@ -31,8 +31,9 @@ export function mapAccount(arg1: IAccountDetails | DocumentData, summoner?: ISum
       id: summoner.id,
       region,
       profileIconId: summoner.profileIconId,
-      // @ts-expect-error summoner.revisionDate is a number
-      revisionDate: new Timestamp(summoner.revisionDate / 1000, 0),
+      revisionDate: summoner.revisionDate instanceof Number
+        ? new Timestamp(Number(summoner.revisionDate) / 1000, 0)
+        : summoner.revisionDate,
       summonerLevel: summoner.summonerLevel,
     }
   }

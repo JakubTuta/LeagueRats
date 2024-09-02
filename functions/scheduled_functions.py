@@ -2,6 +2,7 @@ import datetime
 
 import requests
 import src.firestore_functions as firestore_functions
+import src.regions as regions
 from firebase_functions import scheduler_fn
 
 
@@ -50,3 +51,24 @@ def account_revision_date(event: scheduler_fn.ScheduledEvent) -> None:
     previous_date = current_date - datetime.timedelta(days=1)
 
     updated_accounts = firestore_functions.get_updated_accounts(previous_date)
+
+
+def update_pro_accounts(region) -> None:
+    for team in regions.teams_per_region[region]:
+        players = firestore_functions.get_pro_players(region, team)
+
+        for player in players:
+            player_data = player.to_dict()
+
+            account_data = firestore_functions._get_account_from_firestore(
+                player_data["region"], puuid=player_data["puuid"]
+            )
+
+            if (
+                account_data["gameName"] != player_data["gameName"]
+                or account_data["tagLine"] != player_data["tagLine"]
+            ):
+                player_data["gameName"] = account_data["gameName"]
+                player_data["tagLine"] = account_data["tagLine"]
+
+                player.reference.update(player_data)

@@ -1,3 +1,4 @@
+import datetime
 import re
 import threading
 
@@ -162,26 +163,41 @@ def get_accounts_from_all_regions(game_name, tag):
     return account_per_region
 
 
-def _save_participant_to_firebase(puuid, region):
-    if _get_account_from_firestore(region, puuid=puuid):
+def save_participant_to_firebase(region, puuid=None, game_name=None, tag_line=None):
+    if account := _get_account_from_firestore(
+        region, puuid=puuid, game_name=game_name, tag_line=tag_line
+    ):
+        return account
+
+    account_details = _get_account_from_region(
+        region, puuid=puuid, game_name=game_name, tag_line=tag_line
+    )
+
+    if not account_details:
         return
 
-    account_details = _get_account_from_region(region, puuid=puuid)
-    summoner_details = _get_summoner_from_region(region, puuid)
+    summoner_details = _get_summoner_from_region(region, account_details.get("puuid"))
 
-    if account_details is None or summoner_details is None:
+    if not summoner_details:
         return
 
     account = {
         "gameName": account_details.get("gameName"),
         "tagLine": account_details.get("tagLine"),
-        "puuid": puuid,
+        "puuid": account_details.get("puuid"),
         "region": region,
         "accountId": summoner_details.get("accountId"),
         "id": summoner_details.get("id"),
+        "profileIconId": summoner_details.get("profileIconId"),
+        "revisionDate": datetime.datetime.fromtimestamp(
+            summoner_details.get("revisionDate") / 1000
+        ),
+        "summonerLevel": summoner_details.get("summonerLevel"),
     }
 
     firebase_init.collections["accounts"].add(account)
+
+    return account
 
 
 def save_participants_to_firebase(puuids, game_region):
@@ -189,7 +205,7 @@ def save_participants_to_firebase(puuids, game_region):
         request_region = regions.api_region_2_to_select_region[game_region]
 
         for puuid in puuids:
-            _save_participant_to_firebase(puuid, request_region)
+            save_participant_to_firebase(puuid, request_region)
 
     threading.Thread(target=func).start()
 
@@ -255,3 +271,11 @@ def save_match_to_firebase(match):
         ).set(match)
 
     threading.Thread(target=func).start()
+
+
+def get_pro_players(region, team):
+    player_docs = firebase_init.firestore_client.collection(
+        f"pro_players/{region}/{team}"
+    ).stream()
+
+    return list(player_docs)

@@ -5,6 +5,7 @@
     "english": "English",
     "light": "Jasny",
     "dark": "Ciemny",
+    "selectAll": "Wybierz wszystko",
     "form": {
       "close": "Zamknij",
       "save": "Zapisz"
@@ -25,7 +26,7 @@
     "gameName": "Nazwa użytkownika",
     "tagLine": "Tag",
     "userNotExist": "Użytkownik nie istnieje",
-    "featuredGames": "Gry na żywo"
+    "featuredGames": "Losowe gry na żywo"
   },
   "rules": {
     "requiredField": "To pole jest wymagane",
@@ -126,6 +127,8 @@
     "perfect": "Perfekcyjnie"
   },
   "proPlayers": {
-    
+    "loadingPlayers": "Ładowanie graczy",
+    "roles": "Role",
+    "teams": "Drużyny"
   }
 }

@@ -89,6 +89,10 @@ class Participant:
     visionScore: int = 0
     win: bool = False
     gameEndedInEarlySurrender: bool = False
+    doubleKills: int = 0
+    tripleKills: int = 0
+    quadraKills: int = 0
+    pentaKills: int = 0
 
     def to_dict(self):
         return dataclasses.asdict(self)

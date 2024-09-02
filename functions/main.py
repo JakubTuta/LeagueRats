@@ -8,7 +8,7 @@ import src.firebase_init as firebase_init
 import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
 import src.regions as regions
-from firebase_functions import https_fn, scheduler_fn
+from firebase_functions import firestore_fn, https_fn, scheduler_fn
 from src.models.match_history import MatchData
 
 cors_options = firebase_functions.options.CorsOptions(
@@ -463,18 +463,67 @@ def match_data(
         )
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
 def current_version(
     event: scheduler_fn.ScheduledEvent,
 ) -> None:
     scheduled_functions.current_version(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:02")
+def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    try:
+        scheduled_functions.update_pro_accounts("LEC")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:04")
+def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    try:
+        scheduled_functions.update_pro_accounts("LCS")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
+def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    try:
+        scheduled_functions.update_pro_accounts("LCK")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
 
 
 # @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
 # def account_revision_date(event: scheduler_fn.ScheduledEvent) -> None:
 #     scheduled_functions.account_revision_date(event)
+
+
+@firestore_fn.on_document_created(
+    region="europe-central2", document="pro_players/{region}/{team}/{player}"
+)
+def on_pro_player_create(
+    event: firestore_fn.Event[firestore_fn.DocumentSnapshot],
+) -> None:
+    document_reference = event.data.reference
+    document_data = event.data.to_dict()
+
+    player = document_data.get("player", None)
+    region = document_data.get("region", None)
+    account_name = document_data.get("gameName", None)
+    account_tag = document_data.get("tagLine", None)
+
+    if not player or not region or not account_name or not account_tag:
+        return
+
+    account = firestore_functions.save_participant_to_firebase(
+        region, game_name=account_name, tag_line=account_tag
+    )
+
+    if account:
+        document_reference.update({"puuid": account.get("puuid")})

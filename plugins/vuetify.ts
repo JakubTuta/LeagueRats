@@ -43,6 +43,9 @@ export default defineNuxtPlugin((app) => {
       VAutocomplete: {
         variant: 'outlined',
       },
+      VSelect: {
+        variant: 'outlined',
+      },
       VBtn: {
         variant: 'outlined',
       },
