@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify';
 import { championIdsToTitles } from '~/helpers/championIds';
 import type { IChampionMastery } from '~/models/championMastery';
 
@@ -8,6 +9,8 @@ const props = defineProps<{
 }>()
 
 const { champions, loading } = toRefs(props)
+
+const { height } = useDisplay()
 
 const storageStore = useStorageStore()
 const { championIcons } = storeToRefs(storageStore)
@@ -60,18 +63,18 @@ function loadChampions({ done }: { done: (status: string) => void }) {
 }
 
 const scrollHeight = computed(() => {
-  const height = window.innerHeight
-
-  if (height < 1000)
+  if (height.value < 1000)
     return '50vh'
-  else if (height < 1500)
+  else if (height.value < 1250)
     return '55vh'
-  else if (height < 2000)
+  else if (height.value < 1500)
     return '60vh'
-  else if (height < 2500)
+  else if (height.value < 1750)
     return '65vh'
-  else
+  else if (height.value < 2000)
     return '70vh'
+  else
+    return '75vh'
 })
 </script>
 
@@ -91,7 +94,6 @@ const scrollHeight = computed(() => {
     <v-col cols="10">
       <v-infinite-scroll
         :height="scrollHeight"
-        :items="loadedChampions"
         @load="loadChampions"
       >
         <template

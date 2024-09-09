@@ -20,7 +20,7 @@ import adcIcon from '~/assets/roles/adc.png'
 import supIcon from '~/assets/roles/sup.png'
 import { teamFullName, teamPerRegion } from '~/helpers/regions'
 
-const { mdAndUp, sm } = useDisplay()
+const { mdAndUp, sm, height } = useDisplay()
 
 const proStore = useProPlayerStore()
 const { players } = storeToRefs(proStore)
@@ -106,7 +106,7 @@ async function loadPlayers({ done }: { done: (status: string) => void }) {
   const notSavedTeams = filterTeams.value.filter(team => !savedTeams.value.includes(team))
 
   if (!notSavedTeams.length) {
-    done('empty')
+    done('error')
 
     return
   }
@@ -128,17 +128,15 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
 }
 
 const scrollHeight = computed(() => {
-  const height = window.innerHeight
-
-  if (height < 1000)
+  if (height.value < 1000)
     return '50vh'
-  else if (height < 1250)
+  else if (height.value < 1250)
     return '55vh'
-  else if (height < 1500)
+  else if (height.value < 1500)
     return '60vh'
-  else if (height < 1750)
+  else if (height.value < 1750)
     return '65vh'
-  else if (height < 2000)
+  else if (height.value < 2000)
     return '70vh'
   else
     return '75vh'
@@ -285,10 +283,8 @@ function getPlayerRoleIcon(player: { role: string }) {
         </v-row>
 
         <v-infinite-scroll
-          :height="scrollHeight"
+          :max-height="scrollHeight"
           empty-text=""
-          :margin="100"
-          :items="filteredPlayers"
           @load="loadPlayers"
         >
           <template

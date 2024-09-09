@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// @ts-expect-error correct path
+import logo from '~/assets/logo.png'
 import { selectRegions } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
 import type { IActiveGame } from '~/models/activeGame'
@@ -103,15 +105,6 @@ onUnmounted(() => {
   clearValues()
 })
 
-function formatTime(time: number) {
-  const minutes = Math.floor(time / 60)
-  const seconds = time % 60
-
-  return `${minutes}:${seconds < 10
-? `0${seconds}`
-: seconds}`
-}
-
 setInterval(() => {
   for (const game of featuredGames.value) {
     game.gameLength += 1
@@ -122,30 +115,20 @@ setInterval(() => {
 <template>
   <v-container
     style="max-width: 1000px; height: 100%"
-    class="d-flex flex-column justify-center"
+    class="d-flex flex-column justify-space-between"
   >
     <v-spacer />
 
-    <v-row style="justify-content: center; align-items: center">
-      <v-col
-        cols="12"
-        sm="6"
-        md="5"
-      >
-        <v-card
-          :color="isDark
-            ? 'rgba(50, 50, 50, 0.85)'
-            : 'rgba(200, 200, 200, 0.85)'"
-          :class="isDark
-            ? 'text-h3 text-grey-lighten-1 my-1'
-            : 'text-h3 text-grey-darken-3 my-1'"
-          height="120px"
-          rounded="pill"
-          style="display: flex; align-items: center; justify-content: center;"
-        >
-          {{ $t('universal.title') }}
-        </v-card>
-      </v-col>
+    <v-row
+      justify="center"
+      align="center"
+    >
+      <v-img
+        :src="logo"
+        draggable="false"
+        max-width="400"
+        rounded="pill"
+      />
     </v-row>
 
     <v-spacer />
@@ -225,6 +208,10 @@ setInterval(() => {
         </v-row>
       </v-card-text>
     </v-card>
+
+    <v-spacer />
+
+    <v-spacer />
 
     <v-spacer />
 

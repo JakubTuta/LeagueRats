@@ -34,7 +34,7 @@ onMounted(() => {
 
 <style scoped>
 .bg-image {
-  background-image: url('~/assets/backgrounds/bg1.jpg');
+  background-image: url('~/assets/backgrounds/lec_bg3.jpg');
   background-size: cover;
   background-position: center;
 }
