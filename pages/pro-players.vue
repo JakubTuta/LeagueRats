@@ -291,12 +291,8 @@ function getPlayerRoleIcon(player: { role: string }) {
             v-for="player in filteredPlayers"
             :key="player.player"
           >
-            <v-list-item
-              class="my-2"
-            >
-              <template
-                #prepend
-              >
+            <v-list-item class="my-2">
+              <template #prepend>
                 <v-avatar
                   rounded="0"
                   size="70"
@@ -327,13 +323,34 @@ function getPlayerRoleIcon(player: { role: string }) {
                 </span>
               </template>
 
-              <v-list-item-title class="text-h6 ml-1">
-                {{ player.player }}
-              </v-list-item-title>
+              <v-row align="center">
+                <v-col
+                  cols="12"
+                  sm="5"
+                  md="4"
+                >
+                  <p class="text-h6">
+                    {{ player.player }}
+                  </p>
 
-              <v-list-item-subtitle class="text-subtitle-2 ml-1">
-                {{ teamFullName[player.team] }}
-              </v-list-item-subtitle>
+                  <p class="text-subtitle-2 text-gray">
+                    {{ teamFullName[player.team] }}
+                  </p>
+                </v-col>
+
+                <v-col
+                  v-if="player.gameName && player.tagLine"
+                  cols="12"
+                  sm="7"
+                  md="8"
+                >
+                  {{ player.gameName }}
+
+                  <span class="text-subtitle-2 text-gray">
+                    {{ ` #${player.tagLine}` }}
+                  </span>
+                </v-col>
+              </v-row>
             </v-list-item>
           </template>
         </v-infinite-scroll>
