@@ -31,3 +31,15 @@ def get_existing_request_data(data, required_keys=[], optional_keys=[]):
             optional_data[key] = data[key]
 
     return required_data, optional_data
+
+
+def get_optional_params(args, optional_keys):
+    optional_params = {}
+
+    for key in optional_keys:
+        if key in args:
+            optional_params[key] = args[key]
+
+    url_params = "&".join([f"{key}={value}" for key, value in optional_params.items()])
+
+    return url_params

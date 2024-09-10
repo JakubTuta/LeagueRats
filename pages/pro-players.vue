@@ -128,18 +128,18 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
 }
 
 const scrollHeight = computed(() => {
-  if (height.value < 1000)
-    return '50vh'
-  else if (height.value < 1250)
+  if (height.value < 800)
     return '55vh'
-  else if (height.value < 1500)
+  else if (height.value < 1000)
     return '60vh'
-  else if (height.value < 1750)
+  else if (height.value < 1200)
     return '65vh'
-  else if (height.value < 2000)
+  else if (height.value < 1400)
     return '70vh'
-  else
+  else if (height.value < 1600)
     return '75vh'
+  else
+    return '80vh'
 })
 
 const imageWidth = computed(() => {

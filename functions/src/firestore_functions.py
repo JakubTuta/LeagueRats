@@ -1,4 +1,3 @@
-import datetime
 import re
 import threading
 
@@ -112,35 +111,41 @@ def _get_summoner_from_region(region, puuid):
 
 
 def get_account(regions, my_region, game_name, tag):
-    account = _get_account_from_firestore(my_region, game_name=game_name, tag_line=tag)
-
-    if account:
+    if account := _get_account_from_firestore(
+        my_region, game_name=game_name, tag_line=tag
+    ):
         regions[my_region] = account
 
         return
 
-    account = _get_account_from_region(my_region, game_name=game_name, tag_line=tag)
-
-    if not account:
+    if not (
+        account_details := _get_account_from_region(
+            my_region, game_name=game_name, tag_line=tag
+        )
+    ):
         return
 
-    summoner = _get_summoner_from_region(my_region, account["puuid"])
-
-    if not summoner:
+    if not (
+        summoner_details := _get_summoner_from_region(
+            my_region, account_details.get("puuid")
+        )
+    ):
         return
 
-    new_account = {
+    account_model = {
         "gameName": game_name,
         "tagLine": tag,
-        "puuid": account["puuid"],
+        "puuid": account_details.get("puuid"),
         "region": my_region,
-        "accountId": summoner["accountId"],
-        "id": summoner["id"],
+        "accountId": summoner_details.get("accountId"),
+        "id": summoner_details.get("id"),
+        "profileIconId": summoner_details.get("profileIconId"),
+        "summonerLevel": summoner_details.get("summonerLevel"),
     }
 
-    firebase_init.collections["accounts"].add(new_account)
+    firebase_init.collections["accounts"].add(account_model)
 
-    regions[my_region] = new_account
+    regions[my_region] = account_model
 
 
 def get_accounts_from_all_regions(game_name, tag):
@@ -169,19 +174,21 @@ def save_participant_to_firebase(region, puuid=None, game_name=None, tag_line=No
     ):
         return account
 
-    account_details = _get_account_from_region(
-        region, puuid=puuid, game_name=game_name, tag_line=tag_line
-    )
-
-    if not account_details:
+    if not (
+        account_details := _get_account_from_region(
+            region, puuid=puuid, game_name=game_name, tag_line=tag_line
+        )
+    ):
         return
 
-    summoner_details = _get_summoner_from_region(region, account_details.get("puuid"))
-
-    if not summoner_details:
+    if not (
+        summoner_details := _get_summoner_from_region(
+            region, account_details.get("puuid")
+        )
+    ):
         return
 
-    account = {
+    account_model = {
         "gameName": account_details.get("gameName"),
         "tagLine": account_details.get("tagLine"),
         "puuid": account_details.get("puuid"),
@@ -189,15 +196,12 @@ def save_participant_to_firebase(region, puuid=None, game_name=None, tag_line=No
         "accountId": summoner_details.get("accountId"),
         "id": summoner_details.get("id"),
         "profileIconId": summoner_details.get("profileIconId"),
-        "revisionDate": datetime.datetime.fromtimestamp(
-            summoner_details.get("revisionDate") / 1000
-        ),
         "summonerLevel": summoner_details.get("summonerLevel"),
     }
 
-    firebase_init.collections["accounts"].add(account)
+    firebase_init.collections["accounts"].add(account_model)
 
-    return account
+    regions[region] = account_model
 
 
 def save_participants_to_firebase(puuids, game_region):
@@ -241,16 +245,6 @@ def save_rune_data(rune_data_per_language):
                     rune["longDesc"] = _clear_text(rune["longDesc"])
 
     firebase_init.collections["help"].document("runes").set(rune_data_per_language)
-
-
-def get_updated_accounts(date):
-    query = firebase_init.collections["accounts"].where(
-        filter=FieldFilter("revisionDate", ">=", date)
-    )
-
-    docs = list(query.stream())
-
-    return [(doc.to_dict(), doc.ref) for doc in docs]
 
 
 def get_match_data_from_firebase(match_id):
