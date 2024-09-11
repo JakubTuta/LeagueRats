@@ -1,5 +1,4 @@
 import type { DocumentData } from 'firebase/firestore'
-import { Timestamp } from 'firebase/firestore'
 
 export interface IAccountDetails {
   gameName: string
@@ -10,7 +9,6 @@ export interface IAccountDetails {
 export interface ISummoner {
   accountId: string
   profileIconId: number
-  revisionDate: Timestamp
   id: string
   summonerLevel: number
 }
@@ -31,9 +29,6 @@ export function mapAccount(arg1: IAccountDetails | DocumentData, summoner?: ISum
       id: summoner.id,
       region,
       profileIconId: summoner.profileIconId,
-      revisionDate: summoner.revisionDate instanceof Number
-        ? new Timestamp(Number(summoner.revisionDate) / 1000, 0)
-        : summoner.revisionDate,
       summonerLevel: summoner.summonerLevel,
     }
   }

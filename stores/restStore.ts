@@ -1,10 +1,14 @@
 /* eslint-disable unused-imports/no-unused-vars */
 import axios from 'axios'
 import type { IAccount, IAccountDetails, ISummoner } from '~/models/account'
-import { type IActiveGame, mapActiveGame } from '~/models/activeGame'
-import { type IChampionMastery, mapChampionMastery } from '~/models/championMastery'
-import { type ILeagueEntry, mapLeagueEntry } from '~/models/leagueEntry'
-import { type IMatchData, mapMatchData } from '~/models/matchData'
+import type { IActiveGame } from '~/models/activeGame'
+import { mapActiveGame } from '~/models/activeGame'
+import type { IChampionMastery } from '~/models/championMastery'
+import { mapChampionMastery } from '~/models/championMastery'
+import type { ILeagueEntry } from '~/models/leagueEntry'
+import { mapLeagueEntry } from '~/models/leagueEntry'
+import type { IMatchData } from '~/models/matchData'
+import { mapMatchData } from '~/models/matchData'
 
 export const useRestStore = defineStore('rest', () => {
   const baseURL = 'https://europe-central2-league-rats.cloudfunctions.net'
@@ -38,34 +42,23 @@ export const useRestStore = defineStore('rest', () => {
   }
 
   const getFirebaseFunction = async (functionName: string): Promise<any> => {
-    let response: any
+    let response: any = null
 
     try {
-      response = await getAxios().get(`/${functionName}`)
+      response = (await getAxios().get(`/${functionName}`))
     }
     catch (error: any) {
       console.error(error)
-
-      throw new Error(error)
     }
 
-    if (response.status !== 200) {
-      throw new Error(response.data)
-    }
-
-    return response.data
+    return response
   }
 
   const testConnection = async (): Promise<void> => {
-    try {
-      const response = await postFirebaseFunction('test_connection', {})
+    const response = await getFirebaseFunction('test_connection')
 
-      // eslint-disable-next-line no-console
-      console.log(response)
-    }
-    catch (error: any) {
-      console.error(error)
-    }
+    // eslint-disable-next-line no-console
+    console.log(response)
   }
 
   function getAccountDetails(puuid: string): Promise<IAccountDetails | null>
@@ -74,176 +67,143 @@ export const useRestStore = defineStore('rest', () => {
     if (args.length === 1) {
       const puuid = args[0] as string
 
-      try {
-        const response = await postFirebaseFunction('account_details', { puuid })
+      const response = await getFirebaseFunction(`account_details?puuid=${puuid}`)
 
-        return response as IAccountDetails
-      }
-      catch (error: any) {
-        // console.error(error)
-
+      if (!response || response.status !== 200)
         return null
-      }
+
+      return response.data as IAccountDetails
     }
     else if (args.length === 2) {
       const username = args[0] as string
       const tag = args[1] as string
 
-      try {
-        const response = await postFirebaseFunction('account_details', { username, tag })
+      const response = await getFirebaseFunction(`account_details?username=${username}&tag=${tag}`)
 
-        return response as IAccountDetails
-      }
-      catch (error: any) {
-        // console.error(error)
-
+      if (!response || response.status !== 200)
         return null
-      }
+
+      return response.data as IAccountDetails
     }
 
     return null
   }
 
   const getSummonerDetailsByPuuid = async (puuid: string, region: string): Promise<ISummoner | null> => {
-    try {
-      const response = await postFirebaseFunction('summoner_details_by_puuid', { puuid, region })
+    const response = await getFirebaseFunction(`summoner_details/${region}/${puuid}`)
 
-      return response as ISummoner
-    }
-    catch (error: any) {
-      // console.error(error)
-
+    if (!response || response.status !== 200)
       return null
-    }
+
+    return response.data as ISummoner
   }
 
   const getCurrentGameByPuuid = async (puuid: string, region: string): Promise<IActiveGame | null> => {
-    try {
-      const response = await postFirebaseFunction('active_game_by_puuid', { puuid, region })
+    const response = await getFirebaseFunction(`active_game/${region}/${puuid}`)
 
-      const activeGame = mapActiveGame(response)
+    if (!response || response.status !== 200)
+      return null
 
-      if (activeGame.gameType !== 'MATCHED' || (activeGame.gameMode !== 'CLASSIC' && activeGame.gameMode !== 'ARAM')) {
-        return null
-      }
+    const activeGame = mapActiveGame(response.data)
 
-      return activeGame
-    }
-    catch (error: any) {
+    if (activeGame.gameType !== 'MATCHED' || (activeGame.gameMode !== 'CLASSIC' && activeGame.gameMode !== 'ARAM')) {
       return null
     }
+
+    return activeGame
   }
 
   const findChampionsPositions = async (championIds: number[]): Promise<Record<number, string> | null> => {
-    try {
-      const response = await postFirebaseFunction('champion_positions', { championIds })
+    const stringChampionIds = championIds.join('.')
+    const response = await getFirebaseFunction(`champion_positions/${stringChampionIds}`)
 
-      return response
-    }
-    catch (error: any) {
-      // console.error(error)
+    if (!response || response.status !== 200)
+      return {}
 
-      return null
-    }
+    return response.data
   }
 
   const getFeaturedGames = async (): Promise<IActiveGame[]> => {
-    try {
-      const response = await postFirebaseFunction('featured_games', {})
+    const response = await getFirebaseFunction('featured_games')
 
-      const acceptableGameModes = ['CLASSIC', 'ARAM']
-
-      const games = (response.map(mapActiveGame) as IActiveGame[])
-        .filter(game => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
-
-      games.sort((a, b) => {
-        if (a.gameMode === 'CLASSIC' && b.gameMode !== 'CLASSIC') {
-          return -1
-        }
-        if (a.gameMode !== 'CLASSIC' && b.gameMode === 'CLASSIC') {
-          return 1
-        }
-
-        return 0
-      })
-
-      if (games.length > 2)
-        return games.slice(0, 2)
-
-      return games
-    }
-    catch (error: any) {
-      // console.error(error)
-
+    if (!response || response.status !== 200)
       return []
-    }
+
+    const acceptableGameModes = ['CLASSIC', 'ARAM']
+
+    const games = (response.data.map(mapActiveGame) as IActiveGame[])
+      .filter(game => game.gameType === 'MATCHED' && acceptableGameModes.includes(game.gameMode))
+
+    games.sort((a, b) => {
+      if (a.gameMode === 'CLASSIC' && b.gameMode !== 'CLASSIC') {
+        return -1
+      }
+      if (a.gameMode !== 'CLASSIC' && b.gameMode === 'CLASSIC') {
+        return 1
+      }
+
+      return 0
+    })
+
+    if (games.length > 2)
+      return games.slice(0, 2)
+
+    return games
   }
 
   const getLeagueEntryBySummonerId = async (summonerId: string, region: string): Promise<ILeagueEntry[]> => {
-    try {
-      // const response = await postFirebaseFunction('league_entry_by_summoner_id', { summonerId, region })
-      const response = await getFirebaseFunction(`league_entry/${region}/${summonerId}`)
-      const leagueEntry = response.map(mapLeagueEntry)
+    const response = await getFirebaseFunction(`league_entry/${region}/${summonerId}`)
 
-      return leagueEntry
-    }
-    catch (error: any) {
-      // console.error(error)
-
+    if (!response || response.status !== 200)
       return []
-    }
+
+    const leagueEntry = response.data.map(mapLeagueEntry)
+
+    return leagueEntry
   }
 
   const getChampionMasteryByPuuid = async (puuid: string, region: string): Promise<IChampionMastery[]> => {
-    try {
-      const response = await postFirebaseFunction('champion_mastery_by_puuid', { puuid, region })
+    const response = await getFirebaseFunction(`champion_mastery/${region}/${puuid}`)
 
-      return response.map(mapChampionMastery)
-    }
-    catch (error: any) {
-      // console.error(error)
-
+    if (!response || response.status !== 200)
       return []
-    }
+
+    return response.data.map(mapChampionMastery)
   }
 
   const getAccountMatchHistory = async (account: IAccount, optionalKeys: object): Promise<string[]> => {
-    try {
-      const response = await postFirebaseFunction('match_history_by_puuid', { puuid: account.puuid, region: account.region, ...optionalKeys })
+    let response: any = null
 
-      return response
+    if (Object.keys(optionalKeys).length) {
+      const urlVariables = Object.entries(optionalKeys).map(([key, value]) => `${key}=${value}`).join('&')
+      response = await getFirebaseFunction(`match_history/${account.region}/${account.puuid}?${urlVariables}`)
     }
-    catch (error: any) {
-      // console.error(error)
+    else {
+      response = await getFirebaseFunction(`match_history/${account.region}/${account.puuid}`)
+    }
 
+    if (!response || response.status !== 200)
       return []
-    }
+
+    return response.data
   }
 
   const findAccountsInAllRegions = async (gameName: string, tagLine: string): Promise<Record<string, IAccount | null>> => {
-    try {
-      const response = await postFirebaseFunction('accounts_in_all_regions', { gameName, tagLine })
+    const response = await getFirebaseFunction(`accounts_in_all_regions/${gameName}/${tagLine}`)
 
-      return response
-    }
-    catch (error: any) {
-      console.error(error)
-
+    if (!response || response.status !== 200)
       return {}
-    }
+
+    return response.data
   }
 
   const getMatchData = async (gameId: string): Promise<IMatchData | null> => {
-    try {
-      const response = await getFirebaseFunction(`match_data/${gameId}`)
+    const response = await getFirebaseFunction(`match_data/${gameId}`)
 
-      return mapMatchData(response)
-    }
-    catch (error: any) {
-      console.error(error)
-
+    if (!response || response.status !== 200)
       return null
-    }
+
+    return mapMatchData(response.data)
   }
 
   return {

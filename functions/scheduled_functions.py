@@ -46,13 +46,6 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     firestore_functions.save_rune_data(rune_data_per_language)
 
 
-def account_revision_date(event: scheduler_fn.ScheduledEvent) -> None:
-    current_date = datetime.datetime.now()
-    previous_date = current_date - datetime.timedelta(days=1)
-
-    updated_accounts = firestore_functions.get_updated_accounts(previous_date)
-
-
 def update_pro_accounts(region) -> None:
     for team in regions.teams_per_region[region]:
         players = firestore_functions.get_pro_players(region, team)

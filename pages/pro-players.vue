@@ -8,9 +8,19 @@ import imgLcs from '~/assets/regions/lcs.png'
 import imgLec from '~/assets/regions/lec.png'
 // @ts-expect-error correct path
 import imgLpl from '~/assets/regions/lpl.png'
+// @ts-expect-error correct path
+import topIcon from '~/assets/roles/top.png'
+// @ts-expect-error correct path
+import jngIcon from '~/assets/roles/jng.png'
+// @ts-expect-error correct path
+import midIcon from '~/assets/roles/mid.png'
+// @ts-expect-error correct path
+import adcIcon from '~/assets/roles/adc.png'
+// @ts-expect-error correct path
+import supIcon from '~/assets/roles/sup.png'
 import { teamFullName, teamPerRegion } from '~/helpers/regions'
 
-const { mdAndUp, sm } = useDisplay()
+const { mdAndUp, sm, height } = useDisplay()
 
 const proStore = useProPlayerStore()
 const { players } = storeToRefs(proStore)
@@ -77,11 +87,13 @@ watch(selectedRegion, (region) => {
   proStore.resetPlayers()
 
   filterTeams.value = teamPerRegion[upperCaseRegion].sort((a, b) => a.localeCompare(b))
-  const newTeam = filterTeams.value[0]
-  savedTeams.value = [newTeam]
+  const newTeams = filterTeams.value.slice(0, 2)
+  savedTeams.value = newTeams
 
-  proStore.getProPlayersFromTeam(upperCaseRegion, newTeam)
-  storageStore.getTeamLogo(upperCaseRegion, newTeam)
+  newTeams.forEach((team) => {
+    proStore.getProPlayersFromTeam(upperCaseRegion, team)
+    storageStore.getTeamLogo(upperCaseRegion, team)
+  })
 
   loading.value = false
 }, { immediate: true })
@@ -94,7 +106,7 @@ async function loadPlayers({ done }: { done: (status: string) => void }) {
   const notSavedTeams = filterTeams.value.filter(team => !savedTeams.value.includes(team))
 
   if (!notSavedTeams.length) {
-    done('empty')
+    done('error')
 
     return
   }
@@ -106,7 +118,7 @@ async function loadPlayers({ done }: { done: (status: string) => void }) {
 
   savedTeams.value.push(newTeam)
 
-  await new Promise(resolve => setTimeout(resolve, 100))
+  await new Promise(resolve => setTimeout(resolve, 150))
 
   done('ok')
 }
@@ -116,20 +128,18 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
 }
 
 const scrollHeight = computed(() => {
-  const height = window.innerHeight
-
-  if (height < 1000)
-    return '50vh'
-  else if (height < 1250)
+  if (height.value < 800)
     return '55vh'
-  else if (height < 1500)
+  else if (height.value < 1000)
     return '60vh'
-  else if (height < 1750)
+  else if (height.value < 1200)
     return '65vh'
-  else if (height < 2000)
+  else if (height.value < 1400)
     return '70vh'
-  else
+  else if (height.value < 1600)
     return '75vh'
+  else
+    return '80vh'
 })
 
 const imageWidth = computed(() => {
@@ -140,6 +150,23 @@ const imageWidth = computed(() => {
   else
     return 25
 })
+
+function getPlayerRoleIcon(player: { role: string }) {
+  switch (player.role) {
+    case 'TOP':
+      return topIcon
+    case 'JNG':
+      return jngIcon
+    case 'MID':
+      return midIcon
+    case 'ADC':
+      return adcIcon
+    case 'SUP':
+      return supIcon
+    default:
+      return ''
+  }
+}
 </script>
 
 <template>
@@ -256,32 +283,74 @@ const imageWidth = computed(() => {
         </v-row>
 
         <v-infinite-scroll
-          :height="scrollHeight"
+          :max-height="scrollHeight"
           empty-text=""
-          :margin="1000"
-          :items="filteredPlayers"
           @load="loadPlayers"
         >
           <template
             v-for="player in filteredPlayers"
             :key="player.player"
           >
-            <v-list-item
-              class="my-2"
-            >
+            <v-list-item class="my-2">
               <template #prepend>
                 <v-avatar
                   rounded="0"
                   size="70"
                 >
                   <v-img
-                    :src="teamLogos[player.team]"
-                    lazy-src="~/assets/default.png"
+                    src="~/assets/default.png"
                   />
                 </v-avatar>
+
+                <span>
+                  <p>
+                    <v-avatar
+                      rounded="0"
+                      size="35"
+                    >
+                      <v-img :src="teamLogos[player.team]" />
+                    </v-avatar>
+                  </p>
+
+                  <p>
+                    <v-avatar
+                      rounded="0"
+                      size="35"
+                    >
+                      <v-img :src="getPlayerRoleIcon(player)" />
+                    </v-avatar>
+                  </p>
+                </span>
               </template>
 
-              {{ player.player }}
+              <v-row align="center">
+                <v-col
+                  cols="12"
+                  sm="5"
+                  md="4"
+                >
+                  <p class="text-h6">
+                    {{ player.player }}
+                  </p>
+
+                  <p class="text-subtitle-2 text-gray">
+                    {{ teamFullName[player.team] }}
+                  </p>
+                </v-col>
+
+                <v-col
+                  v-if="player.gameName && player.tagLine"
+                  cols="12"
+                  sm="7"
+                  md="8"
+                >
+                  {{ player.gameName }}
+
+                  <span class="text-subtitle-2 text-gray">
+                    {{ ` #${player.tagLine}` }}
+                  </span>
+                </v-col>
+              </v-row>
             </v-list-item>
           </template>
         </v-infinite-scroll>

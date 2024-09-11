@@ -11,10 +11,10 @@ import src.regions as regions
 from firebase_functions import firestore_fn, https_fn, scheduler_fn
 from src.models.match_history import MatchData
 
-cors_options = firebase_functions.options.CorsOptions(
-    cors_methods=["GET", "POST", "OPTIONS"],
-    cors_origins="*",
-)
+# cors_options = firebase_functions.options.CorsOptions(
+#     cors_methods=["GET", "POST", "OPTIONS"],
+#     cors_origins="*",
+# )
 cors_get_options = firebase_functions.options.CorsOptions(
     cors_methods=["GET", "OPTIONS"],
     cors_origins="*",
@@ -23,30 +23,27 @@ cors_get_options = firebase_functions.options.CorsOptions(
 firebase_init.initialize_app()
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def test_connection(
     req: https_fn.Request,
 ) -> https_fn.Response:
+    # url: /test_connection
+
     return https_fn.Response(json.dumps("Hello world"), status=200)
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def account_details(
     req: https_fn.Request,
 ) -> https_fn.Response:
+    # url: /account_details?username={username}&tag={tag} or /account_details?puuid={puuid}
+
     base_url = "https://europe.api.riotgames.com/riot/account/v1/accounts"
 
     try:
-        request_data = req.get_json(force=True)
-    except:
-        return https_fn.Response(
-            json.dumps({"error": "Invalid request data"}), status=400
-        )
-
-    try:
-        username = request_data.get("username", None)
-        tag = request_data.get("tag", None)
-        puuid = request_data.get("puuid", None)
+        username = req.args.get("username", None)
+        tag = req.args.get("tag", None)
+        puuid = req.args.get("puuid", None)
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
@@ -54,8 +51,12 @@ def account_details(
 
     if puuid:
         request_url = f"{base_url}/by-puuid/{puuid}"
-    else:
+    elif username and tag:
         request_url = f"{base_url}/by-riot-id/{username}/{tag}"
+    else:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
 
     try:
         response = requests.get(
@@ -63,9 +64,7 @@ def account_details(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -73,28 +72,24 @@ def account_details(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
-def summoner_details_by_puuid(
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def summoner_details(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    required_keys = ["puuid", "region"]
+    # url: /summoner_details/{region}/{puuid}
 
     try:
-        request_data = req.get_json(force=True)
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+        puuid = url_params[2]
+
+        if not region or not puuid:
+            raise Exception("Missing region or puuid")
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
-
-    try:
-        required_data, _ = help_functions.get_existing_request_data(
-            request_data, required_keys
-        )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
-
-    puuid = required_data["puuid"]
-    region = required_data["region"]
 
     if region not in regions.api_regions_2:
         return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
@@ -111,9 +106,7 @@ def summoner_details_by_puuid(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -132,15 +125,18 @@ def league_entry(
 
         region = url_params[1]
         summoner_id = url_params[2]
+
+        if not region or not summoner_id:
+            raise Exception("Missing region or summonerId")
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
 
-    try:
-        region = regions.api_regions_2[region].lower()
-    except:
+    if region not in regions.api_regions_2:
         return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
+
+    region = regions.api_regions_2[region].lower()
 
     request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
 
@@ -150,9 +146,7 @@ def league_entry(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -160,28 +154,29 @@ def league_entry(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
-def active_game_by_puuid(
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def active_game(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    required_keys = ["puuid", "region"]
+    # url: /active_game/{region}/{puuid}
 
     try:
-        request_data = req.get_json(force=True)
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+        puuid = url_params[2]
+
+        if not region or not puuid:
+            raise Exception("Missing region or puuid")
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
 
-    try:
-        required_data, _ = help_functions.get_existing_request_data(
-            request_data, required_keys
-        )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
+    if region not in regions.api_regions_2:
+        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
 
-    puuid = required_data["puuid"]
-    region = regions.api_regions_2[required_data["region"]].lower()
+    region = regions.api_regions_2[region].lower()
 
     request_url = f"https://{region}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}"
 
@@ -201,29 +196,23 @@ def active_game_by_puuid(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def champion_positions(
     req: https_fn.Request,
 ) -> https_fn.Response:
+    # url: /champion_positions/{championIds}
+
     base_url = "https://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/championrates.json"
-    required_keys = ["championIds"]
 
     try:
-        request_data = req.get_json(force=True)
+        url_params = req.path.split("/")
 
+        champion_ids = url_params[1]
+        champion_ids = list(map(int, champion_ids.split(".")))
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
-
-    try:
-        required_data, _ = help_functions.get_existing_request_data(
-            request_data, required_keys
-        )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
-
-    champion_ids = required_data["championIds"]
 
     try:
         response = requests.get(base_url)
@@ -252,12 +241,13 @@ def champion_positions(
     return https_fn.Response(json.dumps(champion_positions), status=200)
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def featured_games(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    regions_to_feature = ["euw1", "na1"]
+    # url: /featured_games
 
+    regions_to_feature = ["euw1", "na1"]
     base_url = f"https://{random.choice(regions_to_feature)}.api.riotgames.com/lol/spectator/v5/featured-games"
 
     try:
@@ -269,7 +259,7 @@ def featured_games(
         response_data = response.json()
         game_list = list(response_data["gameList"])
 
-        return https_fn.Response(json.dumps(game_list), status=response.status_code)
+        return https_fn.Response(json.dumps(game_list), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -277,28 +267,29 @@ def featured_games(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
-def champion_mastery_by_puuid(
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def champion_mastery(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    required_keys = ["puuid", "region"]
+    # url: /champion_mastery/{region}/{puuid}
 
     try:
-        request_data = req.get_json(force=True)
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+        puuid = url_params[2]
+
+        if not region or not puuid:
+            raise Exception("Missing region or puuid")
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
 
-    try:
-        required_data, _ = help_functions.get_existing_request_data(
-            request_data, required_keys
-        )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
+    if region not in regions.api_regions_2:
+        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
 
-    puuid = required_data["puuid"]
-    region = regions.api_regions_2[required_data["region"]].lower()
+    region = regions.api_regions_2[region].lower()
 
     request_url = f"https://{region}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
 
@@ -312,9 +303,7 @@ def champion_mastery_by_puuid(
         #     filter(lambda champion: champion["championPoints"] > 0, response.json())
         # )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -322,35 +311,38 @@ def champion_mastery_by_puuid(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
-def match_history_by_puuid(
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def match_history(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    required_keys = ["puuid", "region"]
-    optional_keys = ["startTime", "endTime", "queue", "type", "start", "count"]
+    # url: /match_history/{region}/{puuid}?startTime={startTime}&endTime={endTime}&queue={queue}&type={type}&start={start}&count={count}
 
     try:
-        request_data = req.get_json(force=True)
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+        puuid = url_params[2]
+
+        if not region or not puuid:
+            raise Exception("Missing region or puuid")
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
 
-    try:
-        required_data, optional_data = help_functions.get_existing_request_data(
-            request_data, required_keys, optional_keys
-        )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
+    if not region in regions.api_regions_1:
+        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
 
-    puuid = required_data["puuid"]
-    region = regions.api_regions_1[required_data["region"]].lower()
+    region = regions.api_regions_1[region].lower()
 
-    optional_params = "&".join(
-        [f"{key}={value}" for key, value in optional_data.items()]
-    )
+    if len(req.args):
+        optional_keys = ["startTime", "endTime", "queue", "type", "start", "count"]
+        optional_params = help_functions.get_optional_params(req.args, optional_keys)
 
-    request_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{optional_params}"
+        request_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{optional_params}"
+
+    else:
+        request_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
 
     try:
         response = requests.get(
@@ -358,9 +350,7 @@ def match_history_by_puuid(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -368,28 +358,24 @@ def match_history_by_puuid(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_options)
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def accounts_in_all_regions(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    required_keys = ["gameName", "tagLine"]
+    # url: /accounts_in_all_regions/{gameName}/{tagLine}
 
     try:
-        request_data = req.get_json(force=True)
+        url_params = req.path.split("/")
+
+        game_name = url_params[1]
+        tag_line = url_params[2]
+
+        if not game_name or not tag_line:
+            raise Exception("Missing gameName or tagLine")
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
-
-    try:
-        required_data, _ = help_functions.get_existing_request_data(
-            request_data, required_keys
-        )
-    except Exception as e:
-        return https_fn.Response(json.dumps({"error": str(e)}), status=400)
-
-    game_name = required_data["gameName"]
-    tag_line = required_data["tagLine"]
 
     try:
         accounts = firestore_functions.get_accounts_from_all_regions(
@@ -455,7 +441,7 @@ def match_data(
         match_data = MatchData.from_dict(response_data).to_dict()
         firestore_functions.save_match_to_firebase(match_data)
 
-        return https_fn.Response(json.dumps(match_data), status=response.status_code)
+        return https_fn.Response(json.dumps(match_data), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -497,11 +483,6 @@ def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         scheduled_functions.update_pro_accounts("LCK")
     except Exception as e:
         print(f"Error occurred: {str(e)}")
-
-
-# @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 00:00")
-# def account_revision_date(event: scheduler_fn.ScheduledEvent) -> None:
-#     scheduled_functions.account_revision_date(event)
 
 
 @firestore_fn.on_document_created(
