@@ -9,6 +9,7 @@ import type { ILeagueEntry } from '~/models/leagueEntry'
 import { mapLeagueEntry } from '~/models/leagueEntry'
 import type { IMatchData } from '~/models/matchData'
 import { mapMatchData } from '~/models/matchData'
+import { type IProActiveGame, mapProActiveGame } from '~/models/proActiveGame'
 
 export const useRestStore = defineStore('rest', () => {
   const baseURL = 'https://europe-central2-league-rats.cloudfunctions.net'
@@ -206,10 +207,16 @@ export const useRestStore = defineStore('rest', () => {
     return mapMatchData(response.data)
   }
 
-  const test = async () => {
+  const getActiveProGames = async (): Promise<IProActiveGame[]> => {
     const response = await getFirebaseFunction('active_pro_games')
 
-    console.log(response)
+    if (!response || response.status !== 200)
+      return []
+
+    const promises = response.data.map((data: any[]) => mapProActiveGame({ player: data[0], game: data[1] }))
+    const proActiveGames = (await Promise.all(promises)).filter((game: IProActiveGame | null) => game !== null)
+
+    return proActiveGames
   }
 
   return {
@@ -224,6 +231,6 @@ export const useRestStore = defineStore('rest', () => {
     getAccountMatchHistory,
     findAccountsInAllRegions,
     getMatchData,
-    test,
+    getActiveProGames,
   }
 })

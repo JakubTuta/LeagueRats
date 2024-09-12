@@ -291,6 +291,8 @@ def _get_active_game(region, puuid):
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
+        print(response.status_code)
+
         if response.status_code != 200:
             return None
 
@@ -300,11 +302,11 @@ def _get_active_game(region, puuid):
         return None
 
 
-def _append_active_game(games, region, puuid):
-    game = _get_active_game(region, puuid)
+def _append_active_game(games, player):
+    game = _get_active_game(player["region"], player["puuid"])
 
     if game:
-        games.append(game)
+        games.append((player, game))
 
 
 def get_pro_games_for_team(active_games, team):
@@ -318,7 +320,7 @@ def get_pro_games_for_team(active_games, team):
     for player in player_data:
         thread = threading.Thread(
             target=_append_active_game,
-            args=(active_games, player["region"], player["puuid"]),
+            args=(active_games, player),
         )
         threads.append(thread)
         thread.start()

@@ -1,17 +1,16 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify';
 // @ts-expect-error correct path
-import logo from '~/assets/logo.png'
-import { selectRegions } from '~/helpers/regions'
-import { lengthRule } from '~/helpers/rules'
-import type { IActiveGame } from '~/models/activeGame'
-import { useAccountStore } from '~/stores/accountStore'
-import { useRestStore } from '~/stores/restStore'
+import logo from '~/assets/logo.png';
+import { selectRegions } from '~/helpers/regions';
+import { lengthRule } from '~/helpers/rules';
 
 const { t } = useI18n()
 const router = useRouter()
+const { mobile } = useDisplay()
 
-const accountStore = useAccountStore()
-const restStore = useRestStore()
+const proStore = useProPlayerStore()
+const { activeGames } = storeToRefs(proStore)
 
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
@@ -21,10 +20,36 @@ const tagLine = ref<string | null>(null)
 const gameNameError = ref('')
 const tagLineError = ref('')
 const loading = ref(false)
-const featuredGames = ref<IActiveGame[]>([])
 const region = ref('EUW')
+const isLoadingGames = ref(false)
+
+const cardColor = computed(() => {
+  return isDark.value
+    ? 'rgba(50, 50, 50, 0.85)'
+    : 'rgba(200, 200, 200, 0.85)'
+})
 
 const errorMessage = t('rules.requiredField')
+
+const splitProGames = computed(() => {
+  if (!activeGames.value)
+    return []
+
+  console.log(activeGames.value)
+  const shuffledGames = [...activeGames.value].sort(() => Math.random() - 0.5)
+
+  const chunkSize = 4
+  const result = []
+  let i = 0
+
+  while (i < shuffledGames.length) {
+    const end = Math.min(i + chunkSize, shuffledGames.length)
+    result.push(shuffledGames.slice(i, end))
+    i += chunkSize
+  }
+
+  return result
+})
 
 const regions = computed(() => {
   return selectRegions.map((region) => {
@@ -36,7 +61,9 @@ const regions = computed(() => {
 })
 
 onMounted(async () => {
-  featuredGames.value = await restStore.getFeaturedGames()
+  isLoadingGames.value = true
+  await proStore.getActiveProGames()
+  isLoadingGames.value = false
 })
 
 function regionItemsProps(item: any) {
@@ -71,19 +98,9 @@ function clearValues() {
   loading.value = false
 }
 
-async function sendToUserView() {
+function sendToUserView() {
   if (!gameName.value || !tagLine.value || tagLine.value.length > 5) {
     showError()
-
-    return
-  }
-
-  loading.value = true
-
-  const response = await accountStore.getAccount(gameName.value, tagLine.value, region.value, false)
-
-  if (!response) {
-    router.push(`/search-account/${gameName.value}-${tagLine.value}`)
 
     return
   }
@@ -104,12 +121,6 @@ watch(tagLine, (newTagLine, oldTagLine) => {
 onUnmounted(() => {
   clearValues()
 })
-
-setInterval(() => {
-  for (const game of featuredGames.value) {
-    game.gameLength += 1
-  }
-}, 1000)
 </script>
 
 <template>
@@ -134,10 +145,7 @@ setInterval(() => {
     <v-spacer />
 
     <v-card
-      :color="isDark
-        ? 'rgba(50, 50, 50, 0.85)'
-        : 'rgba(200, 200, 200, 0.85)'"
-      class="my-auto"
+      :color="cardColor"
       min-height="150px"
     >
       <v-card-text
@@ -215,98 +223,68 @@ setInterval(() => {
 
     <v-spacer />
 
-    <v-spacer />
-
-    <v-spacer />
-
-    <v-spacer />
-
-    <v-spacer />
-
-    <v-spacer />
-
-    <!--
-      <v-card
-      v-if="featuredGames.length > 0"
-      :color="isDark
-      ? 'rgba(50, 50, 50, 0.85)'
-      : 'rgba(200, 200, 200, 0.85)'"
-      variant="flat"
-      class="mt-auto"
-      >
-      <v-card-title align="center">
-      {{ $t('index.featuredGames') }}
-      </v-card-title>
-
-      <v-card-text>
-      <v-row>
-      <v-col
-      v-for="game in featuredGames"
-      :key="game.gameId"
-      cols="12"
-      class="my-3"
-      >
-      <v-expansion-panels
-      :color="isDark
-      ? 'rgba(50, 50, 50, 0.85)'
-      : 'rgba(200, 200, 200, 0.85)'"
-      >
-      <v-expansion-panel>
-      <v-expansion-panel-title
-      style="height: 70px;"
-      :color="isDark
-      ? 'rgba(50, 50, 50, 1)'
-      : 'rgba(200, 200, 200, 1)'"
-      >
-      <v-img
-      v-if="game.gameMode === 'CLASSIC'"
-      src="~/assets/classic_icon.png"
-      lazy-src="~/assets/default.png"
-      width="30"
-      height="30"
-      style="position: absolute; left: 10px"
-      />
-
-      <v-img
-      v-else
-      src="~/assets/aram_icon.png"
-      lazy-src="~/assets/default.png"
-      width="30"
-      height="30"
-      style="position: absolute; left: 10px"
-      />
-
-      <span style="position: absolute; left: 60px;">
-      {{ $t(`game.${game.gameMode.toLowerCase()}`) }}
-
-      <span v-if="game.gameMode !== 'ARAM'">
-      {{ $t(`queueTypes.${game.gameQueueConfigId}`) }}
-      </span>
-      </span>
-
-      <span
-      style="position: absolute; right: 75px"
-      >
-      {{ formatTime(game.gameLength) }}
-      </span>
-      </v-expansion-panel-title>
-
-      <v-expansion-panel-text
-      :style="isDark
-      ? 'background-color: rgba(50, 50, 50, 1);'
-      : 'background-color: rgba(200, 200, 200, 1);'"
-      class="black"
-      >
-      <AccountGameTable
-      :game="game"
-      />
-      </v-expansion-panel-text>
-      </v-expansion-panel>
-      </v-expansion-panels>
-      </v-col>
-      </v-row>
+    <v-card
+      v-if="!mobile"
+      :color="cardColor"
+      height="250px"
+    >
+      <v-card-text v-if="isLoadingGames">
+        <v-skeleton-loader
+          type="card"
+          :color="cardColor"
+        />
       </v-card-text>
-      </v-card>
-    -->
+
+      <v-card-text v-else>
+        <v-carousel>
+          <v-carousel-item
+            v-for="(games, index) in splitProGames"
+            :key="index"
+          >
+            <v-row>
+              <v-col
+                v-for="game in games"
+                :key="game.game.gameId"
+                cols="3"
+              >
+                <v-card
+                  align="center"
+                  style="height: 220px"
+                >
+                  <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
+                    <div>
+                      <v-avatar
+                        image="~/assets/default.png"
+                        size="80"
+                      />
+
+                      <p class="mt-2">
+                        {{ `${game.player.team} ${game.player.player}` }}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p
+                        class="text-subtitle-2 mt-1 text-gray"
+                        style="margin-top: auto"
+                      >
+                        {{ game.player.region }}
+                      </p>
+
+                      <p>
+                        {{ game.player.gameName }}
+                        <span class="text-gray">
+                          {{ ` #${game.player.tagLine}` }}
+                        </span>
+                      </p>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-carousel-item>
+        </v-carousel>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
