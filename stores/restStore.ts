@@ -206,6 +206,12 @@ export const useRestStore = defineStore('rest', () => {
     return mapMatchData(response.data)
   }
 
+  const test = async () => {
+    const response = await getFirebaseFunction('active_pro_games')
+
+    console.log(response)
+  }
+
   return {
     testConnection,
     getAccountDetails,
@@ -218,5 +224,6 @@ export const useRestStore = defineStore('rest', () => {
     getAccountMatchHistory,
     findAccountsInAllRegions,
     getMatchData,
+    test,
   }
 })

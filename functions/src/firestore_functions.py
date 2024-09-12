@@ -267,9 +267,78 @@ def save_match_to_firebase(match):
     threading.Thread(target=func).start()
 
 
-def get_pro_players(region, team):
+def _get_pro_player_documents(region, team):
     player_docs = firebase_init.firestore_client.collection(
         f"pro_players/{region}/{team}"
     ).stream()
 
-    return list(player_docs)
+    return player_docs
+
+
+def _find_pro_region_for_team(team):
+    for region, teams in regions.teams_per_region.items():
+        if team in teams:
+            return region
+
+
+def _get_active_game(region, puuid):
+    region = regions.api_regions_2[region]
+    request_url = f"https://{region}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}"
+
+    try:
+        response = requests.get(
+            request_url,
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+        )
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()
+
+    except:
+        return None
+
+
+def _append_active_game(games, region, puuid):
+    game = _get_active_game(region, puuid)
+
+    if game:
+        games.append(game)
+
+
+def get_pro_games_for_team(active_games, team):
+    threads = []
+
+    region = _find_pro_region_for_team(team)
+
+    player_docs = _get_pro_player_documents(region, team)
+    player_data = [doc.to_dict() for doc in player_docs]
+
+    for player in player_data:
+        thread = threading.Thread(
+            target=_append_active_game,
+            args=(active_games, player["region"], player["puuid"]),
+        )
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+
+def get_active_games_per_team(teams):
+    threads = []
+    active_games = []
+
+    for team in teams:
+        thread = threading.Thread(
+            target=get_pro_games_for_team, args=(active_games, team)
+        )
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    return active_games
