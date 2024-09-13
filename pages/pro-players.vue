@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
+import type { VInfiniteScroll } from 'vuetify/components'
 // @ts-expect-error correct path
 import imgLck from '~/assets/regions/lck.png'
 // @ts-expect-error correct path
@@ -129,17 +130,17 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
 
 const scrollHeight = computed(() => {
   if (height.value < 800)
-    return '55vh'
+    return '45vh'
   else if (height.value < 1000)
-    return '60vh'
+    return '50vh'
   else if (height.value < 1200)
-    return '65vh'
+    return '55vh'
   else if (height.value < 1400)
-    return '70vh'
+    return '60vh'
   else if (height.value < 1600)
-    return '75vh'
+    return '65vh'
   else
-    return '80vh'
+    return '70vh'
 })
 
 const imageWidth = computed(() => {
@@ -291,7 +292,11 @@ function getPlayerRoleIcon(player: { role: string }) {
             v-for="player in filteredPlayers"
             :key="player.player"
           >
-            <v-list-item class="my-2">
+            <v-list-item
+              class="my-2"
+              :ripple="false"
+              :to="`/account/${player.region}/${player.gameName}-${player.tagLine}`"
+            >
               <template #prepend>
                 <v-avatar
                   rounded="0"

@@ -17,6 +17,8 @@ const { championIcons } = storeToRefs(storageStore)
 
 const loadedChampions = ref<IChampionMastery[]>([])
 
+const viewHeight = computed(() => height.value - 330)
+
 watch(champions, (newChampions) => {
   if (!newChampions.length)
     return
@@ -61,21 +63,6 @@ function loadChampions({ done }: { done: (status: string) => void }) {
 
   done('ok')
 }
-
-const scrollHeight = computed(() => {
-  if (height.value < 800)
-    return '55vh'
-  else if (height.value < 1000)
-    return '60vh'
-  else if (height.value < 1200)
-    return '65vh'
-  else if (height.value < 1400)
-    return '70vh'
-  else if (height.value < 1600)
-    return '75vh'
-  else
-    return '80vh'
-})
 </script>
 
 <template>
@@ -93,7 +80,7 @@ const scrollHeight = computed(() => {
   >
     <v-col cols="10">
       <v-infinite-scroll
-        :height="scrollHeight"
+        :height="viewHeight"
         @load="loadChampions"
       >
         <template

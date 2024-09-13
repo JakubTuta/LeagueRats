@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
+import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
-import logo from '~/assets/logo.png';
-import { selectRegions } from '~/helpers/regions';
-import { lengthRule } from '~/helpers/rules';
+import logo from '~/assets/logo.png'
+import { selectRegions } from '~/helpers/regions'
+import { lengthRule } from '~/helpers/rules'
+import type { IProActiveGame } from '~/models/proActiveGame'
+// @ts-expect-error correct path
+import aramIcon from '~/assets/aram_icon.png'
+// @ts-expect-error correct path
+import classicIcon from '~/assets/classic_icon.png'
+import { championIdsToTitles } from '~/helpers/championIds'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -15,6 +21,9 @@ const { activeGames } = storeToRefs(proStore)
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
 
+const storageStore = useStorageStore()
+const { championIcons } = storeToRefs(storageStore)
+
 const gameName = ref<string | null>(null)
 const tagLine = ref<string | null>(null)
 const gameNameError = ref('')
@@ -22,6 +31,19 @@ const tagLineError = ref('')
 const loading = ref(false)
 const region = ref('EUW')
 const isLoadingGames = ref(false)
+const refreshTime = ref('00:00')
+
+const errorMessage = t('rules.requiredField')
+
+onMounted(async () => {
+  isLoadingGames.value = true
+  await proStore.getActiveProGamesFromDatabase()
+  isLoadingGames.value = false
+})
+
+onUnmounted(() => {
+  clearValues()
+})
 
 const cardColor = computed(() => {
   return isDark.value
@@ -29,16 +51,18 @@ const cardColor = computed(() => {
     : 'rgba(200, 200, 200, 0.85)'
 })
 
-const errorMessage = t('rules.requiredField')
-
 const splitProGames = computed(() => {
   if (!activeGames.value)
     return []
 
-  console.log(activeGames.value)
   const shuffledGames = [...activeGames.value].sort(() => Math.random() - 0.5)
 
-  const chunkSize = 4
+  shuffledGames.forEach((game) => {
+    const playerParticipant = findPlayerParticipant(game)
+    storageStore.getChampionIcon(playerParticipant.championId)
+  })
+
+  const chunkSize = 3
   const result = []
   let i = 0
 
@@ -60,11 +84,21 @@ const regions = computed(() => {
   })
 })
 
-onMounted(async () => {
-  isLoadingGames.value = true
-  await proStore.getActiveProGames()
-  isLoadingGames.value = false
+watch(gameName, (newGameName, oldGameName) => {
+  if (newGameName && !oldGameName)
+    clearError()
 })
+
+watch(tagLine, (newTagLine, oldTagLine) => {
+  if (newTagLine && !oldTagLine)
+    clearError()
+})
+
+setInterval(getNextUpdateTIme, 1000)
+
+function findPlayerParticipant(game: IProActiveGame) {
+  return game.game.participants.find(participant => participant.puuid === game.player.puuid)!
+}
 
 function regionItemsProps(item: any) {
   return {
@@ -108,19 +142,26 @@ function sendToUserView() {
   router.push(`/account/${region.value}/${gameName.value}-${tagLine.value}`)
 }
 
-watch(gameName, (newGameName, oldGameName) => {
-  if (newGameName && !oldGameName)
-    clearError()
-})
+function getNextUpdateTIme() {
+  const now = new Date()
+  const nextHalfHour = new Date()
+  nextHalfHour.setSeconds(0)
 
-watch(tagLine, (newTagLine, oldTagLine) => {
-  if (newTagLine && !oldTagLine)
-    clearError()
-})
+  if (now.getMinutes() < 30) {
+    nextHalfHour.setMinutes(30)
+  }
 
-onUnmounted(() => {
-  clearValues()
-})
+  else {
+    nextHalfHour.setHours(nextHalfHour.getHours() + 1)
+    nextHalfHour.setMinutes(0)
+  }
+
+  const diff = nextHalfHour.getTime() - now.getTime()
+  const minutes = String(Math.floor(diff / 60000)).padStart(2, '0')
+  const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
+
+  refreshTime.value = `${minutes}:${seconds}`
+}
 </script>
 
 <template>
@@ -226,7 +267,7 @@ onUnmounted(() => {
     <v-card
       v-if="!mobile"
       :color="cardColor"
-      height="250px"
+      height="300px"
     >
       <v-card-text v-if="isLoadingGames">
         <v-skeleton-loader
@@ -235,21 +276,35 @@ onUnmounted(() => {
         />
       </v-card-text>
 
-      <v-card-text v-else>
-        <v-carousel>
+      <v-card-text v-else-if="activeGames.length">
+        {{ $t('index.nextUpdate', {"time": refreshTime}) }}
+        <v-carousel
+          class="mt-1"
+          hide-delimiters
+          interval="10000"
+          cycle
+          height="250"
+          :show-arrows="splitProGames.length > 1"
+        >
           <v-carousel-item
             v-for="(games, index) in splitProGames"
             :key="index"
           >
-            <v-row>
+            <v-row
+              :class="splitProGames.length > 1
+                ? 'mx-15'
+                : ''"
+            >
               <v-col
                 v-for="game in games"
                 :key="game.game.gameId"
-                cols="3"
+                cols="4"
               >
                 <v-card
                   align="center"
-                  style="height: 220px"
+                  style="height: 250px"
+                  :ripple="false"
+                  :to="`/account/${game.player.region}/${game.player.gameName}-${game.player.tagLine}`"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
                     <div>
@@ -264,8 +319,43 @@ onUnmounted(() => {
                     </div>
 
                     <div>
+                      <v-avatar
+                        size="40"
+                        class="mr-2"
+                      >
+                        <v-tooltip
+                          activator="parent"
+                          location="bottom"
+                        >
+                          {{ game.game.gameMode === 'ARAM'
+                            ? $t('universal.aram')
+                            : $t('universal.classic') }}
+                        </v-tooltip>
+
+                        <v-img
+                          :src="game.game.gameMode === 'ARAM'
+                            ? aramIcon
+                            : classicIcon"
+                        />
+                      </v-avatar>
+
+                      <v-avatar
+                        size="40"
+                      >
+                        <v-tooltip
+                          activator="parent"
+                          location="bottom"
+                        >
+                          {{ championIdsToTitles[findPlayerParticipant(game).championId] }}
+                        </v-tooltip>
+
+                        <v-img :src="championIcons[findPlayerParticipant(game).championId]" />
+                      </v-avatar>
+                    </div>
+
+                    <div>
                       <p
-                        class="text-subtitle-2 mt-1 text-gray"
+                        class="text-subtitle-2 text-gray"
                         style="margin-top: auto"
                       >
                         {{ game.player.region }}

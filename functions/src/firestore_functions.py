@@ -291,8 +291,6 @@ def _get_active_game(region, puuid):
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        print(response.status_code)
-
         if response.status_code != 200:
             return None
 
@@ -344,3 +342,15 @@ def get_active_games_per_team(teams):
         thread.join()
 
     return active_games
+
+
+def clear_collection(collection_name):
+    docs = firebase_init.collections[collection_name].stream()
+
+    for doc in docs:
+        doc.reference.delete()
+
+
+def save_documents_to_collection(collection_name, documents):
+    for document in documents:
+        firebase_init.collections[collection_name].add(document)

@@ -1,7 +1,9 @@
 import { collection, doc, getDoc, getDocs, query } from 'firebase/firestore'
 import { proRegions, teamPerRegion } from '~/helpers/regions'
 import { useFirebase } from '~/helpers/useFirebase'
+import type { IActiveGame } from '~/models/activeGame'
 import type { IProActiveGame } from '~/models/proActiveGame'
+import { mapProActiveGame } from '~/models/proActiveGame'
 import { type IProPlayer, mapIProPlayer } from '~/models/proPlayer'
 
 export const useProPlayerStore = defineStore('proPlayer', () => {
@@ -102,13 +104,28 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
       return
     }
 
-    const maxGameTimeInSeconds = 60 * 45
+    const maxGameTimeInSeconds = 60 * 30
 
     const now = new Date().getTime() / 1000
 
     activeGames.value = activeGames.value.filter((game) => {
       return now - game.game.gameStartTime.seconds < maxGameTimeInSeconds
     })
+  }
+
+  const getActiveProGamesFromDatabase = async () => {
+    try {
+      const q = query(collection(firestore, 'active_pro_games'))
+
+      const querySnapshot = await getDocs(q)
+      const games = querySnapshot.docs.map(docData => mapProActiveGame(docData.data() as { player: IProPlayer, game: IActiveGame }))
+        .filter(game => game !== null)
+
+      activeGames.value = games
+    }
+    catch (error) {
+      console.error(error)
+    }
   }
 
   return {
@@ -119,5 +136,6 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     getProPlayersFromTeam,
     getActiveProGames,
     getPlayerFromName,
+    getActiveProGamesFromDatabase,
   }
 })

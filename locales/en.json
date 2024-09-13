@@ -6,6 +6,8 @@
     "light": "Light",
     "dark": "Dark",
     "selectAll": "Select all",
+    "aram": "ARAM",
+    "classic": "Summoner's Rift",
     "form": {
       "close": "Close",
       "save": "Save"
@@ -26,7 +28,8 @@
     "gameName": "Username",
     "tagLine": "Tag",
     "userNotExist": "User doesn't exist",
-    "featuredGames": "Random featured games"
+    "featuredGames": "Random featured games",
+    "nextUpdate": "Next update in {time}"
   },
   "rules": {
     "requiredField": "This field is required",

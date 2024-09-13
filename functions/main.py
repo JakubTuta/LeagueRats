@@ -461,20 +461,18 @@ def active_pro_games(
 
     active_pro_games = []
 
-    try:
-        for teams_in_tier in [tier_1_teams, tier_2_teams, tier_3_teams]:
-            tier_games = firestore_functions.get_active_games_per_team(teams_in_tier)
+    for teams_in_tier in [tier_1_teams, tier_2_teams, tier_3_teams]:
+        tier_games = firestore_functions.get_active_games_per_team(teams_in_tier)
 
-            active_pro_games.extend(tier_games)
+        active_pro_games.extend(tier_games)
 
-            if len(active_pro_games) >= 4:
-                break
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
-        )
+        if len(active_pro_games) >= 4:
+            break
 
-    return https_fn.Response(json.dumps(active_pro_games), status=200)
+    mapped_games = list(
+        map(lambda game: {"player": game[0], "game": game[1]}, active_pro_games)
+    )
+    return https_fn.Response(json.dumps(mapped_games), status=200)
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
@@ -511,6 +509,30 @@ def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         scheduled_functions.update_pro_accounts("LCK")
     except Exception as e:
         print(f"Error occurred: {str(e)}")
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="30 * * * *")
+def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
+    firestore_functions.clear_collection("active_pro_games")
+
+    tier_1_teams = ["G2", "T1", "GENG", "TL"]
+    tier_2_teams = ["FNC", "C9", "HLE", "DK"]
+    tier_3_teams = ["TH", "KT", "FLY", "MAD"]
+
+    active_pro_games = []
+
+    for teams_in_tier in [tier_1_teams, tier_2_teams, tier_3_teams]:
+        tier_games = firestore_functions.get_active_games_per_team(teams_in_tier)
+
+        active_pro_games.extend(tier_games)
+
+    mapped_games = list(
+        map(lambda game: {"player": game[0], "game": game[1]}, active_pro_games)
+    )
+    firestore_functions.save_documents_to_collection(
+        "active_pro_games",
+        mapped_games,
+    )
 
 
 @firestore_fn.on_document_created(

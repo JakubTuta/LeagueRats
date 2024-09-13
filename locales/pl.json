@@ -6,6 +6,8 @@
     "light": "Jasny",
     "dark": "Ciemny",
     "selectAll": "Wybierz wszystko",
+    "aram": "ARAM",
+    "classic": "Summoner's Rift",
     "form": {
       "close": "Zamknij",
       "save": "Zapisz"
@@ -26,7 +28,8 @@
     "gameName": "Nazwa użytkownika",
     "tagLine": "Tag",
     "userNotExist": "Użytkownik nie istnieje",
-    "featuredGames": "Losowe gry na żywo"
+    "featuredGames": "Losowe gry na żywo",
+    "nextUpdate": "Następna aktualizacja za {time}"
   },
   "rules": {
     "requiredField": "To pole jest wymagane",

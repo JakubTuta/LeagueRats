@@ -37,6 +37,12 @@ app = None
 firestore_client = None
 
 
+def add_collection(collection_name):
+    global collections
+
+    collections[collection_name] = firestore_client.collection(collection_name)
+
+
 def initialize_app():
     global app
     global firestore_client
@@ -46,6 +52,13 @@ def initialize_app():
 
     firestore_client = firestore.client(app)
 
-    collections["accounts"] = firestore_client.collection("accounts")
-    collections["help"] = firestore_client.collection("help")
-    collections["match_history"] = firestore_client.collection("match_history")
+    collection_names = [
+        "accounts",
+        "help",
+        "match_history",
+        "pro_players",
+        "active_pro_games",
+    ]
+
+    for collection_name in collection_names:
+        add_collection(collection_name)
