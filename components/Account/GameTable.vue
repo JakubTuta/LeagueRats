@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
+// @ts-expect-error correct path
+import bannedDefault from '~/assets/banned_default.png'
 import { mouseButton } from '~/helpers/mouse'
 import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
@@ -222,7 +224,7 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
 
           <v-row
             v-if="game?.bannedChampions.length"
-            class="text-h6 mx-2 mb-2 mt-2"
+            class="text-h6 ma-2"
             align="center"
             justify-space-between
           >
@@ -243,7 +245,7 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
             >
               <v-img
                 :src="bannedChampion.championId === -1
-                  ? '~/assets/none.png'
+                  ? bannedDefault
                   : championIcons[bannedChampion.championId]"
                 lazy-src="~/assets/default.png"
               />

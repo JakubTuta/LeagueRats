@@ -1,4 +1,5 @@
-import { collection, doc, getDoc, getDocs, query } from 'firebase/firestore'
+import type { QuerySnapshot, Unsubscribe } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore'
 import { proRegions, teamPerRegion } from '~/helpers/regions'
 import { useFirebase } from '~/helpers/useFirebase'
 import type { IActiveGame } from '~/models/activeGame'
@@ -7,15 +8,30 @@ import { mapProActiveGame } from '~/models/proActiveGame'
 import { type IProPlayer, mapIProPlayer } from '~/models/proPlayer'
 
 export const useProPlayerStore = defineStore('proPlayer', () => {
-  const playersPerRegion: Record<string, IProPlayer[]> = {}
-  const playersPerTeam: Record<string, IProPlayer[]> = {}
-  const players = ref<IProPlayer[]>([])
+  let playersPerRegion: Record<string, IProPlayer[]> = {}
+  let playersPerTeam: Record<string, IProPlayer[]> = {}
+  let playerPerName: Record<string, IProPlayer> = {}
 
+  const players = ref<IProPlayer[]>([])
   const activeGames = ref<IProActiveGame[]>([])
-  const playerPerName: Record<string, IProPlayer> = {}
+  const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
 
   const { firestore } = useFirebase()
   const restStore = useRestStore()
+
+  const resetState = () => {
+    playersPerRegion = {}
+    playersPerTeam = {}
+    playerPerName = {}
+    players.value = []
+
+    activeGames.value = []
+
+    if (activeGamesUnsubscribe.value) {
+      activeGamesUnsubscribe.value()
+      activeGamesUnsubscribe.value = null
+    }
+  }
 
   const resetPlayers = () => {
     players.value = []
@@ -113,24 +129,31 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     })
   }
 
-  const getActiveProGamesFromDatabase = async () => {
-    try {
-      const q = query(collection(firestore, 'active_pro_games'))
+  const getActiveProGamesFromDatabase = () => {
+    if (activeGamesUnsubscribe.value) {
+      activeGamesUnsubscribe.value()
+    }
 
-      const querySnapshot = await getDocs(q)
-      const games = querySnapshot.docs.map(docData => mapProActiveGame(docData.data() as { player: IProPlayer, game: IActiveGame }))
+    const q = query(collection(firestore, 'active_pro_games'))
+
+    const onSuccess = (snapshot: QuerySnapshot) => {
+      const games = snapshot.docs.map(docData => mapProActiveGame(docData.data() as { player: IProPlayer, game: IActiveGame }))
         .filter(game => game !== null)
 
       activeGames.value = games
     }
-    catch (error) {
+
+    const onError = (error: Error) => {
       console.error(error)
     }
+
+    activeGamesUnsubscribe.value = onSnapshot(q, onSuccess, onError)
   }
 
   return {
     players,
     activeGames,
+    resetState,
     resetPlayers,
     getProPlayersForRegion,
     getProPlayersFromTeam,

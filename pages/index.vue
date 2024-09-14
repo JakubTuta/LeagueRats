@@ -2,14 +2,11 @@
 import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import logo from '~/assets/logo.png'
+import { championIdsToTitles } from '~/helpers/championIds'
 import { selectRegions } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
 import type { IProActiveGame } from '~/models/proActiveGame'
-// @ts-expect-error correct path
-import aramIcon from '~/assets/aram_icon.png'
-// @ts-expect-error correct path
-import classicIcon from '~/assets/classic_icon.png'
-import { championIdsToTitles } from '~/helpers/championIds'
+import type { IProPlayer } from '~/models/proPlayer'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -30,15 +27,14 @@ const gameNameError = ref('')
 const tagLineError = ref('')
 const loading = ref(false)
 const region = ref('EUW')
-const isLoadingGames = ref(false)
 const refreshTime = ref('00:00')
+const isShowPlayerProfile = ref(false)
+const playerProfile = ref<IProPlayer | null>(null)
 
 const errorMessage = t('rules.requiredField')
 
-onMounted(async () => {
-  isLoadingGames.value = true
-  await proStore.getActiveProGamesFromDatabase()
-  isLoadingGames.value = false
+onMounted(() => {
+  proStore.getActiveProGamesFromDatabase()
 })
 
 onUnmounted(() => {
@@ -55,12 +51,10 @@ const splitProGames = computed(() => {
   if (!activeGames.value)
     return []
 
-  const shuffledGames = [...activeGames.value].sort(() => Math.random() - 0.5)
+  const shuffledGames = shuffleArray(activeGames.value.map(e => e))
 
-  shuffledGames.forEach((game) => {
-    const playerParticipant = findPlayerParticipant(game)
-    storageStore.getChampionIcon(playerParticipant.championId)
-  })
+  const uniqueChampionIds = [...new Set(shuffledGames.map(game => findPlayerParticipant(game).championId))]
+  uniqueChampionIds.forEach(async championId => await storageStore.getChampionIcon(championId))
 
   const chunkSize = 3
   const result = []
@@ -94,7 +88,21 @@ watch(tagLine, (newTagLine, oldTagLine) => {
     clearError()
 })
 
+watch(isShowPlayerProfile, (newIsShowPlayerProfile) => {
+  if (!newIsShowPlayerProfile)
+    playerProfile.value = null
+})
+
 setInterval(getNextUpdateTIme, 1000)
+
+function shuffleArray<T>(array: T[]): T[] {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]
+  }
+
+  return array
+}
 
 function findPlayerParticipant(game: IProActiveGame) {
   return game.game.participants.find(participant => participant.puuid === game.player.puuid)!
@@ -144,23 +152,46 @@ function sendToUserView() {
 
 function getNextUpdateTIme() {
   const now = new Date()
-  const nextHalfHour = new Date()
-  nextHalfHour.setSeconds(0)
+  const next10Minutes = new Date()
+  next10Minutes.setSeconds(0)
 
-  if (now.getMinutes() < 30) {
-    nextHalfHour.setMinutes(30)
+  const minutes = now.getMinutes()
+
+  if (minutes < 10) {
+    next10Minutes.setMinutes(10)
+  }
+
+  else if (minutes < 20) {
+    next10Minutes.setMinutes(20)
+  }
+
+  else if (minutes < 30) {
+    next10Minutes.setMinutes(30)
+  }
+
+  else if (minutes < 40) {
+    next10Minutes.setMinutes(40)
+  }
+
+  else if (minutes < 50) {
+    next10Minutes.setMinutes(50)
   }
 
   else {
-    nextHalfHour.setHours(nextHalfHour.getHours() + 1)
-    nextHalfHour.setMinutes(0)
+    next10Minutes.setHours(now.getHours() + 1)
+    next10Minutes.setMinutes(0)
   }
 
-  const diff = nextHalfHour.getTime() - now.getTime()
-  const minutes = String(Math.floor(diff / 60000)).padStart(2, '0')
-  const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
+  const diff = next10Minutes.getTime() - now.getTime()
+  const minutesDiff = String(Math.floor(diff / 60000)).padStart(2, '0')
+  const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
 
-  refreshTime.value = `${minutes}:${seconds}`
+  refreshTime.value = `${minutesDiff}:${secondsDiff}`
+}
+
+function openPlayerProfile(player: IProPlayer) {
+  isShowPlayerProfile.value = true
+  playerProfile.value = player
 }
 </script>
 
@@ -269,14 +300,16 @@ function getNextUpdateTIme() {
       :color="cardColor"
       height="300px"
     >
-      <v-card-text v-if="isLoadingGames">
+      <v-card-text v-if="!activeGames.length">
+        {{ $t('index.nextUpdate', {"time": refreshTime}) }}
         <v-skeleton-loader
           type="card"
+          class="mt-5"
           :color="cardColor"
         />
       </v-card-text>
 
-      <v-card-text v-else-if="activeGames.length">
+      <v-card-text v-else>
         {{ $t('index.nextUpdate', {"time": refreshTime}) }}
         <v-carousel
           class="mt-1"
@@ -304,14 +337,15 @@ function getNextUpdateTIme() {
                   align="center"
                   style="height: 250px"
                   :ripple="false"
-                  :to="`/account/${game.player.region}/${game.player.gameName}-${game.player.tagLine}`"
+                  @click="openPlayerProfile(game.player)"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
                     <div>
                       <v-avatar
-                        image="~/assets/default.png"
                         size="80"
-                      />
+                      >
+                        <v-img lazy-src="~/assets/default.png" />
+                      </v-avatar>
 
                       <p class="mt-2">
                         {{ `${game.player.team} ${game.player.player}` }}
@@ -319,25 +353,27 @@ function getNextUpdateTIme() {
                     </div>
 
                     <div>
-                      <v-avatar
+                      <!--
+                        <v-avatar
                         size="40"
                         class="mr-2"
-                      >
-                        <v-tooltip
-                          activator="parent"
-                          location="bottom"
                         >
-                          {{ game.game.gameMode === 'ARAM'
-                            ? $t('universal.aram')
-                            : $t('universal.classic') }}
+                        <v-tooltip
+                        activator="parent"
+                        location="bottom"
+                        >
+                        {{ game.game.gameMode === 'ARAM'
+                        ? $t('universal.aram')
+                        : $t('universal.classic') }}
                         </v-tooltip>
 
                         <v-img
-                          :src="game.game.gameMode === 'ARAM'
-                            ? aramIcon
-                            : classicIcon"
+                        :src="game.game.gameMode === 'ARAM'
+                        ? aramIcon
+                        : classicIcon"
                         />
-                      </v-avatar>
+                        </v-avatar>
+                      -->
 
                       <v-avatar
                         size="40"
@@ -349,7 +385,10 @@ function getNextUpdateTIme() {
                           {{ championIdsToTitles[findPlayerParticipant(game).championId] }}
                         </v-tooltip>
 
-                        <v-img :src="championIcons[findPlayerParticipant(game).championId]" />
+                        <v-img
+                          lazy-src="~/assets/default.png"
+                          :src="championIcons[findPlayerParticipant(game).championId]"
+                        />
                       </v-avatar>
                     </div>
 
@@ -377,4 +416,9 @@ function getNextUpdateTIme() {
       </v-card-text>
     </v-card>
   </v-container>
+
+  <PlayerProfile
+    v-model:is-show="isShowPlayerProfile"
+    :player="playerProfile"
+  />
 </template>

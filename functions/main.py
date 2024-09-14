@@ -511,10 +511,8 @@ def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         print(f"Error occurred: {str(e)}")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="30 * * * *")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="0,10,20,30,40,50 * * * *")
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
-    firestore_functions.clear_collection("active_pro_games")
-
     tier_1_teams = ["G2", "T1", "GENG", "TL"]
     tier_2_teams = ["FNC", "C9", "HLE", "DK"]
     tier_3_teams = ["TH", "KT", "FLY", "MAD"]
@@ -529,6 +527,8 @@ def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
     mapped_games = list(
         map(lambda game: {"player": game[0], "game": game[1]}, active_pro_games)
     )
+
+    firestore_functions.clear_collection("active_pro_games")
     firestore_functions.save_documents_to_collection(
         "active_pro_games",
         mapped_games,
