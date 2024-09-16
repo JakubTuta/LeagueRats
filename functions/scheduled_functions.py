@@ -65,3 +65,39 @@ def update_pro_accounts(region) -> None:
                 player_data["tagLine"] = account_data["tagLine"]
 
                 player.reference.update(player_data)
+
+
+def update_player_game_names() -> None:
+    firestore_functions.delete_document_from_collection("pro_players", "game_names")
+
+    document_data = {}
+
+    for region in regions.pro_regions:
+        teams_in_region = regions.teams_per_region[region]
+
+        document_data[region] = {}
+
+        for team in teams_in_region:
+            document_data[region][team] = []
+
+            player_docs = firestore_functions.get_pro_player_documents(region, team)
+            player_data = [doc.to_dict() for doc in player_docs]
+
+            for player in player_data:
+                player_name = player["player"]
+                game_name = player["gameName"]
+                tag_line = player["tagLine"]
+
+                document_data[region][team].append(
+                    {
+                        "player": player_name,
+                        "gameName": game_name,
+                        "tagLine": tag_line,
+                    }
+                )
+
+    firestore_functions.set_document_in_collection(
+        "pro_players",
+        "game_names",
+        document_data,
+    )

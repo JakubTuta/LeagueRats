@@ -487,7 +487,7 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:02")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:03")
 def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     try:
         scheduled_functions.update_pro_accounts("LEC")
@@ -495,7 +495,7 @@ def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         print(f"Error occurred: {str(e)}")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:04")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
 def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     try:
         scheduled_functions.update_pro_accounts("LCS")
@@ -503,10 +503,18 @@ def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         print(f"Error occurred: {str(e)}")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:09")
 def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     try:
         scheduled_functions.update_pro_accounts("LCK")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:12")
+def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
+    try:
+        scheduled_functions.update_player_game_names()
     except Exception as e:
         print(f"Error occurred: {str(e)}")
 

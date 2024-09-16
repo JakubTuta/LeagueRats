@@ -267,7 +267,7 @@ def save_match_to_firebase(match):
     threading.Thread(target=func).start()
 
 
-def _get_pro_player_documents(region, team):
+def get_pro_player_documents(region, team):
     player_docs = firebase_init.firestore_client.collection(
         f"pro_players/{region}/{team}"
     ).stream()
@@ -312,7 +312,7 @@ def get_pro_games_for_team(active_games, team):
 
     region = _find_pro_region_for_team(team)
 
-    player_docs = _get_pro_player_documents(region, team)
+    player_docs = get_pro_player_documents(region, team)
     player_data = [doc.to_dict() for doc in player_docs]
 
     for player in player_data:
@@ -351,6 +351,14 @@ def clear_collection(collection_name):
         doc.reference.delete()
 
 
+def set_document_in_collection(collection_name, document_id, document):
+    firebase_init.collections[collection_name].document(document_id).set(document)
+
+
 def save_documents_to_collection(collection_name, documents):
     for document in documents:
         firebase_init.collections[collection_name].add(document)
+
+
+def delete_document_from_collection(collection_name, document_id):
+    firebase_init.collections[collection_name].document(document_id).delete()
