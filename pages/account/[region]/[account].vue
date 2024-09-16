@@ -32,6 +32,20 @@ const tabs = computed(() => [
   { text: t('profile.champions.title'), value: 3 },
 ])
 
+const tabNumberToName: Record<number, string> = {
+  0: 'rank',
+  1: 'matchHistory',
+  2: 'currentGame',
+  3: 'champions',
+}
+
+const tabNameToNumber: Record<string, number> = {
+  rank: 0,
+  matchHistory: 1,
+  currentGame: 2,
+  champions: 3,
+}
+
 onMounted(async () => {
   let gameName = ''
   let tagLine = ''
@@ -93,15 +107,40 @@ watch(selectedTab, () => {
 function handleTabData() {
   switch (selectedTab.value) {
     case 0:
+      // replaceUrl(0)
       findLeagueEntry()
       break
+    // case 1:
+    //   replaceUrl(1)
+    //   break
     case 2:
+      // replaceUrl(2)
       findCurrentGame()
       break
     case 3:
+      // replaceUrl(3)
       findChampions()
       break
   }
+}
+
+function replaceUrl(index: number) {
+  const fullPath = router.currentRoute.value.fullPath.split('/')
+
+  const accountIndex = fullPath.findIndex(value => value === 'account')
+  const subPageIndex = accountIndex + 3
+
+  if (accountIndex === -1 || fullPath.length > subPageIndex)
+    return
+
+  if (!fullPath[subPageIndex]) {
+    fullPath[subPageIndex] = tabNumberToName[index]
+  }
+  else {
+    fullPath.push(tabNumberToName[index])
+  }
+
+  router.replace(fullPath.join('/'))
 }
 
 async function findLeagueEntry() {

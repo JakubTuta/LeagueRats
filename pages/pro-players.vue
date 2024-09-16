@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
-import type { VInfiniteScroll } from 'vuetify/components'
 // @ts-expect-error correct path
 import imgLck from '~/assets/regions/lck.png'
 // @ts-expect-error correct path
@@ -27,7 +26,7 @@ const proStore = useProPlayerStore()
 const { players } = storeToRefs(proStore)
 
 const storageStore = useStorageStore()
-const { teamLogos } = storeToRefs(storageStore)
+const { teamImages } = storeToRefs(storageStore)
 
 const loading = ref(false)
 const selectedRegion = ref('lec')
@@ -93,7 +92,7 @@ watch(selectedRegion, (region) => {
 
   newTeams.forEach((team) => {
     proStore.getProPlayersFromTeam(upperCaseRegion, team)
-    storageStore.getTeamLogo(upperCaseRegion, team)
+    storageStore.getTeamImages(upperCaseRegion, team)
   })
 
   loading.value = false
@@ -115,7 +114,7 @@ async function loadPlayers({ done }: { done: (status: string) => void }) {
   const newTeam = notSavedTeams[0]
 
   proStore.getProPlayersFromTeam(selectedRegion.value.toUpperCase(), newTeam)
-  storageStore.getTeamLogo(selectedRegion.value.toUpperCase(), newTeam)
+  storageStore.getTeamImages(selectedRegion.value.toUpperCase(), newTeam)
 
   savedTeams.value.push(newTeam)
 
@@ -296,14 +295,17 @@ function getPlayerRoleIcon(player: { role: string }) {
               class="my-2"
               :ripple="false"
               :to="`/account/${player.region}/${player.gameName}-${player.tagLine}`"
+              lines="two"
             >
               <template #prepend>
                 <v-avatar
                   rounded="0"
                   size="70"
+                  class="mr-1"
                 >
                   <v-img
-                    src="~/assets/default.png"
+                    :src="teamImages[player.team]?.[player.player.toLowerCase()]"
+                    lazy-src="~/assets/default.png"
                   />
                 </v-avatar>
 
@@ -313,7 +315,10 @@ function getPlayerRoleIcon(player: { role: string }) {
                       rounded="0"
                       size="35"
                     >
-                      <v-img :src="teamLogos[player.team]" />
+                      <v-img
+                        :src="teamImages[player.team]?.team"
+                        lazy-src="~/assets/default.png"
+                      />
                     </v-avatar>
                   </p>
 

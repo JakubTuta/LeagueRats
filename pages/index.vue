@@ -3,10 +3,9 @@ import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import logo from '~/assets/logo.png'
 import { championIdsToTitles } from '~/helpers/championIds'
-import { selectRegions } from '~/helpers/regions'
+import { selectRegions, teamPerRegion } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
 import type { IProActiveGame } from '~/models/proActiveGame'
-import type { IProPlayer } from '~/models/proPlayer'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -19,7 +18,7 @@ const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
 
 const storageStore = useStorageStore()
-const { championIcons } = storeToRefs(storageStore)
+const { championIcons, teamImages } = storeToRefs(storageStore)
 
 const gameName = ref<string | null>(null)
 const tagLine = ref<string | null>(null)
@@ -28,8 +27,6 @@ const tagLineError = ref('')
 const loading = ref(false)
 const region = ref('EUW')
 const refreshTime = ref('00:00')
-const isShowPlayerProfile = ref(false)
-const playerProfile = ref<IProPlayer | null>(null)
 
 const errorMessage = t('rules.requiredField')
 
@@ -53,8 +50,7 @@ const splitProGames = computed(() => {
 
   const shuffledGames = shuffleArray(activeGames.value.map(e => e))
 
-  const uniqueChampionIds = [...new Set(shuffledGames.map(game => findPlayerParticipant(game).championId))]
-  uniqueChampionIds.forEach(async championId => await storageStore.getChampionIcon(championId))
+  getIcons()
 
   const chunkSize = 3
   const result = []
@@ -88,11 +84,6 @@ watch(tagLine, (newTagLine, oldTagLine) => {
     clearError()
 })
 
-watch(isShowPlayerProfile, (newIsShowPlayerProfile) => {
-  if (!newIsShowPlayerProfile)
-    playerProfile.value = null
-})
-
 setInterval(getNextUpdateTIme, 1000)
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -102,6 +93,31 @@ function shuffleArray<T>(array: T[]): T[] {
   }
 
   return array
+}
+
+function findRegionForTeam(team: string) {
+  for (const [key, value] of Object.entries(teamPerRegion)) {
+    if (value.includes(team)) {
+      return key
+    }
+  }
+
+  return null
+}
+
+function getIcons() {
+  const uniqueTeams = [...new Set(activeGames.value.map(game => game.player.team))]
+  uniqueTeams.forEach((team) => {
+    const teamRegion = findRegionForTeam(team)
+
+    if (!teamRegion)
+      return
+
+    storageStore.getTeamImages(teamRegion, team)
+  })
+
+  const uniqueChampionIds = [...new Set(activeGames.value.map(game => findPlayerParticipant(game).championId))]
+  uniqueChampionIds.forEach(championId => storageStore.getChampionIcon(championId))
 }
 
 function findPlayerParticipant(game: IProActiveGame) {
@@ -187,11 +203,6 @@ function getNextUpdateTIme() {
   const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
 
   refreshTime.value = `${minutesDiff}:${secondsDiff}`
-}
-
-function openPlayerProfile(player: IProPlayer) {
-  isShowPlayerProfile.value = true
-  playerProfile.value = player
 }
 </script>
 
@@ -337,17 +348,20 @@ function openPlayerProfile(player: IProPlayer) {
                   align="center"
                   style="height: 250px"
                   :ripple="false"
-                  @click="openPlayerProfile(game.player)"
+                  :to="`/account/${game.player.region}/${game.player.gameName}-${game.player.tagLine}`"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
                     <div>
                       <v-avatar
                         size="80"
                       >
-                        <v-img lazy-src="~/assets/default.png" />
+                        <v-img
+                          lazy-src="~/assets/default.png"
+                          :src="teamImages[game.player.team]?.[game.player.player.toLowerCase()]"
+                        />
                       </v-avatar>
 
-                      <p class="mt-2">
+                      <p class="mt-1">
                         {{ `${game.player.team} ${game.player.player}` }}
                       </p>
                     </div>
@@ -416,9 +430,4 @@ function openPlayerProfile(player: IProPlayer) {
       </v-card-text>
     </v-card>
   </v-container>
-
-  <PlayerProfile
-    v-model:is-show="isShowPlayerProfile"
-    :player="playerProfile"
-  />
 </template>

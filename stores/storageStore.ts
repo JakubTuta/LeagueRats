@@ -1,4 +1,4 @@
-import { getDownloadURL, ref as storageRef } from 'firebase/storage'
+import { getDownloadURL, listAll, ref as storageRef } from 'firebase/storage'
 import { championIds } from '~/helpers/championIds'
 import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
 import { useFirebase } from '~/helpers/useFirebase'
@@ -13,11 +13,14 @@ export const useStorageStore = defineStore('storage', () => {
   const runeIcons = ref<Record<number, string>>({})
   const itemIcons = ref<Record<number, string>>({})
   const teamLogos = ref<Record<string, string>>({})
+  const teamImages = ref<Record<string, Record<string, string>>>({})
 
   const getChampionIcon = async (championId: number) => {
     if (championIcons.value[championId]) {
       return
     }
+
+    // console.log(championId)
 
     const championName = championIds[championId]
 
@@ -109,6 +112,28 @@ export const useStorageStore = defineStore('storage', () => {
     teamLogos.value[team] = url
   }
 
+  const getTeamImages = async (region: string, team: string) => {
+    if (teamImages.value[team]) {
+      return
+    }
+
+    const teamRef = storageRef(storage, `players/${region}/${team}`)
+
+    const files = await listAll(teamRef)
+
+    const images: Record<string, string> = {}
+
+    for (const file of files.items) {
+      // eslint-disable-next-line no-await-in-loop
+      const url = await getDownloadURL(file)
+
+      const name = file.name.split('.')[0].toLowerCase()
+      images[name] = url
+    }
+
+    teamImages.value[team] = images
+  }
+
   return {
     championIcons,
     summonerSpellIcons,
@@ -117,6 +142,7 @@ export const useStorageStore = defineStore('storage', () => {
     runeIcons,
     itemIcons,
     teamLogos,
+    teamImages,
     getChampionIcon,
     getSummonerSpellIcon,
     getRankIcon,
@@ -124,5 +150,6 @@ export const useStorageStore = defineStore('storage', () => {
     getRuneIcons,
     getItemIcons,
     getTeamLogo,
+    getTeamImages,
   }
 })
