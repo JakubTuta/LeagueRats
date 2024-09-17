@@ -30,7 +30,10 @@ const leagueEntry = ref<ILeagueEntry[]>([])
 const matchHistory = ref<any[]>([])
 const currentGame = ref<IActiveGame | null>(null)
 const championMasteries = ref<IChampionMastery[]>([])
+
 const proPlayer = ref<{ team: string, player: string, gameName: string, tagLine: string } | null>(null)
+const isShowTeamDialog = ref(false)
+const selectedTeam = ref('')
 
 const tabs = computed(() => [
   { text: t('profile.rank.title'), value: 0 },
@@ -111,6 +114,11 @@ watch(account, () => {
 watch(selectedTab, () => {
   handleTabData()
 }, { immediate: true })
+
+watch(isShowTeamDialog, (value) => {
+  if (!value)
+    selectedTeam.value = ''
+})
 
 function handleTabData() {
   switch (selectedTab.value) {
@@ -211,6 +219,11 @@ async function findChampions() {
   championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid, region.value)
   tabLoading.value = false
 }
+
+function showProTeam(team: string) {
+  isShowTeamDialog.value = true
+  selectedTeam.value = team
+}
 </script>
 
 <template>
@@ -244,7 +257,15 @@ async function findChampions() {
           v-if="proPlayer"
           class="text-subtitle-1 mb-3"
         >
-          {{ `${proPlayer.team} ${proPlayer.player}` }}
+          <span
+            class="text-blue"
+            style="cursor: pointer;"
+            @click="showProTeam(proPlayer.team)"
+          >
+            {{ `[${proPlayer.team}]` }}
+          </span>
+
+          {{ proPlayer.player }}
         </p>
 
         {{ account?.gameName || '' }}
@@ -298,4 +319,9 @@ async function findChampions() {
       </v-card-text>
     </v-card>
   </v-container>
+
+  <AccountProTeam
+    v-model:is-show="isShowTeamDialog"
+    :team="selectedTeam"
+  />
 </template>

@@ -28,7 +28,6 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   const proAccountNames = ref<IProAccountNames | null>(null)
 
   const { firestore } = useFirebase()
-  const restStore = useRestStore()
 
   const resetState = () => {
     playersPerRegion = {}
@@ -101,6 +100,27 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     return []
   }
 
+  const returnPlayersFromTeam = async (region: string, team: string) => {
+    if (playersPerTeam[team]) {
+      return playersPerTeam[team]
+    }
+
+    try {
+      const q = query(collection(firestore, `pro_players/${region}/${team}`))
+      const querySnapshot = await getDocs(q)
+
+      const playerData = querySnapshot.docs.map(docData => mapIProPlayer(docData.data()))
+      playersPerTeam[team] = playerData
+
+      return playerData
+    }
+    catch (error) {
+      console.error(error)
+    }
+
+    return []
+  }
+
   const getPlayerFromName = async (name: string): Promise<IProPlayer | null> => {
     if (playerPerName[name]) {
       return playerPerName[name]
@@ -122,22 +142,6 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     }
 
     return null
-  }
-
-  const getActiveProGames = async () => {
-    if (!activeGames.value.length) {
-      activeGames.value = await restStore.getActiveProGames()
-
-      return
-    }
-
-    const maxGameTimeInSeconds = 60 * 30
-
-    const now = new Date().getTime() / 1000
-
-    activeGames.value = activeGames.value.filter((game) => {
-      return now - game.game.gameStartTime.seconds < maxGameTimeInSeconds
-    })
   }
 
   const getActiveProGamesFromDatabase = () => {
@@ -183,7 +187,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     resetPlayers,
     getProPlayersForRegion,
     getProPlayersFromTeam,
-    getActiveProGames,
+    returnPlayersFromTeam,
     getPlayerFromName,
     getActiveProGamesFromDatabase,
     getProAccountNames,
