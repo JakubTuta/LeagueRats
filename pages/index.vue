@@ -46,20 +46,27 @@ const cardColor = computed(() => {
     : 'rgba(200, 200, 200, 0.85)'
 })
 
+const shuffledGames = computed(() => {
+  const copiedArray = activeGames.value.map(game => game)
+
+  for (let i = copiedArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copiedArray[i], copiedArray[j]] = [copiedArray[j], copiedArray[i]]
+  }
+
+  return copiedArray
+})
+
 const splitProGames = computed(() => {
   if (!activeGames.value)
     return []
 
-  const shuffledGames = shuffleArray(activeGames.value.map(e => e))
-
-  getIcons()
-
   const result = []
   let i = 0
 
-  while (i < shuffledGames.length) {
-    const end = Math.min(i + playersPerSlide, shuffledGames.length)
-    result.push(shuffledGames.slice(i, end))
+  while (i < shuffledGames.value.length) {
+    const end = Math.min(i + playersPerSlide, shuffledGames.value.length)
+    result.push(shuffledGames.value.slice(i, end))
     i += playersPerSlide
   }
 
@@ -85,16 +92,16 @@ watch(tagLine, (newTagLine, oldTagLine) => {
     clearError()
 })
 
+watch(activeGames, async (value) => {
+  if (!value.length)
+    return
+
+  getIcons()
+
+  await new Promise(resolve => setTimeout(resolve, 100))
+})
+
 setInterval(getNextUpdateTIme, 1000)
-
-function shuffleArray<T>(array: T[]): T[] {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]
-  }
-
-  return array
-}
 
 function findRegionForTeam(team: string) {
   for (const [key, value] of Object.entries(teamPerRegion)) {
