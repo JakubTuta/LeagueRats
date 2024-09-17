@@ -28,6 +28,8 @@ const loading = ref(false)
 const region = ref('EUW')
 const refreshTime = ref('00:00')
 
+const playersPerSlide = 3
+
 const errorMessage = t('rules.requiredField')
 
 onMounted(() => {
@@ -52,14 +54,13 @@ const splitProGames = computed(() => {
 
   getIcons()
 
-  const chunkSize = 3
   const result = []
   let i = 0
 
   while (i < shuffledGames.length) {
-    const end = Math.min(i + chunkSize, shuffledGames.length)
+    const end = Math.min(i + playersPerSlide, shuffledGames.length)
     result.push(shuffledGames.slice(i, end))
-    i += chunkSize
+    i += playersPerSlide
   }
 
   return result
@@ -328,14 +329,14 @@ function getNextUpdateTIme() {
           interval="10000"
           cycle
           height="250"
-          :show-arrows="splitProGames.length > 1"
+          :show-arrows="activeGames.length > playersPerSlide"
         >
           <v-carousel-item
             v-for="(games, index) in splitProGames"
             :key="index"
           >
             <v-row
-              :class="splitProGames.length > 1
+              :class="activeGames.length > playersPerSlide
                 ? 'mx-15'
                 : ''"
             >

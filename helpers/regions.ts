@@ -114,6 +114,18 @@ export function mapApiRegion2ToSelect(region: TApiRegions2): TSelectRegions {
 
 export const proRegions = ['LCK', 'LPL', 'LCS', 'LEC']
 
+export const proRegionToSelectRegion: { [key: string]: TSelectRegions } = {
+  LCK: 'KR',
+  LCS: 'NA',
+  LEC: 'EUW',
+}
+
+export const selectRegionToProRegion: { [key: string]: string } = {
+  KR: 'LCK',
+  NA: 'LCS',
+  EUW: 'LEC',
+}
+
 export const teamPerRegion: { [key: string]: string[] } = {
   LCK: ['T1', 'GENG', 'DK', 'DRX', 'HLE', 'KDF', 'KT', 'FOX', 'BRO', 'NS'],
   LPL: ['AL', 'BLG', 'EDG', 'FPX', 'IG', 'JDG', 'LGD', 'LNG', 'NIP', 'OMG', 'RA', 'RNG', 'WE', 'TES', 'TT', 'UP', 'WBG'],

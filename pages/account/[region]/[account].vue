@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
-import { selectRegions } from '~/helpers/regions'
+import { selectRegionToProRegion, selectRegions } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
 import type { IChampionMastery } from '~/models/championMastery'
@@ -15,6 +15,12 @@ const { t } = useI18n()
 const accountStore = useAccountStore()
 const restStore = useRestStore()
 
+const proStore = useProPlayerStore()
+const { proAccountNames } = storeToRefs(proStore)
+
+const storageStore = useStorageStore()
+const { teamImages } = storeToRefs(storageStore)
+
 const loading = ref(false)
 const tabLoading = ref(false)
 const selectedTab = ref(0)
@@ -24,6 +30,7 @@ const leagueEntry = ref<ILeagueEntry[]>([])
 const matchHistory = ref<any[]>([])
 const currentGame = ref<IActiveGame | null>(null)
 const championMasteries = ref<IChampionMastery[]>([])
+const proPlayer = ref<{ team: string, player: string, gameName: string, tagLine: string } | null>(null)
 
 const tabs = computed(() => [
   { text: t('profile.rank.title'), value: 0 },
@@ -32,19 +39,19 @@ const tabs = computed(() => [
   { text: t('profile.champions.title'), value: 3 },
 ])
 
-const tabNumberToName: Record<number, string> = {
-  0: 'rank',
-  1: 'matchHistory',
-  2: 'currentGame',
-  3: 'champions',
-}
+// const tabNumberToName: Record<number, string> = {
+//   0: 'rank',
+//   1: 'matchHistory',
+//   2: 'currentGame',
+//   3: 'champions',
+// }
 
-const tabNameToNumber: Record<string, number> = {
-  rank: 0,
-  matchHistory: 1,
-  currentGame: 2,
-  champions: 3,
-}
+// const tabNameToNumber: Record<string, number> = {
+//   rank: 0,
+//   matchHistory: 1,
+//   currentGame: 2,
+//   champions: 3,
+// }
 
 onMounted(async () => {
   let gameName = ''
@@ -98,6 +105,7 @@ onUnmounted(() => {
 
 watch(account, () => {
   handleTabData()
+  checkIfAccountIsPro()
 }, { immediate: true })
 
 watch(selectedTab, () => {
@@ -124,23 +132,56 @@ function handleTabData() {
   }
 }
 
-function replaceUrl(index: number) {
-  const fullPath = router.currentRoute.value.fullPath.split('/')
+// function replaceUrl(index: number) {
+//   const fullPath = router.currentRoute.value.fullPath.split('/')
 
-  const accountIndex = fullPath.findIndex(value => value === 'account')
-  const subPageIndex = accountIndex + 3
+//   const accountIndex = fullPath.findIndex(value => value === 'account')
+//   const subPageIndex = accountIndex + 3
 
-  if (accountIndex === -1 || fullPath.length > subPageIndex)
+//   if (accountIndex === -1 || fullPath.length > subPageIndex)
+//     return
+
+//   if (!fullPath[subPageIndex]) {
+//     fullPath[subPageIndex] = tabNumberToName[index]
+//   }
+//   else {
+//     fullPath.push(tabNumberToName[index])
+//   }
+
+//   router.replace(fullPath.join('/'))
+// }
+
+async function checkIfAccountIsPro() {
+  const { gameName, tagLine } = account.value || {}
+  if (!gameName || !tagLine)
     return
 
-  if (!fullPath[subPageIndex]) {
-    fullPath[subPageIndex] = tabNumberToName[index]
-  }
-  else {
-    fullPath.push(tabNumberToName[index])
+  if (!proAccountNames.value) {
+    await proStore.getProAccountNames()
+    if (!proAccountNames.value)
+      return
   }
 
-  router.replace(fullPath.join('/'))
+  const proRegion = selectRegionToProRegion[region.value]
+  if (!proRegion)
+    return
+
+  const teams = proAccountNames.value[proRegion]
+  if (!teams)
+    return
+
+  for (const [teamName, players] of Object.entries(teams)) {
+    const foundPlayer = players.find(player => player.gameName === gameName && player.tagLine === tagLine)
+    if (foundPlayer) {
+      proPlayer.value = { team: teamName, ...foundPlayer }
+      break
+    }
+  }
+
+  if (!proPlayer.value)
+    return
+
+  storageStore.getTeamImages(proRegion, proPlayer.value.team)
 }
 
 async function findLeagueEntry() {
@@ -187,6 +228,25 @@ async function findChampions() {
         align="center"
         class="text-h5 my-4"
       >
+        <p
+          v-if="proPlayer"
+          class="mb-1"
+        >
+          <v-avatar size="110">
+            <v-img
+              :src="teamImages[proPlayer.team]?.[proPlayer.player.toLowerCase()]"
+              lazy-src="~/assets/default.png"
+            />
+          </v-avatar>
+        </p>
+
+        <p
+          v-if="proPlayer"
+          class="text-subtitle-1 mb-3"
+        >
+          {{ `${proPlayer.team} ${proPlayer.player}` }}
+        </p>
+
         {{ account?.gameName || '' }}
 
         <span class="ml-1 text-gray font-italic">

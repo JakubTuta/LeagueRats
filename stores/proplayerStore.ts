@@ -7,6 +7,16 @@ import type { IProActiveGame } from '~/models/proActiveGame'
 import { mapProActiveGame } from '~/models/proActiveGame'
 import { type IProPlayer, mapIProPlayer } from '~/models/proPlayer'
 
+interface IProAccountNames {
+  [region: string]: {
+    [team: string]: {
+      player: string
+      gameName: string
+      tagLine: string
+    }[]
+  }
+}
+
 export const useProPlayerStore = defineStore('proPlayer', () => {
   let playersPerRegion: Record<string, IProPlayer[]> = {}
   let playersPerTeam: Record<string, IProPlayer[]> = {}
@@ -15,6 +25,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   const players = ref<IProPlayer[]>([])
   const activeGames = ref<IProActiveGame[]>([])
   const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
+  const proAccountNames = ref<IProAccountNames | null>(null)
 
   const { firestore } = useFirebase()
   const restStore = useRestStore()
@@ -150,9 +161,24 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     activeGamesUnsubscribe.value = onSnapshot(q, onSuccess, onError)
   }
 
+  const getProAccountNames = async () => {
+    try {
+      const document = doc(firestore, 'pro_players', 'game_names')
+      const docSnap = await getDoc(document)
+
+      if (docSnap.exists()) {
+        proAccountNames.value = docSnap.data() as IProAccountNames
+      }
+    }
+    catch (error) {
+      console.error(error)
+    }
+  }
+
   return {
     players,
     activeGames,
+    proAccountNames,
     resetState,
     resetPlayers,
     getProPlayersForRegion,
@@ -160,5 +186,6 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     getActiveProGames,
     getPlayerFromName,
     getActiveProGamesFromDatabase,
+    getProAccountNames,
   }
 })
