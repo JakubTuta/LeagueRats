@@ -12,17 +12,26 @@ jobs:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: |
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create environmental variables
+        run: |
           echo "API_KEY=${{ secrets.API_KEY }}" > .env
           echo "AUTH_DOMAIN=${{ secrets.AUTH_DOMAIN }}" >> .env
           echo "PROJECT_ID=${{ secrets.PROJECT_ID }}" >> .env
           echo "STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }}" >> .env
           echo "MESSAGING_SEND_ID=${{ secrets.MESSAGING_SEND_ID }}" >> .env
           echo "APP_ID=${{ secrets.APP_ID }}" >> .env
-      - run: npm install --legacy-peer-deps
-      - run: npm run generate
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate static files
+        run: npm run generate
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LEAGUE_RATS }}
