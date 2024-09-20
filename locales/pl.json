@@ -10,7 +10,9 @@
     "classic": "Summoner's Rift",
     "form": {
       "close": "Zamknij",
-      "save": "Zapisz"
+      "save": "Zapisz",
+      "accept": "Akceptuj",
+      "deny": "Odmów"
     }
   },
   "navbar": {
@@ -133,5 +135,9 @@
     "loadingPlayers": "Ładowanie graczy",
     "roles": "Role",
     "teams": "Drużyny"
+  },
+  "cookies": {
+    "title": "Ciasteczka",
+    "text": "Używamy ciasteczek, aby spersonalizować treści. Zapisujemy informacje o wybranym języku i motywie. Możesz je wyłączyć w ustawieniach przeglądarki. Nie udostępniamy danych żadnej trzeciej stronie."
   }
 }

@@ -10,13 +10,13 @@ const emit = defineEmits<{
 const { isShow } = toRefs(props)
 
 const themeStore = useThemeStore()
+const { currentTheme } = storeToRefs(themeStore)
+
 const languageStore = useLanguageStore()
+const { currentLang } = storeToRefs(languageStore)
 
-const currentLang = localStorage.getItem('current-lang')
-const currentTheme = localStorage.getItem('current-theme')
-
-const theme = ref(currentTheme || 'dark')
-const language = ref(currentLang || 'en')
+const theme = ref(currentTheme.value || 'dark')
+const language = ref(currentLang.value || 'en')
 
 function onClose() {
   emit('close')

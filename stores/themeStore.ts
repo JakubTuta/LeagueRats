@@ -1,25 +1,42 @@
 import { useTheme } from 'vuetify'
 
 export const useThemeStore = defineStore('theme', () => {
+  const defaultTheme = 'dark'
+
   const theme = useTheme()
 
-  const toggleTheme = () => {
-    theme.global.name.value = theme.global.current.value.dark
-      ? 'light'
-      : 'dark'
-    localStorage.setItem('current-theme', theme.global.name.value)
-  }
-
-  const setTheme = (newTheme: string) => {
-    theme.global.name.value = newTheme
-    localStorage.setItem('current-theme', newTheme)
-  }
+  const currentTheme = useCookie('current-theme', {
+    default: () => ('dark'),
+    maxAge: 60 * 60 * 24 * 365,
+  })
+  const isAcceptedCookies = useCookie('is-accepted-cookies', {
+    default: () => false,
+    maxAge: 60 * 60 * 24 * 365,
+  })
 
   const isDark = computed(() => theme.global.name.value === 'dark')
 
+  const setTheme = (newTheme: string) => {
+    if (isAcceptedCookies.value) {
+      currentTheme.value = newTheme
+    }
+
+    theme.global.name.value = newTheme
+  }
+
+  const setDefaultTheme = () => {
+    if (!isAcceptedCookies.value) {
+      setTheme(defaultTheme)
+    }
+    else {
+      setTheme(currentTheme.value)
+    }
+  }
+
   return {
-    toggleTheme,
-    setTheme,
+    currentTheme,
     isDark,
+    setTheme,
+    setDefaultTheme,
   }
 })
