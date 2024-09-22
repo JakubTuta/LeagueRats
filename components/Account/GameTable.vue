@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import bannedDefault from '~/assets/banned_default.png'
-import { mouseButton } from '~/helpers/mouse'
 import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import type { IActiveGame, IParticipant } from '~/models/activeGame'
@@ -16,13 +14,11 @@ const props = withDefaults(defineProps<{
 
 const { game, account } = toRefs(props)
 
-const router = useRouter()
-const { mobile } = useDisplay()
-
 const storageStore = useStorageStore()
-const { championIcons, summonerSpellIcons } = storeToRefs(storageStore)
+const { championIcons, summonerSpellIcons, runeIcons } = storeToRefs(storageStore)
 
 const restStore = useRestStore()
+const runeStore = useRuneStore()
 
 const team1 = ref<IParticipant[]>([])
 const team2 = ref<IParticipant[]>([])
@@ -96,6 +92,7 @@ watch(game, (newGame) => {
     storageStore.getChampionIcon(participant.championId)
     storageStore.getSummonerSpellIcon(participant.spell1Id)
     storageStore.getSummonerSpellIcon(participant.spell2Id)
+    runeStore.getRuneIcons(participant.perks)
   })
 
   newGame.bannedChampions.forEach((bannedChampion) => {
@@ -103,20 +100,6 @@ watch(game, (newGame) => {
       storageStore.getChampionIcon(bannedChampion.championId)
   })
 }, { immediate: true })
-
-function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
-  // @ts-expect-error event.target.className
-  if (!game.value || !region.value || event.target?.className === 'v-btn__content')
-    return
-
-  const url = `/account/${region.value}/${gameName}-${tagLine}`
-
-  if (event.button === mouseButton.MIDDLE)
-    window.open(url, '_blank', 'noopener,noreferrer')
-
-  else if (event.button === mouseButton.LEFT)
-    router.push(url)
-}
 </script>
 
 <template>
@@ -150,9 +133,9 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
             <v-list-item
               v-for="participant in team"
               :key="participant.puuid"
-              v-ripple
-              style="cursor: pointer"
-              @mousedown.prevent="(event: MouseEvent) => sendToProfile(participant.gameName, participant.tagLine, event)"
+              :to="participant.puuid === account?.puuid
+                ? ''
+                : `/account/${region}/${participant.gameName}-${participant.tagLine}`"
             >
               <template #prepend>
                 <v-img
@@ -160,7 +143,6 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
                   :src="championIcons[participant.championId]"
                   lazy-src="~/assets/default.png"
                   width="45"
-                  height="45"
                 />
               </template>
 
@@ -183,13 +165,14 @@ function sendToProfile(gameName: string, tagLine: string, event: MouseEvent) {
                 </span>
 
                 <v-btn
-                  v-if="account && !mobile"
+                  icon
+                  variant="text"
+                  @click.prevent
                 >
-                  {{ $t('runeTable.title') }}
-                  <v-icon
-                    class="ml-2"
-                    size="x-large"
-                    icon="mdi-menu-down"
+                  <v-img
+                    :src="runeIcons[participant.perks.perkIds[0]]"
+                    lazy-src="~/assets/default.png"
+                    width="40"
                   />
 
                   <v-menu

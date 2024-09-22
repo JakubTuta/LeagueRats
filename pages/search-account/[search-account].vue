@@ -3,7 +3,6 @@ import { selectRegions } from '~/helpers/regions';
 import type { IAccount } from '~/models/account';
 
 const route = useRoute()
-const router = useRouter()
 
 const restStore = useRestStore()
 
@@ -15,7 +14,7 @@ const tag = ref('')
 const loading = ref(false)
 const accounts = ref<Record<string, IAccount | null> | null>(null)
 
-onMounted(() => {
+onMounted(async () => {
   loading.value = true
 
   try {
@@ -29,9 +28,15 @@ onMounted(() => {
 
   selectRegions.forEach(region => storageStore.getRegionIcon(region))
 
-  restStore.findAccountsInAllRegions(username.value, tag.value)
-    .then(response => accounts.value = response)
-    .catch(error => console.error(error))
+  try {
+    const response = await restStore.findAccountsInAllRegions(username.value, tag.value)
+
+    if (response)
+      accounts.value = response
+  }
+  catch (error) {
+    console.error(error)
+  }
 })
 
 watch(accounts, (newAccounts) => {
@@ -46,13 +51,6 @@ const isAnyRegionFound = computed(() => {
 
   return Object.values(accounts.value).some(account => account !== null)
 })
-
-function sendToProfile(account: IAccount | null) {
-  if (!account)
-    return
-
-  router.push(`/account/${account.region}/${account.gameName}-${account.tagLine}`)
-}
 </script>
 
 <template>
@@ -108,7 +106,9 @@ function sendToProfile(account: IAccount | null) {
                   : 'plain'"
                 rounded="xl"
                 class="ma-2"
-                @click="() => sendToProfile(account)"
+                :to="account
+                  ? `/account/${account.region}/${account.gameName}-${account.tagLine}`
+                  : ''"
               >
                 <template #prepend>
                   <v-avatar rounded="0">

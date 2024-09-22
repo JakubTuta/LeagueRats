@@ -31,7 +31,8 @@
     "tagLine": "Tag",
     "userNotExist": "User doesn't exist",
     "featuredGames": "Random featured games",
-    "nextUpdate": "Next update in {time}"
+    "nextUpdate": "Next update in {time}",
+    "noActiveGames": "No active games found"
   },
   "rules": {
     "requiredField": "This field is required",

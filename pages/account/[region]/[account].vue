@@ -74,7 +74,7 @@ onMounted(async () => {
   catch (error) {
     console.error(error)
 
-    router.replace('/404')
+    router.push('/404')
   }
 
   if (!selectRegions.includes(region.value)) {

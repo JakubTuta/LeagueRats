@@ -2,7 +2,6 @@
 import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import logo from '~/assets/logo.png'
-import { championIdsToTitles } from '~/helpers/championIds'
 import { selectRegions, teamPerRegion } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
 import type { IProActiveGame } from '~/models/proActiveGame'
@@ -319,13 +318,15 @@ function getNextUpdateTIme() {
       :color="cardColor"
       height="300px"
     >
-      <v-card-text v-if="!activeGames.length">
+      <v-card-text
+        v-if="!activeGames.length"
+        style="height: 100%"
+      >
         {{ $t('index.nextUpdate', {"time": refreshTime}) }}
-        <v-skeleton-loader
-          type="card"
-          class="mt-5"
-          :color="cardColor"
-        />
+
+        <span style="display: flex; align-items: center; justify-content: center; height: 90%">
+          {{ $t('index.noActiveGames') }}
+        </span>
       </v-card-text>
 
       <v-card-text v-else>
@@ -375,38 +376,9 @@ function getNextUpdateTIme() {
                     </div>
 
                     <div>
-                      <!--
-                        <v-avatar
-                        size="40"
-                        class="mr-2"
-                        >
-                        <v-tooltip
-                        activator="parent"
-                        location="bottom"
-                        >
-                        {{ game.game.gameMode === 'ARAM'
-                        ? $t('universal.aram')
-                        : $t('universal.classic') }}
-                        </v-tooltip>
-
-                        <v-img
-                        :src="game.game.gameMode === 'ARAM'
-                        ? aramIcon
-                        : classicIcon"
-                        />
-                        </v-avatar>
-                      -->
-
                       <v-avatar
                         size="40"
                       >
-                        <v-tooltip
-                          activator="parent"
-                          location="bottom"
-                        >
-                          {{ championIdsToTitles[findPlayerParticipant(game).championId] }}
-                        </v-tooltip>
-
                         <v-img
                           lazy-src="~/assets/default.png"
                           :src="championIcons[findPlayerParticipant(game).championId]"

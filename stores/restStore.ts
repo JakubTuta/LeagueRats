@@ -1,5 +1,4 @@
-/* eslint-disable unused-imports/no-unused-vars */
-import axios from 'axios'
+import axios, { type AxiosResponse } from 'axios'
 import type { IAccount, IAccountDetails, ISummoner } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
 import { mapActiveGame } from '~/models/activeGame'
@@ -25,25 +24,12 @@ export const useRestStore = defineStore('rest', () => {
     })
   }
 
-  const postFirebaseFunction = async (functionName: string, data: any): Promise<any> => {
-    let response: any
-
-    try {
-      response = await getAxios().post(`/${functionName}`, data)
-    }
-    catch (error: any) {
-      console.error(error)
-    }
-
-    if (response.status !== 200) {
-      throw new Error(response.data)
-    }
-
-    return response.data
+  const isResponseOk = (response: AxiosResponse | null): boolean => {
+    return response !== null && response.status === 200
   }
 
   const getFirebaseFunction = async (functionName: string): Promise<any> => {
-    let response: any = null
+    let response: AxiosResponse | null = null
 
     try {
       response = (await getAxios().get(`/${functionName}`))
@@ -70,7 +56,7 @@ export const useRestStore = defineStore('rest', () => {
 
       const response = await getFirebaseFunction(`account_details?puuid=${puuid}`)
 
-      if (!response || response.status !== 200)
+      if (!isResponseOk(response))
         return null
 
       return response.data as IAccountDetails
@@ -81,7 +67,7 @@ export const useRestStore = defineStore('rest', () => {
 
       const response = await getFirebaseFunction(`account_details?username=${username}&tag=${tag}`)
 
-      if (!response || response.status !== 200)
+      if (!isResponseOk(response))
         return null
 
       return response.data as IAccountDetails
@@ -93,7 +79,7 @@ export const useRestStore = defineStore('rest', () => {
   const getSummonerDetailsByPuuid = async (puuid: string, region: string): Promise<ISummoner | null> => {
     const response = await getFirebaseFunction(`summoner_details/${region}/${puuid}`)
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return null
 
     return response.data as ISummoner
@@ -102,7 +88,7 @@ export const useRestStore = defineStore('rest', () => {
   const getCurrentGameByPuuid = async (puuid: string, region: string): Promise<IActiveGame | null> => {
     const response = await getFirebaseFunction(`active_game/${region}/${puuid}`)
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return null
 
     const activeGame = mapActiveGame(response.data)
@@ -118,7 +104,7 @@ export const useRestStore = defineStore('rest', () => {
     const stringChampionIds = championIds.join('.')
     const response = await getFirebaseFunction(`champion_positions/${stringChampionIds}`)
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return {}
 
     return response.data
@@ -127,7 +113,7 @@ export const useRestStore = defineStore('rest', () => {
   const getFeaturedGames = async (): Promise<IActiveGame[]> => {
     const response = await getFirebaseFunction('featured_games')
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return []
 
     const acceptableGameModes = ['CLASSIC', 'ARAM']
@@ -155,7 +141,7 @@ export const useRestStore = defineStore('rest', () => {
   const getLeagueEntryBySummonerId = async (summonerId: string, region: string): Promise<ILeagueEntry[]> => {
     const response = await getFirebaseFunction(`league_entry/${region}/${summonerId}`)
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return []
 
     const leagueEntry = response.data.map(mapLeagueEntry)
@@ -166,7 +152,7 @@ export const useRestStore = defineStore('rest', () => {
   const getChampionMasteryByPuuid = async (puuid: string, region: string): Promise<IChampionMastery[]> => {
     const response = await getFirebaseFunction(`champion_mastery/${region}/${puuid}`)
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return []
 
     return response.data.map(mapChampionMastery)
@@ -183,7 +169,7 @@ export const useRestStore = defineStore('rest', () => {
       response = await getFirebaseFunction(`match_history/${account.region}/${account.puuid}`)
     }
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return []
 
     return response.data
@@ -192,7 +178,7 @@ export const useRestStore = defineStore('rest', () => {
   const findAccountsInAllRegions = async (gameName: string, tagLine: string): Promise<Record<string, IAccount | null>> => {
     const response = await getFirebaseFunction(`accounts_in_all_regions/${gameName}/${tagLine}`)
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return {}
 
     return response.data
@@ -201,7 +187,7 @@ export const useRestStore = defineStore('rest', () => {
   const getMatchData = async (gameId: string): Promise<IMatchData | null> => {
     const response = await getFirebaseFunction(`match_data/${gameId}`)
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return null
 
     return mapMatchData(response.data)
@@ -210,7 +196,7 @@ export const useRestStore = defineStore('rest', () => {
   const getActiveProGames = async (): Promise<IProActiveGame[]> => {
     const response = await getFirebaseFunction('active_pro_games')
 
-    if (!response || response.status !== 200)
+    if (!isResponseOk(response))
       return []
 
     const promises = response.data.map((data: any[]) => mapProActiveGame({ player: data[0], game: data[1] }))

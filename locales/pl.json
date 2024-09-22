@@ -31,7 +31,8 @@
     "tagLine": "Tag",
     "userNotExist": "Użytkownik nie istnieje",
     "featuredGames": "Losowe gry na żywo",
-    "nextUpdate": "Następna aktualizacja za {time}"
+    "nextUpdate": "Następna aktualizacja za {time}",
+    "noActiveGames": "Nie znaleziono aktywnych gier"
   },
   "rules": {
     "requiredField": "To pole jest wymagane",

@@ -64,6 +64,11 @@ def account_details(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
+
         return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
@@ -106,6 +111,11 @@ def summoner_details(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
+
         return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
@@ -145,6 +155,11 @@ def league_entry(
             request_url,
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
+
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
 
         return https_fn.Response(json.dumps(response.json()), status=200)
 
@@ -186,9 +201,12 @@ def active_game(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return https_fn.Response(
-            json.dumps(response.json()), status=response.status_code
-        )
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
+
+        return https_fn.Response(json.dumps(response.json()), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -256,6 +274,11 @@ def featured_games(
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
+
         response_data = response.json()
         game_list = list(response_data["gameList"])
 
@@ -298,6 +321,11 @@ def champion_mastery(
             request_url,
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
+
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
 
         # filtered_champions = list(
         #     filter(lambda champion: champion["championPoints"] > 0, response.json())
@@ -349,6 +377,11 @@ def match_history(
             request_url,
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
+
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
 
         return https_fn.Response(json.dumps(response.json()), status=200)
 
@@ -429,6 +462,11 @@ def match_data(
             request_url,
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
+
+        if response.status_code != 200:
+            return https_fn.Response(
+                json.dumps(response.json()), status=response.status_code
+            )
 
         response_data = response.json()
 
