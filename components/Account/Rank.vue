@@ -90,7 +90,7 @@ const items = computed(() => [
 <template>
   <v-row
     v-if="!loading && !items.length"
-    class="text-h5 my-4"
+    class="text-h5 my-8"
     justify="center"
   >
     {{ $t('profile.rank.noRank') }}
@@ -99,7 +99,7 @@ const items = computed(() => [
   <v-row
     v-else
     justify="center"
-    class="my-4"
+    class="my-8"
   >
     <v-col
       v-for="(entry, index) in items"

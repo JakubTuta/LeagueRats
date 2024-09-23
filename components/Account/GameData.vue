@@ -191,9 +191,6 @@ function whenWasGame() {
 }
 
 async function sendToProfile(participant: IParticipantStats, event: MouseEvent) {
-  if (participant.puuid === gamer.value.puuid)
-    return
-
   const region = mapApiRegion2ToSelect(game.value.info.platformId as TApiRegions2)
   let summonerName = participant.riotIdGameName || participant.summonerName
   let tagLine = participant.riotIdTagline
@@ -504,6 +501,7 @@ function chipColor() {
                     :class="participant.puuid === gamer.puuid
                       ? 'font-weight-bold'
                       : ''"
+                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;"
                   >
                     {{ participant.riotIdGameName || participant.summonerName }}
                   </td>

@@ -25,7 +25,8 @@ onMounted(() => {
 <style scoped>
 .bg-image {
   background-image: url('~/assets/backgrounds/bg1.jpg');
-  background-size: cover;
-  background-position: center;
+  background-size: 100% 1250px;
+  background-position: top;
+  background-repeat: no-repeat;
 }
 </style>
