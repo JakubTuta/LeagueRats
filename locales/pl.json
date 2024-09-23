@@ -73,7 +73,8 @@
       "noGames": "Brak gier do wyświetlenia",
       "kills": "Zabójstwa",
       "assists": "Asysty",
-      "deaths": "Śmierci"
+      "deaths": "Śmierci",
+      "loadMore": "Załaduj więcej gier"
     },
     "currentGame": {
       "title": "Gra na żywo",

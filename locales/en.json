@@ -73,7 +73,8 @@
       "noGames": "No games to show",
       "kills": "Kills",
       "assists": "Assists",
-      "deaths": "Deaths"
+      "deaths": "Deaths",
+      "loadMore": "Load more games"
     },
     "currentGame": {
       "title": "Live game",

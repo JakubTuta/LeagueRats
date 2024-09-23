@@ -113,6 +113,7 @@ watch(account, () => {
 
 watch(selectedTab, () => {
   handleTabData()
+  loading.value = false
 }, { immediate: true })
 
 watch(isShowTeamDialog, (value) => {

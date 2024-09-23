@@ -467,7 +467,7 @@ function chipColor() {
         sm="4"
         order="5"
       >
-        <v-row no-gutters>
+        <v-row>
           <v-col
             v-for="(team, teamIndex) in [
               team1,
