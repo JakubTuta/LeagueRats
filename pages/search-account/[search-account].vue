@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { selectRegions } from '~/helpers/regions'
-import type { IAccount } from '~/models/account'
+import { selectRegions } from '~/helpers/regions';
+import type { IAccount } from '~/models/account';
 
 const route = useRoute()
 
@@ -12,7 +12,7 @@ const { regionIcons } = storeToRefs(storageStore)
 const username = ref('')
 const tag = ref('')
 const loading = ref(false)
-const accounts = ref<Record<string, IAccount | null> | null>(null)
+const accounts = ref<Record<string, IAccount | null>>({})
 
 onMounted(async () => {
   loading.value = true
@@ -31,8 +31,15 @@ onMounted(async () => {
   try {
     const response = await restStore.findAccountsInAllRegions(username.value, tag.value)
 
-    if (response)
-      accounts.value = response
+    if (response) {
+      accounts.value = Object.entries(response).reduce((acc, [region, account]) => {
+        if (account?.puuid) {
+          acc[region] = account
+        }
+
+        return acc
+      }, {} as Record<string, IAccount | null>)
+    }
   }
   catch (error) {
     console.error(error)
@@ -44,13 +51,6 @@ watch(accounts, (newAccounts) => {
     loading.value = false
   }
 }, { deep: true })
-
-const isAnyRegionFound = computed(() => {
-  if (!accounts.value)
-    return false
-
-  return Object.values(accounts.value).some(account => account !== null)
-})
 </script>
 
 <template>
@@ -65,24 +65,29 @@ const isAnyRegionFound = computed(() => {
       />
     </v-card>
 
-    <v-card v-else-if="!loading && accounts">
+    <v-card
+      v-else-if="!loading && !Object.keys(accounts).length"
+      min-height="150"
+      style="display: flex; flex-direction: column; justify-content: center; align-items: center;"
+    >
       <v-card-title class="text-h5">
         {{ $t('profile.search.title', {username,
                                        tag}) }}
       </v-card-title>
 
-      <v-card-subtitle
-        v-if="isAnyRegionFound"
-        class="text-h6"
-      >
-        {{ $t('profile.search.subtitle2') }}
-      </v-card-subtitle>
-
-      <v-card-subtitle
-        v-else
-        class="text-h6"
-      >
+      <v-card-subtitle class="text-h6 mb-4">
         {{ $t('profile.search.subtitle1') }}
+      </v-card-subtitle>
+    </v-card>
+
+    <v-card v-else-if="!loading && Object.keys(accounts).length">
+      <v-card-title class="text-h5">
+        {{ $t('profile.search.title', {username,
+                                       tag}) }}
+      </v-card-title>
+
+      <v-card-subtitle class="text-h6">
+        {{ $t('profile.search.subtitle2') }}
       </v-card-subtitle>
 
       <v-card-text>
