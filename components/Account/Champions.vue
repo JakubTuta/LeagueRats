@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import { championIdsToTitles } from '~/helpers/championIds';
-import type { IChampionMastery } from '~/models/championMastery';
+import { useDisplay } from 'vuetify'
+import { championIdsToTitles } from '~/helpers/championIds'
+import type { IChampionMastery } from '~/models/championMastery'
 
 const props = defineProps<{
   champions: IChampionMastery[]

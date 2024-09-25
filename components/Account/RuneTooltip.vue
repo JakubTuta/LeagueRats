@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IRuneData } from '~/models/runeInfo';
+import type { IRuneData } from '~/models/runeInfo'
 
 const props = defineProps<{
   rune: IRuneData | null

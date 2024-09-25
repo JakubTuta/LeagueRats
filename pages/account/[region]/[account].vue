@@ -113,7 +113,6 @@ watch(account, () => {
 
 watch(selectedTab, () => {
   handleTabData()
-  loading.value = false
 }, { immediate: true })
 
 watch(isShowTeamDialog, (value) => {
@@ -277,6 +276,7 @@ function showProTeam(team: string) {
       </v-card-title>
 
       <v-tabs
+        v-if="!loading"
         v-model="selectedTab"
         color="primary"
         align-tabs="center"
@@ -285,7 +285,7 @@ function showProTeam(team: string) {
         :items="tabs"
       />
 
-      <v-card-text>
+      <v-card-text v-if="!loading">
         <v-card v-if="tabLoading">
           <v-skeleton-loader
             type="card"

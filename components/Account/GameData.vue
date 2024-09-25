@@ -439,7 +439,7 @@ function chipColor() {
 
         <p>
           CS:
-          <span class="font-weight-medium text-subtitle-1">
+          <span class="text-subtitle-1 font-weight-medium">
             {{ `${minions} (${(minions / (game.info.gameDuration / 60)).toFixed(1)})` }}
           </span>
         </p>

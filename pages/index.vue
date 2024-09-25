@@ -216,7 +216,7 @@ function getNextUpdateTIme() {
 <template>
   <v-container
     style="max-width: 1000px; height: 100%"
-    class="d-flex flex-column justify-space-between"
+    class="d-flex justify-space-between flex-column"
   >
     <v-spacer />
 
@@ -333,9 +333,10 @@ function getNextUpdateTIme() {
         {{ $t('index.nextUpdate', {"time": refreshTime}) }}
         <v-carousel
           class="mt-1"
-          hide-delimiters
+
           interval="10000"
           cycle
+          hide-delimiters
           height="250"
           :show-arrows="activeGames.length > playersPerSlide"
         >

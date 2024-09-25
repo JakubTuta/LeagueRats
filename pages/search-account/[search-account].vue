@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { selectRegions } from '~/helpers/regions';
-import type { IAccount } from '~/models/account';
+import { selectRegions } from '~/helpers/regions'
+import type { IAccount } from '~/models/account'
 
 const route = useRoute()
 

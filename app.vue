@@ -24,8 +24,7 @@ onMounted(() => {
 
 <style scoped>
 .bg-image {
-  background-image: url('~/assets/backgrounds/bg1.jpg');
-  background-size: 100% 1250px;
+  background-image: url('~/assets/backgrounds/lec_bg2.jpg');
   background-position: top;
   background-repeat: no-repeat;
 }

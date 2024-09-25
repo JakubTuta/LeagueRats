@@ -36,6 +36,9 @@ watch(account, () => {
 }, { immediate: true })
 
 async function getMatchIds(count: number) {
+  if (!account.value)
+    return []
+
   const requestQueueType = queueTypes[selectedTab.value]
 
   let lastLoadedMatchDate = new Date().getTime()
@@ -119,7 +122,7 @@ async function getMatchHistory() {
     </v-tab>
   </v-tabs>
 
-  <v-card v-if="!matchHistoryPerRegion[selectedTab].length && loading">
+  <v-card v-if="!matchHistoryPerRegion[selectedTab]?.length && loading">
     <v-skeleton-loader
       type="card"
       width="90%"

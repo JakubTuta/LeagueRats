@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import type { IAccount } from '~/models/account';
-import type { IActiveGame } from '~/models/activeGame';
+import { useDisplay } from 'vuetify'
+import type { IAccount } from '~/models/account'
+import type { IActiveGame } from '~/models/activeGame'
 
 const props = defineProps<{
   currentGame: IActiveGame | null
