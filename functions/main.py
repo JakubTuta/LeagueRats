@@ -525,7 +525,7 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:03")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:05")
 def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     try:
         scheduled_functions.update_pro_accounts("LEC")
@@ -533,7 +533,7 @@ def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         print(f"Error occurred: {str(e)}")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:10")
 def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     try:
         scheduled_functions.update_pro_accounts("LCS")
@@ -541,7 +541,7 @@ def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         print(f"Error occurred: {str(e)}")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:09")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:15")
 def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     try:
         scheduled_functions.update_pro_accounts("LCK")
@@ -549,7 +549,7 @@ def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
         print(f"Error occurred: {str(e)}")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:12")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:20")
 def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
     try:
         scheduled_functions.update_player_game_names()

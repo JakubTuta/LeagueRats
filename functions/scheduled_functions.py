@@ -1,4 +1,4 @@
-import datetime
+import time
 
 import requests
 import src.firestore_functions as firestore_functions
@@ -48,23 +48,23 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
 
 def update_pro_accounts(region) -> None:
     for team in regions.teams_per_region[region]:
-        players = firestore_functions.get_pro_players(region, team)
+        player_documents = firestore_functions.get_pro_player_documents(region, team)
 
-        for player in players:
-            player_data = player.to_dict()
+        for player_document in player_documents:
+            database_player_data = player_document.to_dict()
 
-            account_data = firestore_functions._get_account_from_firestore(
-                player_data["region"], puuid=player_data["puuid"]
+            api_player_data = firestore_functions._get_account_from_firestore(
+                database_player_data["region"], puuid=database_player_data["puuid"]
             )
 
-            if (
-                account_data["gameName"] != player_data["gameName"]
-                or account_data["tagLine"] != player_data["tagLine"]
+            if any(
+                database_player_data[key] != api_player_data[key]
+                for key in api_player_data
+                if key in database_player_data
             ):
-                player_data["gameName"] = account_data["gameName"]
-                player_data["tagLine"] = account_data["tagLine"]
+                player_document.reference.update(api_player_data)
 
-                player.reference.update(player_data)
+            time.sleep(1)
 
 
 def update_player_game_names() -> None:

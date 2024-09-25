@@ -294,7 +294,9 @@ function getPlayerRoleIcon(player: { role: string }) {
             <v-list-item
               class="my-2"
               :ripple="false"
-              :to="`/account/${player.region}/${player.gameName}-${player.tagLine}`"
+              :to="player.region && player.gameName && player.tagLine
+                ? `/account/${player.region}/${player.gameName}-${player.tagLine}`
+                : ''"
               lines="two"
             >
               <template #prepend>
