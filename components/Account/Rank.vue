@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ILeagueEntry } from '~/models/leagueEntry'
+import type { ILeagueEntry } from '~/models/leagueEntry';
 
 const props = defineProps<{
   leagueEntries: ILeagueEntry[]
@@ -51,8 +51,7 @@ watch(soloQueue, (value) => {
   if (!value)
     return
 
-  if (!rankIcons.value[value.tier.toLowerCase()])
-    storageStore.getRankIcon(value.tier.toLowerCase())
+  storageStore.getRankIcon(value.tier.toLowerCase())
 })
 
 const flexQueue = computed(() => {

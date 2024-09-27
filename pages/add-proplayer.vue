@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { collection, doc, setDoc } from 'firebase/firestore'
-import { proRegions, teamPerRegion } from '~/helpers/regions'
-import { useFirebase } from '~/helpers/useFirebase'
+import { collection, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
+import { proRegions, teamPerRegion } from '~/helpers/regions';
+import { useFirebase } from '~/helpers/useFirebase';
 
 const { firestore } = useFirebase()
 
@@ -77,7 +77,7 @@ watch(password, (value) => {
 
 //       querySnapshot.forEach((document) => {
 //         const docRef = doc(collectionRef, document.id)
-//         const docData = mapIProAccount(document.data())
+//         const docData = mapIProPlayer(document.data())
 
 //         deleteDoc(docRef)
 //         setDoc(doc(collectionRef, docRef.id.toLowerCase()), docData)
@@ -85,6 +85,31 @@ watch(password, (value) => {
 //     })
 //   })
 // }
+
+function puuidToArray() {
+  proRegions.forEach((region) => {
+    teamPerRegion[region].forEach(async (team) => {
+      const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
+      const querySnapshot = await getDocs(collectionRef)
+
+      querySnapshot.forEach((document) => {
+        const docRef = doc(collectionRef, document.id)
+
+        deleteDoc(docRef)
+
+        const docData = document.data()
+        const newDocData = {
+          player: docData.player,
+          region: docData.region,
+          role: docData.role,
+          team: docData.team,
+          puuid: [docData.puuid],
+        }
+        setDoc(doc(collectionRef, docRef.id), newDocData)
+      })
+    })
+  })
+}
 </script>
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
@@ -155,19 +180,9 @@ watch(password, (value) => {
         Add
       </v-btn>
 
-      <!--
-        <v-btn @click="changeNames">
-        Change names
-        </v-btn>
-      -->
-
-      <!--
-        <v-btn
-        @click="addTeams"
-        >
-        Add teams
-        </v-btn>
-      -->
+      <v-btn @click="puuidToArray">
+        Function
+      </v-btn>
     </v-card-text>
   </v-card>
 </template>

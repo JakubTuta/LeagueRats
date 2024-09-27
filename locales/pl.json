@@ -136,7 +136,12 @@
   "proPlayers": {
     "loadingPlayers": "Ładowanie graczy",
     "roles": "Role",
-    "teams": "Drużyny"
+    "teams": "Drużyny",
+    "notFound": "Nie znaleziono gracza",
+    "notFoundTeam": "Nie znaleziono drużyny",
+    "accounts": "Konta",
+    "noAccounts": "Nie znaleziono żadnych kont",
+    "players": "Gracze"
   },
   "cookies": {
     "title": "Ciasteczka",

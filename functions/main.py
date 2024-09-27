@@ -470,12 +470,6 @@ def match_data(
 
         response_data = response.json()
 
-        participant_puuids = response_data["metadata"]["participants"]
-        game_region = response_data["info"]["platformId"]
-        firestore_functions.save_participants_to_firebase(
-            participant_puuids, game_region
-        )
-
         match_data = MatchData.from_dict(response_data).to_dict()
         firestore_functions.save_match_to_firebase(match_data)
 
@@ -525,43 +519,35 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:05")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:03")
 def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
-    try:
-        scheduled_functions.update_pro_accounts("LEC")
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
+    scheduled_functions.update_pro_accounts("LEC")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:10")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
 def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
-    try:
-        scheduled_functions.update_pro_accounts("LCS")
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
+    scheduled_functions.update_pro_accounts("LCS")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:15")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:09")
 def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
-    try:
-        scheduled_functions.update_pro_accounts("LCK")
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
+    scheduled_functions.update_pro_accounts("LCK")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:20")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:12")
 def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
-    try:
-        scheduled_functions.update_player_game_names()
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
+    scheduled_functions.update_player_game_names()
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="0,10,20,30,40,50 * * * *")
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
-    tier_1_teams = ["G2", "T1", "GENG", "TL"]
-    tier_2_teams = ["FNC", "C9", "HLE", "DK"]
-    tier_3_teams = ["TH", "KT", "FLY", "MAD"]
+    # tier_1_teams = ["G2", "T1", "GENG", "TL"]
+    # tier_2_teams = ["FNC", "C9", "HLE", "DK"]
+    # tier_3_teams = ["TH", "KT", "FLY", "MAD"]
+
+    tier_1_teams = ["G2", "FNC"]
+    tier_2_teams = ["MAD", "TH"]
+    tier_3_teams = []
 
     active_pro_games = []
 

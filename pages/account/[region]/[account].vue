@@ -31,7 +31,7 @@ const matchHistory = ref<any[]>([])
 const currentGame = ref<IActiveGame | null>(null)
 const championMasteries = ref<IChampionMastery[]>([])
 
-const proPlayer = ref<{ team: string, player: string, gameName: string, tagLine: string } | null>(null)
+const proPlayer = ref<{ team: string, player: string } | null>(null)
 const isShowTeamDialog = ref(false)
 const selectedTeam = ref('')
 
@@ -160,8 +160,7 @@ function handleTabData() {
 // }
 
 async function checkIfAccountIsPro() {
-  const { gameName, tagLine } = account.value || {}
-  if (!gameName || !tagLine)
+  if (!account.value?.puuid)
     return
 
   if (!proAccountNames.value) {
@@ -174,17 +173,7 @@ async function checkIfAccountIsPro() {
   if (!proRegion)
     return
 
-  const teams = proAccountNames.value[proRegion]
-  if (!teams)
-    return
-
-  for (const [teamName, players] of Object.entries(teams)) {
-    const foundPlayer = players.find(player => player.gameName === gameName && player.tagLine === tagLine)
-    if (foundPlayer) {
-      proPlayer.value = { team: teamName, ...foundPlayer }
-      break
-    }
-  }
+  proPlayer.value = proAccountNames.value[account.value.puuid] || null
 
   if (!proPlayer.value)
     return
@@ -219,11 +208,6 @@ async function findChampions() {
   championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid, region.value)
   tabLoading.value = false
 }
-
-function showProTeam(team: string) {
-  isShowTeamDialog.value = true
-  selectedTeam.value = team
-}
 </script>
 
 <template>
@@ -257,13 +241,13 @@ function showProTeam(team: string) {
           v-if="proPlayer"
           class="text-subtitle-1 mb-3"
         >
-          <span
+          <NuxtLink
             class="text-blue"
-            style="cursor: pointer;"
-            @click="showProTeam(proPlayer.team)"
+            style="cursor: pointer; text-decoration: none; color: inherit;"
+            :to="`/team/${proPlayer.team}`"
           >
             {{ `[${proPlayer.team}]` }}
-          </span>
+          </NuxtLink>
 
           {{ proPlayer.player }}
         </p>

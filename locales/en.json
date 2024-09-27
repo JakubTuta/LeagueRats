@@ -136,7 +136,12 @@
   "proPlayers": {
     "loadingPlayers": "Loading players",
     "roles": "Roles",
-    "teams": "Teams"
+    "teams": "Teams",
+    "notFound": "Player not found",
+    "notFoundTeam": "Team not found",
+    "accounts": "Accounts",
+    "noAccounts": "No accounts found",
+    "players": "Players"
   },
   "cookies": {
     "title": "Cookies",

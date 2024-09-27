@@ -56,9 +56,24 @@ const shuffledGames = computed(() => {
   return copiedArray
 })
 
+function findProPlayer(game: IProActiveGame) {
+  return game.game.participants.find(participant => game.player.puuid.includes(participant.puuid))!
+}
+
 const splitProGames = computed(() => {
   if (!activeGames.value)
     return []
+
+  activeGames.value.forEach((game) => {
+    const player = findProPlayer(game)
+
+    const [gameName, tagLine] = player.riotId.split('#')
+
+    // @ts-expect-error added fields
+    game.player.gameName = gameName
+    // @ts-expect-error added fields
+    game.player.tagLine = tagLine
+  })
 
   const result = []
   let i = 0
@@ -128,7 +143,7 @@ function getIcons() {
 }
 
 function findPlayerParticipant(game: IProActiveGame) {
-  return game.game.participants.find(participant => participant.puuid === game.player.puuid)!
+  return game.game.participants.find(participant => game.player.puuid.includes(participant.puuid))!
 }
 
 function regionItemsProps(item: any) {
@@ -210,6 +225,11 @@ function getNextUpdateTIme() {
   const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
 
   refreshTime.value = `${minutesDiff}:${secondsDiff}`
+}
+
+function goToPlayerAccount(game: IProActiveGame) {
+  // @ts-expect-error added fields
+  return `/account/${game.player.region}/${game.player.gameName}-${game.player.tagLine}`
 }
 </script>
 
@@ -358,7 +378,7 @@ function getNextUpdateTIme() {
                   align="center"
                   style="height: 250px"
                   :ripple="false"
-                  :to="`/account/${game.player.region}/${game.player.gameName}-${game.player.tagLine}`"
+                  :to="goToPlayerAccount(game)"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
                     <div>
@@ -396,9 +416,9 @@ function getNextUpdateTIme() {
                       </p>
 
                       <p>
-                        {{ game.player.gameName }}
+                        {{ game.player?.gameName || '' }}
                         <span class="text-gray">
-                          {{ ` #${game.player.tagLine}` }}
+                          {{ ` #${game.player?.tagLine || ''}` }}
                         </span>
                       </p>
                     </div>

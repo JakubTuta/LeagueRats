@@ -8,12 +8,9 @@ import { mapProActiveGame } from '~/models/proActiveGame'
 import { type IProPlayer, mapIProPlayer } from '~/models/proPlayer'
 
 interface IProAccountNames {
-  [region: string]: {
-    [team: string]: {
-      player: string
-      gameName: string
-      tagLine: string
-    }[]
+  [puuid: string]: {
+    player: string
+    team: string
   }
 }
 
@@ -100,6 +97,27 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     return []
   }
 
+  const returnProPlayersFromTeam = async (region: string, team: string) => {
+    if (playersPerTeam[team]) {
+      return playersPerTeam[team]
+    }
+
+    try {
+      const q = query(collection(firestore, `pro_players/${region}/${team}`))
+      const querySnapshot = await getDocs(q)
+
+      const playerData = querySnapshot.docs.map(docData => mapIProPlayer(docData.data()))
+      playersPerTeam[team] = playerData
+
+      return playerData
+    }
+    catch (error) {
+      console.error(error)
+    }
+
+    return []
+  }
+
   const returnPlayersFromTeam = async (region: string, team: string) => {
     if (playersPerTeam[team]) {
       return playersPerTeam[team]
@@ -119,6 +137,34 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     }
 
     return []
+  }
+
+  const getPlayerFromTeam = async (team: string, name: string) => {
+    const playerName = name.toLowerCase()
+
+    if (playersPerTeam[team]) {
+      return playersPerTeam[team].find(player => player.player.toLowerCase() === playerName) || null
+    }
+
+    const region = proRegions.find(region => teamPerRegion[region].includes(team))
+
+    if (!region)
+      return null
+
+    try {
+      const q = query(collection(firestore, `pro_players/${region}/${team}`))
+      const querySnapshot = await getDocs(q)
+
+      const playerData = querySnapshot.docs.map(docData => mapIProPlayer(docData.data()))
+      playersPerTeam[team] = playerData
+
+      return playerData.find(player => player.player.toLowerCase() === playerName) || null
+    }
+    catch (error) {
+      console.error(error)
+    }
+
+    return null
   }
 
   const getPlayerFromName = async (name: string): Promise<IProPlayer | null> => {
@@ -167,7 +213,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
 
   const getProAccountNames = async () => {
     try {
-      const document = doc(firestore, 'pro_players', 'game_names')
+      const document = doc(firestore, 'pro_players', 'account_names')
       const docSnap = await getDoc(document)
 
       if (docSnap.exists()) {
@@ -188,6 +234,8 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     getProPlayersForRegion,
     getProPlayersFromTeam,
     returnPlayersFromTeam,
+    getPlayerFromTeam,
+    returnProPlayersFromTeam,
     getPlayerFromName,
     getActiveProGamesFromDatabase,
     getProAccountNames,

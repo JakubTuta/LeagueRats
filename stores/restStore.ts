@@ -140,8 +140,6 @@ export const useRestStore = defineStore('rest', () => {
 
   const getLeagueEntryBySummonerId = async (summonerId: string, region: string): Promise<ILeagueEntry[]> => {
     const response = await getFirebaseFunction(`league_entry/${region}/${summonerId}`)
-    console.log(region)
-    console.log(summonerId)
 
     if (!isResponseOk(response))
       return []

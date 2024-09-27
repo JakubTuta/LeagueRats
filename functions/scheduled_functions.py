@@ -1,5 +1,3 @@
-import time
-
 import requests
 import src.firestore_functions as firestore_functions
 import src.regions as regions
@@ -47,57 +45,59 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
 
 
 def update_pro_accounts(region) -> None:
-    for team in regions.teams_per_region[region]:
+    teams = regions.teams_per_region[region]
+
+    for team in teams:
         player_documents = firestore_functions.get_pro_player_documents(region, team)
 
         for player_document in player_documents:
-            database_player_data = player_document.to_dict()
+            player_document_data = player_document.to_dict()
 
-            api_player_data = firestore_functions._get_account_from_firestore(
-                database_player_data["region"], puuid=database_player_data["puuid"]
-            )
+            for puuid in player_document_data["puuid"]:
+                if not (
+                    api_player_data := firestore_functions.get_api_account(
+                        player_document_data["region"], puuid=puuid
+                    )
+                ):
+                    continue
 
-            if any(
-                database_player_data[key] != api_player_data[key]
-                for key in api_player_data
-                if key in database_player_data
-            ):
-                player_document.reference.update(api_player_data)
-
-            time.sleep(1)
+                if account := firestore_functions.get_account_from_firestore(
+                    puuid=puuid
+                ):
+                    if any(
+                        api_player_data[key] != account[key]
+                        for key in api_player_data
+                        if key in account
+                    ):
+                        account.reference.update(api_player_data)
+                else:
+                    firestore_functions.save_documents_to_collection(
+                        "accounts", [api_player_data]
+                    )
 
 
 def update_player_game_names() -> None:
-    firestore_functions.delete_document_from_collection("pro_players", "game_names")
+    firestore_functions.delete_document_from_collection("pro_players", "account_names")
 
     document_data = {}
 
-    for region in regions.pro_regions:
+    for region in ["LEC", "LCS", "LCK"]:
         teams_in_region = regions.teams_per_region[region]
 
-        document_data[region] = {}
-
         for team in teams_in_region:
-            document_data[region][team] = []
-
             player_docs = firestore_functions.get_pro_player_documents(region, team)
             player_data = [doc.to_dict() for doc in player_docs]
 
             for player in player_data:
-                player_name = player["player"]
-                game_name = player["gameName"]
-                tag_line = player["tagLine"]
-
-                document_data[region][team].append(
-                    {
-                        "player": player_name,
-                        "gameName": game_name,
-                        "tagLine": tag_line,
-                    }
-                )
+                for puuid in player["puuid"]:
+                    if firestore_functions.get_account_from_firestore(puuid=puuid):
+                        document_data[puuid] = {
+                            "player": player["player"],
+                            "team": team,
+                        }
 
     firestore_functions.set_document_in_collection(
         "pro_players",
-        "game_names",
+        "account_names",
         document_data,
     )

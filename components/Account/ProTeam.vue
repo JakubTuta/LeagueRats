@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { teamPerRegion } from '~/helpers/regions'
-import type { IProPlayer } from '~/models/proPlayer'
+import { teamPerRegion } from '~/helpers/regions';
+import type { IProPlayer } from '~/models/proPlayer';
 
 const props = defineProps<{
   team: string
@@ -76,15 +76,10 @@ async function findTeamMembers() {
             v-for="player in players"
             :key="player.player"
             lines="two"
-            :to="`/account/${player.region}/${player.gameName}-${player.tagLine}`"
           >
-            <v-list-item-title>
+            <v-list-item-title class="ml-2">
               {{ player.player }}
             </v-list-item-title>
-
-            <v-list-item-subtitle class="mt-1">
-              {{ player.gameName }} #{{ player.tagLine }}
-            </v-list-item-subtitle>
 
             <template #prepend>
               <v-avatar size="100">

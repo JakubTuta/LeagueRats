@@ -293,11 +293,8 @@ function getPlayerRoleIcon(player: { role: string }) {
           >
             <v-list-item
               class="my-2"
-              :ripple="false"
-              :to="player.region && player.gameName && player.tagLine
-                ? `/account/${player.region}/${player.gameName}-${player.tagLine}`
-                : ''"
-              lines="two"
+              lines="three"
+              :to="`/player/${player.team}/${player.player}`"
             >
               <template #prepend>
                 <v-avatar
@@ -348,19 +345,6 @@ function getPlayerRoleIcon(player: { role: string }) {
                   <p class="text-subtitle-2 text-gray">
                     {{ teamFullName[player.team] }}
                   </p>
-                </v-col>
-
-                <v-col
-                  v-if="player.gameName && player.tagLine"
-                  cols="12"
-                  sm="7"
-                  md="8"
-                >
-                  {{ player.gameName }}
-
-                  <span class="text-subtitle-2 text-gray">
-                    {{ ` #${player.tagLine}` }}
-                  </span>
                 </v-col>
               </v-row>
             </v-list-item>

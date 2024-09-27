@@ -20,8 +20,6 @@ export const useStorageStore = defineStore('storage', () => {
       return
     }
 
-    // console.log(championId)
-
     const championName = championIds[championId]
 
     const championsRef = storageRef(storage, `champions/icons/${championName}.png`)

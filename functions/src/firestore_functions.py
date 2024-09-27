@@ -7,52 +7,13 @@ import src.regions as regions
 from google.cloud.firestore_v1.base_query import FieldFilter
 from src.models.match_history import MatchData
 
-""" Account
-{
-    "gameName": str,
-    "tagLine": str,
-    "puuid": str,
-    "region": str,
-    "accountId": str,
-    "id": str,   
-}
-"""
 
-
-"""Rune data
-[
-    {
-        "id": int,
-        "key": str,
-        "icon": str,
-        "name": str,
-        "slots": [
-            {
-                "runes": [
-                    {
-                        "id": int,
-                        "key": str,
-                        "icon": str,
-                        "name": str,
-                        "shortDesc": str,
-                        "longDesc": str,
-                    }
-                ]
-            }
-        ]
-    }
-]
-"""
-
-
-def _get_account_from_firestore(region, puuid=None, game_name=None, tag_line=None):
+def get_account_from_firestore(puuid=None, region=None, game_name=None, tag_line=None):
     if puuid:
-        query = (
-            firebase_init.collections["accounts"]
-            .where(filter=FieldFilter("puuid", "==", puuid))
-            .where(filter=FieldFilter("region", "==", region))
+        query = firebase_init.collections["accounts"].where(
+            filter=FieldFilter("puuid", "==", puuid)
         )
-    elif game_name and tag_line:
+    elif game_name and tag_line and region:
         query = (
             firebase_init.collections["accounts"]
             .where(
@@ -64,9 +25,10 @@ def _get_account_from_firestore(region, puuid=None, game_name=None, tag_line=Non
     else:
         return None
 
-    docs = list(query.stream())
+    docs = query.stream()
+    doc = next(docs, None)
 
-    return docs[0].to_dict() if len(docs) else None
+    return doc.to_dict() if doc else None
 
 
 def _get_account_from_region(region, puuid=None, game_name=None, tag_line=None):
@@ -110,9 +72,38 @@ def _get_summoner_from_region(region, puuid):
         return None
 
 
-def get_account(regions, my_region, game_name, tag):
-    if account := _get_account_from_firestore(
-        my_region, game_name=game_name, tag_line=tag
+def get_api_account(region, puuid=None, game_name=None, tag_line=None):
+    if not (
+        account_details := _get_account_from_region(
+            region, puuid=puuid, game_name=game_name, tag_line=tag_line
+        )
+    ):
+        return None
+
+    if not (
+        summoner_details := _get_summoner_from_region(
+            region, account_details.get("puuid")
+        )
+    ):
+        return None
+
+    account_model = {
+        "gameName": account_details.get("gameName"),
+        "tagLine": account_details.get("tagLine"),
+        "puuid": account_details.get("puuid"),
+        "region": region,
+        "accountId": summoner_details.get("accountId"),
+        "id": summoner_details.get("id"),
+        "profileIconId": summoner_details.get("profileIconId"),
+        "summonerLevel": summoner_details.get("summonerLevel"),
+    }
+
+    return account_model
+
+
+def _save_account_from_region(regions, my_region, game_name, tag):
+    if account := get_account_from_firestore(
+        region=my_region, game_name=game_name, tag_line=tag
     ):
         regions[my_region] = account
 
@@ -156,7 +147,7 @@ def get_accounts_from_all_regions(game_name, tag):
         account_per_region[region] = None
 
         new_thread = threading.Thread(
-            target=get_account,
+            target=_save_account_from_region,
             args=(account_per_region, region, game_name, tag),
         )
         threads.append(new_thread)
@@ -166,52 +157,6 @@ def get_accounts_from_all_regions(game_name, tag):
         thread.join()
 
     return account_per_region
-
-
-def save_participant_to_firebase(region, puuid=None, game_name=None, tag_line=None):
-    if account := _get_account_from_firestore(
-        region, puuid=puuid, game_name=game_name, tag_line=tag_line
-    ):
-        return account
-
-    if not (
-        account_details := _get_account_from_region(
-            region, puuid=puuid, game_name=game_name, tag_line=tag_line
-        )
-    ):
-        return
-
-    if not (
-        summoner_details := _get_summoner_from_region(
-            region, account_details.get("puuid")
-        )
-    ):
-        return
-
-    account_model = {
-        "gameName": account_details.get("gameName"),
-        "tagLine": account_details.get("tagLine"),
-        "puuid": account_details.get("puuid"),
-        "region": region,
-        "accountId": summoner_details.get("accountId"),
-        "id": summoner_details.get("id"),
-        "profileIconId": summoner_details.get("profileIconId"),
-        "summonerLevel": summoner_details.get("summonerLevel"),
-    }
-
-    firebase_init.collections["accounts"].add(account_model)
-
-    regions[region] = account_model
-
-
-def save_participants_to_firebase(puuids, game_region):
-    def func():
-        request_region = regions.api_region_2_to_select_region[game_region]
-
-        for puuid in puuids:
-            save_participant_to_firebase(puuid, request_region)
-
-    threading.Thread(target=func).start()
 
 
 def save_current_version(version):
@@ -301,13 +246,14 @@ def _get_active_game(region, puuid):
 
 
 def _append_active_game(games, player):
-    game = _get_active_game(player["region"], player["puuid"])
+    for puuid in player["puuid"]:
+        if game := _get_active_game(player["region"], puuid):
+            games.append((player, game))
 
-    if game:
-        games.append((player, game))
+            return
 
 
-def get_pro_games_for_team(active_games, team):
+def _get_pro_games_for_team(active_games, team):
     threads = []
 
     region = _find_pro_region_for_team(team)
@@ -333,7 +279,7 @@ def get_active_games_per_team(teams):
 
     for team in teams:
         thread = threading.Thread(
-            target=get_pro_games_for_team, args=(active_games, team)
+            target=_get_pro_games_for_team, args=(active_games, team)
         )
         threads.append(thread)
         thread.start()
