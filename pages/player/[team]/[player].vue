@@ -164,7 +164,7 @@ function getPlayerRoleIcon(player: { role: string }) {
 
           <v-list
             v-else
-            lines="two"
+            lines="three"
           >
             <v-list-item
               v-for="account in proAccounts"

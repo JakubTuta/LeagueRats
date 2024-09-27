@@ -132,13 +132,12 @@ function getPlayerRoleIcon(player: { role: string }) {
 
           <v-list
             v-else
-            lines="two"
+            lines="three"
           >
             <v-list-item
               v-for="player in players"
               :key="player.player"
               class="my-2"
-              lines="three"
               :to="`/player/${player.team}/${player.player}`"
             >
               <template #prepend>
