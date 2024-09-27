@@ -118,9 +118,9 @@ function getPlayerRoleIcon(player: { role: string }) {
           {{ teamFullName[teamName] }}
         </v-card-title>
 
-        <v-card-text>
-          <span class="text-h5 ml-6">
-            {{ $t('proPlayers.accounts') }}
+        <v-card-text class="mt-4">
+          <span class="text-h5 ml-5">
+            {{ $t('proPlayers.players') }}
           </span>
 
           <p
@@ -132,7 +132,6 @@ function getPlayerRoleIcon(player: { role: string }) {
 
           <v-list
             v-else
-            class="mt-4"
             lines="two"
           >
             <v-list-item
