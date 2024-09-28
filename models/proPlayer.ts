@@ -1,7 +1,7 @@
 export interface IProPlayer {
   player: string
   puuid: string[]
-  region: 'KR' | 'EUW' | 'NA' | 'CN'
+  region: 'LCK' | 'LEC' | 'LCS' | 'LPL'
   role: 'TOP' | 'JNG' | 'MID' | 'ADC' | 'SUP'
   team: string
 }

@@ -95,6 +95,7 @@ api_region_2_to_server_region = {
 }
 
 pro_regions = ["LCK", "LPL", "LEC", "LCS"]
+
 teams_per_region = {
     "LCK": ["T1", "GENG", "DK", "DRX", "HLE", "KDF", "KT", "FOX", "BRO", "NS"],
     "LPL": [
@@ -118,4 +119,18 @@ teams_per_region = {
     ],
     "LCS": ["TL", "C9", "FLY", "DIG", "100", "NRG", "SR", "IMT"],
     "LEC": ["FNC", "G2", "GX", "KC", "MAD", "RGE", "SK", "BDS", "TH", "VIT"],
+}
+
+pro_region_to_api_region = {
+    "LCK": "KR",
+    "LPL": "CN",
+    "LCS": "NA",
+    "LEC": "EUW",
+}
+
+pro_region_to_api_region_2 = {
+    "LCK": "KR",
+    "LPL": "CN",
+    "LCS": "NA1",
+    "LEC": "EUW1",
 }

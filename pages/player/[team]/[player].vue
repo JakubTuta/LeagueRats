@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import topIcon from '~/assets/roles/top.png'
 // @ts-expect-error correct path
@@ -9,15 +10,18 @@ import midIcon from '~/assets/roles/mid.png'
 import adcIcon from '~/assets/roles/adc.png'
 // @ts-expect-error correct path
 import supIcon from '~/assets/roles/sup.png'
-import { selectRegionToProRegion } from '~/helpers/regions'
+import { queueTypes } from '~/helpers/queueTypes'
+import { proRegionToSelectRegion } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import type { ILeagueEntry } from '~/models/leagueEntry'
+import type { IMatchData } from '~/models/matchData'
 import type { IProPlayer } from '~/models/proPlayer'
 
 const route = useRoute()
+const { smAndDown } = useDisplay()
 
 const storageStore = useStorageStore()
-const { teamImages, rankIcons } = storeToRefs(storageStore)
+const { teamImages, rankIcons, championIcons } = storeToRefs(storageStore)
 
 const proStore = useProPlayerStore()
 const accountStore = useAccountStore()
@@ -26,6 +30,7 @@ const restStore = useRestStore()
 const player = ref<IProPlayer | null>(null)
 const loading = ref(false)
 const proAccounts = ref<{ account: IAccount, leagueEntry: ILeagueEntry | null }[]>([])
+const last10Games = ref<Record<string, IMatchData[]>>({})
 
 onMounted(async () => {
   loading.value = true
@@ -36,8 +41,12 @@ onMounted(async () => {
   player.value = await proStore.getPlayerFromTeam(team, playerName)
 
   if (player.value) {
-    const promises = player.value.puuid.map(async puuid => await accountStore.getAccount(puuid, player.value!.region, false))
+    const region = proRegionToSelectRegion[player.value.region]
+
+    const promises = player.value.puuid.map(async puuid => await accountStore.getAccount(puuid, region, false))
     const accounts = (await Promise.all(promises)).filter(account => account !== null) as IAccount[]
+
+    accounts.forEach(account => getlast10Games(account))
 
     const leagueEntryPromises = accounts.map(async account => await restStore.getLeagueEntryBySummonerId(account.id, account.region))
     const leagueEntries = await Promise.all(leagueEntryPromises)
@@ -51,14 +60,50 @@ onMounted(async () => {
       return { account, leagueEntry }
     })
 
-    const proRegion = selectRegionToProRegion[player.value.region]
-
-    if (proRegion)
-      storageStore.getTeamImages(proRegion, team)
+    storageStore.getTeamImages(player.value.region, team)
   }
 
   loading.value = false
 })
+
+const groupedAccounts = computed(() => {
+  const regions = proAccounts.value.reduce((acc, account) => {
+    if (!acc[account.account.region])
+      acc[account.account.region] = []
+
+    acc[account.account.region].push(account)
+
+    return acc
+  }, {} as Record<string, { account: IAccount, leagueEntry: ILeagueEntry | null }[]>)
+
+  const sortedRegions = Object.fromEntries(
+    Object.entries(regions).sort((a, b) => b[1].length - a[1].length),
+  )
+
+  return sortedRegions
+})
+
+async function getlast10Games(account: IAccount) {
+  const requestQueueType = queueTypes.SOLOQ
+
+  const optionalKeys = {
+    count: 10,
+    queue: requestQueueType.id,
+    type: requestQueueType.name,
+    startTime: Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000),
+  }
+
+  const matchIds = await restStore.getAccountMatchHistory(account, optionalKeys)
+
+  const matchData = (await Promise.all(matchIds.map(async matchId => await restStore.getMatchData(matchId))))
+    .filter(item => item !== null)
+    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
+
+  last10Games.value[account.puuid] = matchData
+
+  const playerChampions = matchData.map(match => match.info.participants.find(participant => participant.puuid === account.puuid)!.championId)
+  playerChampions.forEach(championId => storageStore.getChampionIcon(championId))
+}
 
 function romanToNumber(roman: string) {
   switch (roman) {
@@ -90,6 +135,12 @@ function getPlayerRoleIcon(player: { role: string }) {
     default:
       return ''
   }
+}
+
+function isWin(game: IMatchData, account: IAccount) {
+  const participant = game.info.participants.find(participant => participant.puuid === account.puuid)
+
+  return participant!.win
 }
 </script>
 
@@ -163,12 +214,23 @@ function getPlayerRoleIcon(player: { role: string }) {
           </p>
 
           <v-list
+            v-for="([
+              region,
+              accounts,
+            ]) in Object.entries(groupedAccounts)"
             v-else
+            :key="region"
             lines="three"
+            class="my-4"
           >
+            <span class="text-h6 ml-8">
+              {{ region }}
+            </span>
+
             <v-list-item
-              v-for="account in proAccounts"
+              v-for="account in accounts"
               :key="account.account.puuid"
+              justify="center"
               :to="`/account/${account.account.region}/${account.account.gameName}-${account.account.tagLine}`"
             >
               <template
@@ -209,6 +271,29 @@ function getPlayerRoleIcon(player: { role: string }) {
                   {{ ` #${account.account.tagLine}` }}
                 </span>
               </v-list-item-title>
+
+              <template
+                v-if="!smAndDown"
+                #append
+              >
+                <v-card
+                  v-for="game in last10Games[account.account.puuid]"
+                  :key="game.metadata.matchId"
+                  class="mx-2"
+                  :color="isWin(game, account.account)
+                    ? 'league-blue'
+                    : 'league-red'"
+                >
+                  <v-avatar
+                    size="50"
+                  >
+                    <v-img
+                      :src="championIcons[game.info.participants.find(participant => participant.puuid === account.account.puuid)!.championId]"
+                      lazy-src="~/assets/default.png"
+                    />
+                  </v-avatar>
+                </v-card>
+              </template>
             </v-list-item>
           </v-list>
         </v-card-text>

@@ -18,14 +18,11 @@ const accountTag = ref('')
 
 const roles = ['TOP', 'JNG', 'MID', 'ADC', 'SUP']
 
-function mapRegion() {
-  switch (region.value) {
-    case 'LCK': return 'KR'
-    case 'LPL': return 'CN'
-    case 'LCS': return 'NA'
-    case 'LEC': return 'EUW'
-    default: return null
-  }
+const mappedRegions: { [key: string]: string } = {
+  EUW: 'LEC',
+  NA: 'LCS',
+  KR: 'LCK',
+  CN: 'LPL',
 }
 
 function add() {
@@ -86,7 +83,32 @@ watch(password, (value) => {
 //   })
 // }
 
-function puuidToArray() {
+// function puuidToArray() {
+//   proRegions.forEach((region) => {
+//     teamPerRegion[region].forEach(async (team) => {
+//       const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
+//       const querySnapshot = await getDocs(collectionRef)
+
+//       querySnapshot.forEach((document) => {
+//         const docRef = doc(collectionRef, document.id)
+
+//         deleteDoc(docRef)
+
+//         const docData = document.data()
+//         const newDocData = {
+//           player: docData.player,
+//           region: docData.region,
+//           role: docData.role,
+//           team: docData.team,
+//           puuid: [docData.puuid],
+//         }
+//         setDoc(doc(collectionRef, docRef.id), newDocData)
+//       })
+//     })
+//   })
+// }
+
+function mapRegion() {
   proRegions.forEach((region) => {
     teamPerRegion[region].forEach(async (team) => {
       const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
@@ -98,14 +120,8 @@ function puuidToArray() {
         deleteDoc(docRef)
 
         const docData = document.data()
-        const newDocData = {
-          player: docData.player,
-          region: docData.region,
-          role: docData.role,
-          team: docData.team,
-          puuid: [docData.puuid],
-        }
-        setDoc(doc(collectionRef, docRef.id), newDocData)
+        docData.region = mappedRegions[docData.region]
+        setDoc(doc(collectionRef, docRef.id), docData)
       })
     })
   })
@@ -180,7 +196,7 @@ function puuidToArray() {
         Add
       </v-btn>
 
-      <v-btn @click="puuidToArray">
+      <v-btn @click="mapRegion">
         Function
       </v-btn>
     </v-card-text>
