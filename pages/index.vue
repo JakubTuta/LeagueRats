@@ -2,7 +2,7 @@
 import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import logo from '~/assets/logo.png'
-import { selectRegions, teamPerRegion } from '~/helpers/regions'
+import { proRegionToSelectRegion, selectRegions, teamPerRegion } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
 import type { IProActiveGame } from '~/models/proActiveGame'
 
@@ -228,8 +228,10 @@ function getNextUpdateTIme() {
 }
 
 function goToPlayerAccount(game: IProActiveGame) {
+  const region = proRegionToSelectRegion[game.player.region]
+
   // @ts-expect-error added fields
-  return `/account/${game.player.region}/${game.player.gameName}-${game.player.tagLine}`
+  return `/account/${region}/${game.player.gameName}-${game.player.tagLine}`
 }
 </script>
 

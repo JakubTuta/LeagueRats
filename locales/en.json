@@ -135,6 +135,7 @@
   },
   "proPlayers": {
     "loadingPlayers": "Loading players",
+    "loadingTeams": "Loading teams",
     "roles": "Roles",
     "teams": "Teams",
     "notFound": "Player not found",

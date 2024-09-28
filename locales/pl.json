@@ -135,6 +135,7 @@
   },
   "proPlayers": {
     "loadingPlayers": "Ładowanie graczy",
+    "loadingTeams": "Ładowanie drużyn",
     "roles": "Role",
     "teams": "Drużyny",
     "notFound": "Nie znaleziono gracza",

@@ -21,18 +21,25 @@ import supIcon from '~/assets/roles/sup.png'
 import { teamFullName, teamPerRegion } from '~/helpers/regions'
 
 const { mdAndUp, sm, height } = useDisplay()
+const { t } = useI18n()
 
 const proStore = useProPlayerStore()
 const { players } = storeToRefs(proStore)
 
 const storageStore = useStorageStore()
-const { teamImages } = storeToRefs(storageStore)
+const { teamImages, teamLogos } = storeToRefs(storageStore)
 
 const loading = ref(false)
 const selectedRegion = ref('lec')
 const filterRoles = ref(['TOP', 'JNG', 'MID', 'ADC', 'SUP'])
 const filterTeams = ref<string[]>([])
 const savedTeams = ref<string[]>([])
+const selectedTab = ref('teams')
+
+const tabs = computed(() => [
+  { title: t('proPlayers.teams'), value: 'teams' },
+  { title: t('proPlayers.players'), value: 'players' },
+])
 
 const mapRole: { [key: string]: number } = {
   TOP: 1,
@@ -80,23 +87,40 @@ const mapTeamItems = computed(() => {
     }))
 })
 
-watch(selectedRegion, (region) => {
-  loading.value = true
-  const upperCaseRegion = region.toUpperCase()
-
+function getPlayers(region: string) {
   proStore.resetPlayers()
 
-  filterTeams.value = teamPerRegion[upperCaseRegion].sort((a, b) => a.localeCompare(b))
+  filterTeams.value = teamPerRegion[region].sort((a, b) => a.localeCompare(b))
   const newTeams = filterTeams.value.slice(0, 2)
   savedTeams.value = newTeams
 
   newTeams.forEach((team) => {
-    proStore.getProPlayersFromTeam(upperCaseRegion, team)
-    storageStore.getTeamImages(upperCaseRegion, team)
+    proStore.getProPlayersFromTeam(region, team)
+    storageStore.getTeamImages(region, team)
   })
+}
+
+watch(selectedRegion, (region) => {
+  loading.value = true
+
+  const upperCaseRegion = region.toUpperCase()
+
+  if (selectedTab.value === 'players') {
+    getPlayers(upperCaseRegion)
+  }
+  else {
+    const teams = teamPerRegion[upperCaseRegion]
+    teams.forEach(team => storageStore.getTeamLogo(upperCaseRegion, team))
+  }
 
   loading.value = false
 }, { immediate: true })
+
+watch(selectedTab, (newTab) => {
+  if (newTab === 'players') {
+    getPlayers(selectedRegion.value.toUpperCase())
+  }
+})
 
 watch(filterRoles, () => {
   filterRoles.value = filterRoles.value.sort((a, b) => mapRole[a] - mapRole[b])
@@ -129,26 +153,26 @@ function teamCustomFilter(_value: string, query: string, item: { title: string, 
 
 const scrollHeight = computed(() => {
   if (height.value < 800)
-    return '45vh'
+    return '40vh'
   else if (height.value < 1000)
-    return '50vh'
+    return '45vh'
   else if (height.value < 1200)
-    return '55vh'
+    return '50vh'
   else if (height.value < 1400)
-    return '60vh'
+    return '55vh'
   else if (height.value < 1600)
-    return '65vh'
+    return '60vh'
   else
-    return '70vh'
+    return '65vh'
 })
 
 const imageWidth = computed(() => {
   if (mdAndUp.value)
-    return 75
+    return 60
   else if (sm.value)
-    return 50
+    return 45
   else
-    return 25
+    return 30
 })
 
 function getPlayerRoleIcon(player: { role: string }) {
@@ -172,7 +196,7 @@ function getPlayerRoleIcon(player: { role: string }) {
 <template>
   <v-container>
     <v-card>
-      <v-card-title class="my-2">
+      <v-card-title class="mb-10 mt-2">
         <v-row>
           <v-col
             v-for="region in regions"
@@ -202,9 +226,24 @@ function getPlayerRoleIcon(player: { role: string }) {
             </v-card>
           </v-col>
         </v-row>
-      </v-card-title>
 
-      <v-spacer class="my-2" />
+        <v-tabs
+          v-model="selectedTab"
+          class="mx-4 mt-10"
+          color="primary"
+          align-tabs="center"
+          grow
+          :show-arrows="false"
+        >
+          <v-tab
+            v-for="tab in tabs"
+            :key="tab.value"
+            :value="tab.value"
+          >
+            {{ tab.title }}
+          </v-tab>
+        </v-tabs>
+      </v-card-title>
 
       <v-card-text
         v-if="loading"
@@ -215,10 +254,46 @@ function getPlayerRoleIcon(player: { role: string }) {
           class="ma-4"
         />
 
-        {{ `${$t('proPlayers.loadingPlayers')}...` }}
+        {{ `${selectedTab === 'teams'
+          ? $t('proPlayers.loadingTeams')
+          : $t('proPlayers.loadingPlayers')}...` }}
       </v-card-text>
 
-      <v-card-text v-else>
+      <v-card-text v-else-if="!loading && selectedTab === 'teams'">
+        <v-row>
+          <v-col
+            v-for="team in teamPerRegion[selectedRegion.toUpperCase()]"
+            :key="team"
+            cols="6"
+            sm="4"
+            md="3"
+            class="mb-10"
+          >
+            <v-card
+              elevation="0"
+              :to="`/team/${team}`"
+              align="center"
+            >
+              <v-avatar
+                size="150"
+                rounded="0"
+              >
+                <v-img
+                  :src="teamLogos[team]"
+                  aspect-ratio="1"
+                  cover
+                />
+              </v-avatar>
+
+              <v-card-title class="mt-1">
+                {{ teamFullName[team] }}
+              </v-card-title>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-card-text>
+
+      <v-card-text v-else-if="!loading && selectedTab === 'players'">
         <v-row>
           <v-col
             cols="12"

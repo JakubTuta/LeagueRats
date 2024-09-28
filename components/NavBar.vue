@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { selectRegions } from '~/helpers/regions'
-import { lengthRule } from '~/helpers/rules'
+import { useDisplay } from 'vuetify';
+import { selectRegions } from '~/helpers/regions';
+import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
@@ -110,7 +110,7 @@ function toggleSettings() {
       ? 'rgba(50, 50, 50, 0.85)'
       : 'rgba(200, 200, 200, 0.85)'"
     scroll-behavior="fully-hide"
-    scroll-threshold="1"
+    scroll-threshold="100"
   >
     <template
       v-if="isExtension"
