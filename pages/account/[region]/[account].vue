@@ -220,7 +220,10 @@ async function findChampions() {
       />
     </v-card>
 
-    <v-card v-else>
+    <v-card
+      v-else
+      rounded="shaped"
+    >
       <v-card-title
         align="center"
         class="text-h5 my-4"

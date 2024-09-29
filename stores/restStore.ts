@@ -205,6 +205,15 @@ export const useRestStore = defineStore('rest', () => {
     return proActiveGames
   }
 
+  const saveAccount = async (region: string, gameName: string, tagLine: string): Promise<IAccount | null> => {
+    const response = await getFirebaseFunction(`add_account/${region}/${gameName}/${tagLine}`)
+
+    if (!isResponseOk(response))
+      return null
+
+    return response.data.account as IAccount
+  }
+
   return {
     testConnection,
     getAccountDetails,
@@ -218,5 +227,6 @@ export const useRestStore = defineStore('rest', () => {
     findAccountsInAllRegions,
     getMatchData,
     getActiveProGames,
+    saveAccount,
   }
 })

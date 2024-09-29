@@ -5,7 +5,7 @@ import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
-const { mobile } = useDisplay()
+const { mobile, width } = useDisplay()
 const { t } = useI18n()
 
 const accountStore = useAccountStore()
@@ -103,12 +103,13 @@ function toggleSettings() {
 
 <template>
   <v-app-bar
+    :style="`position: fixed; top: 10px; left: 10px; width: ${width - 35}px;`"
     rounded="xl"
     flat
     extension-height="60"
     :color="isDark
-      ? 'rgba(50, 50, 50, 0.85)'
-      : 'rgba(200, 200, 200, 0.85)'"
+      ? 'rgba(50, 50, 50, 0.9)'
+      : 'rgba(200, 200, 200, 0.9)'"
     scroll-behavior="fully-hide"
     scroll-threshold="100"
   >
@@ -186,12 +187,10 @@ function toggleSettings() {
       </v-row>
     </template>
 
-    <v-img
-      src="~/assets/default.png"
-      max-height="40"
-      max-width="40"
+    <v-avatar
+      size="45"
+      image="~/assets/default.png"
       class="ml-4"
-      rounded="circle"
     />
 
     <span
@@ -224,6 +223,7 @@ function toggleSettings() {
         v-for="tab in tabs"
         :key="tab.title"
         :to="tab.to"
+        rounded="xl"
       >
         {{ tab.title }}
       </v-tab>

@@ -1,3 +1,5 @@
+import time
+
 import requests
 import src.firestore_functions as firestore_functions
 import src.regions as regions
@@ -75,6 +77,8 @@ def update_pro_accounts(region) -> None:
                         "accounts", [api_player_data]
                     )
 
+            time.sleep(0.5)
+
 
 def update_player_game_names() -> None:
     firestore_functions.delete_document_from_collection("pro_players", "account_names")
@@ -95,6 +99,8 @@ def update_player_game_names() -> None:
                             "player": player["player"],
                             "team": team,
                         }
+
+                time.sleep(0.5)
 
     firestore_functions.set_document_in_collection(
         "pro_players",

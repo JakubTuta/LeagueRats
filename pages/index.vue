@@ -41,8 +41,8 @@ onUnmounted(() => {
 
 const cardColor = computed(() => {
   return isDark.value
-    ? 'rgba(50, 50, 50, 0.85)'
-    : 'rgba(200, 200, 200, 0.85)'
+    ? 'rgba(50, 50, 50, 0.9)'
+    : 'rgba(200, 200, 200, 0.9)'
 })
 
 const shuffledGames = computed(() => {

@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { collection, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { proRegions, teamPerRegion } from '~/helpers/regions';
 import { useFirebase } from '~/helpers/useFirebase';
+import type { IAccount } from '~/models/account';
 
 const { firestore } = useFirebase()
+
+const restStore = useRestStore()
 
 const correctPassword = 'password123'
 const isCorrectPassword = ref(false)
@@ -15,34 +18,49 @@ const role = ref<string | null>(null)
 const name = ref('')
 const accountName = ref('')
 const accountTag = ref('')
+const accountRegion = ref<string | null>(null)
 
 const roles = ['TOP', 'JNG', 'MID', 'ADC', 'SUP']
 
-const mappedRegions: { [key: string]: string } = {
-  EUW: 'LEC',
-  NA: 'LCS',
-  KR: 'LCK',
-  CN: 'LPL',
-}
+const accountRegions = ['NA', 'EUW', 'KR']
 
-function add() {
+async function add() {
   if (!region.value || !team.value || !role.value || !name.value)
     return
 
   const collectionRef = collection(firestore, `pro_players/${region.value}/${team.value}`)
   const docRef = doc(collectionRef, name.value.toLowerCase())
 
-  setDoc(docRef, {
-    player: name.value,
-    gameName: accountName.value,
-    tagLine: accountTag.value,
-    region: mapRegion(),
-    role: role.value,
-    team: team.value,
-  }).catch(error => console.error(error))
+  const docData = await getDoc(docRef)
+
+  let account: IAccount | null = null
+  if (accountRegion.value && accountName.value && accountTag.value)
+    account = await restStore.saveAccount(accountRegion.value, accountName.value, accountTag.value)
+
+  if (docData.exists() && account) {
+    const newPuuids = [...docData.data().puuid]
+    if (!newPuuids.includes(account.puuid))
+      newPuuids.push(account.puuid)
+
+    updateDoc(docRef, { puuid: newPuuids })
+  }
+  else if (!docData.exists()) {
+    const puuid = account
+      ? [account.puuid]
+      : []
+
+    setDoc(docRef, {
+      player: name.value,
+      region: region.value,
+      role: role.value,
+      team: team.value,
+      puuid,
+    }).catch(error => console.error(error))
+  }
 
   // region.value = null
   // team.value = null
+  // accountRegion.value = null
   role.value = null
   name.value = ''
   accountName.value = ''
@@ -107,25 +125,6 @@ watch(password, (value) => {
 //     })
 //   })
 // }
-
-function mapRegion() {
-  proRegions.forEach((region) => {
-    teamPerRegion[region].forEach(async (team) => {
-      const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
-      const querySnapshot = await getDocs(collectionRef)
-
-      querySnapshot.forEach((document) => {
-        const docRef = doc(collectionRef, document.id)
-
-        deleteDoc(docRef)
-
-        const docData = document.data()
-        docData.region = mappedRegions[docData.region]
-        setDoc(doc(collectionRef, docRef.id), docData)
-      })
-    })
-  })
-}
 </script>
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
@@ -177,6 +176,13 @@ function mapRegion() {
         label="name"
       />
 
+      <v-select
+        v-model="accountRegion"
+        variant="outlined"
+        :items="accountRegions"
+        label="account region"
+      />
+
       <v-text-field
         v-model="accountName"
         variant="outlined"
@@ -196,7 +202,7 @@ function mapRegion() {
         Add
       </v-btn>
 
-      <v-btn @click="mapRegion">
+      <v-btn>
         Function
       </v-btn>
     </v-card-text>

@@ -142,7 +142,8 @@
     "notFoundTeam": "Team not found",
     "accounts": "Accounts",
     "noAccounts": "No accounts found",
-    "players": "Players"
+    "players": "Players",
+    "lastGames": "Last {games} games"
   },
   "cookies": {
     "title": "Cookies",

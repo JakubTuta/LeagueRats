@@ -30,7 +30,19 @@ const restStore = useRestStore()
 const player = ref<IProPlayer | null>(null)
 const loading = ref(false)
 const proAccounts = ref<{ account: IAccount, leagueEntry: ILeagueEntry | null }[]>([])
-const last10Games = ref<Record<string, IMatchData[]>>({})
+const last8Games = ref<Record<string, IMatchData[]>>({})
+
+const mappedRanks: { [key: string]: number } = {
+  CHALLENGER: 1,
+  GRANDMASTER: 2,
+  MASTER: 3,
+  DIAMOND: 4,
+  PLATINUM: 5,
+  GOLD: 6,
+  SILVER: 7,
+  BRONZE: 8,
+  IRON: 9,
+}
 
 onMounted(async () => {
   loading.value = true
@@ -46,7 +58,7 @@ onMounted(async () => {
     const promises = player.value.puuid.map(async puuid => await accountStore.getAccount(puuid, region, false))
     const accounts = (await Promise.all(promises)).filter(account => account !== null) as IAccount[]
 
-    accounts.forEach(account => getlast10Games(account))
+    accounts.forEach(account => getLast8Games(account))
 
     const leagueEntryPromises = accounts.map(async account => await restStore.getLeagueEntryBySummonerId(account.id, account.region))
     const leagueEntries = await Promise.all(leagueEntryPromises)
@@ -58,6 +70,22 @@ onMounted(async () => {
         storageStore.getRankIcon(leagueEntry.tier.toLowerCase())
 
       return { account, leagueEntry }
+    }).sort((a, b) => {
+      if (!a.leagueEntry || !b.leagueEntry)
+        return 0
+
+      // 1. rank
+      // 2. tier
+      // 3. leaguePoints
+
+      if (a.leagueEntry.rank === b.leagueEntry.rank) {
+        if (a.leagueEntry.tier === b.leagueEntry.tier)
+          return b.leagueEntry.leaguePoints - a.leagueEntry.leaguePoints
+        else
+          return romanToNumber(a.leagueEntry.tier) - romanToNumber(b.leagueEntry.tier)
+      }
+
+      return mappedRanks[a.leagueEntry.rank] - mappedRanks[b.leagueEntry.rank]
     })
 
     storageStore.getTeamImages(player.value.region, team)
@@ -83,11 +111,11 @@ const groupedAccounts = computed(() => {
   return sortedRegions
 })
 
-async function getlast10Games(account: IAccount) {
+async function getLast8Games(account: IAccount) {
   const requestQueueType = queueTypes.SOLOQ
 
   const optionalKeys = {
-    count: 10,
+    count: 8,
     queue: requestQueueType.id,
     type: requestQueueType.name,
     startTime: Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000),
@@ -99,7 +127,7 @@ async function getlast10Games(account: IAccount) {
     .filter(item => item !== null)
     .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
 
-  last10Games.value[account.puuid] = matchData
+  last8Games.value[account.puuid] = matchData
 
   const playerChampions = matchData.map(match => match.info.participants.find(participant => participant.puuid === account.puuid)!.championId)
   playerChampions.forEach(championId => storageStore.getChampionIcon(championId))
@@ -217,20 +245,31 @@ function isWin(game: IMatchData, account: IAccount) {
             v-for="([
               region,
               accounts,
-            ]) in Object.entries(groupedAccounts)"
+            ], index) in Object.entries(groupedAccounts)"
             v-else
             :key="region"
             lines="three"
             class="my-4"
           >
-            <span class="text-h6 ml-8">
-              {{ region }}
-            </span>
+            <div
+              style="display: flex; align-items: center; justify-content: space-between"
+              class="mx-10 mb-2"
+            >
+              <span class="text-h6">
+                {{ region }}
+              </span>
+
+              <span
+                v-if="index === 0"
+                class="text-h6"
+              >
+                {{ $t('proPlayers.lastGames', {"games": 8}) }}
+              </span>
+            </div>
 
             <v-list-item
               v-for="account in accounts"
               :key="account.account.puuid"
-              justify="center"
               :to="`/account/${account.account.region}/${account.account.gameName}-${account.account.tagLine}`"
             >
               <template
@@ -277,9 +316,9 @@ function isWin(game: IMatchData, account: IAccount) {
                 #append
               >
                 <v-card
-                  v-for="game in last10Games[account.account.puuid]"
+                  v-for="game in last8Games[account.account.puuid]"
                   :key="game.metadata.matchId"
-                  class="mx-2"
+                  class="mx-1 mt-4"
                   :color="isWin(game, account.account)
                     ? 'league-blue'
                     : 'league-red'"

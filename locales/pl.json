@@ -142,7 +142,8 @@
     "notFoundTeam": "Nie znaleziono drużyny",
     "accounts": "Konta",
     "noAccounts": "Nie znaleziono żadnych kont",
-    "players": "Gracze"
+    "players": "Gracze",
+    "lastGames": "Ostatnie {games} gier"
   },
   "cookies": {
     "title": "Ciasteczka",

@@ -47,7 +47,11 @@ def _get_account_from_region(region, puuid=None, game_name=None, tag_line=None):
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        return response.json()
+        if response.status_code == 200:
+            return response.json()
+
+        else:
+            return None
 
     except:
         return None

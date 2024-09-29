@@ -8,7 +8,7 @@ import src.firebase_init as firebase_init
 import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
 import src.regions as regions
-from firebase_functions import firestore_fn, https_fn, scheduler_fn
+from firebase_functions import https_fn, scheduler_fn
 from src.models.match_history import MatchData
 
 # cors_options = firebase_functions.options.CorsOptions(
@@ -507,6 +507,67 @@ def active_pro_games(
     return https_fn.Response(json.dumps(mapped_games), status=200)
 
 
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def add_account(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    # url: /add_account/region/gameName/tagLine
+
+    try:
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+        game_name = url_params[2]
+        tag_line = url_params[3]
+
+        if not region or not game_name or not tag_line:
+            raise Exception("Missing region, gameName or tagLine")
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    try:
+        if firestore_account := firestore_functions.get_account_from_firestore(
+            region=region, game_name=game_name, tag_line=tag_line
+        ):
+            return https_fn.Response(
+                json.dumps(
+                    {
+                        "error": "Account already exists",
+                        "account": firestore_account,
+                    }
+                ),
+                status=200,
+            )
+
+        if not (
+            api_account := firestore_functions.get_api_account(
+                region, game_name=game_name, tag_line=tag_line
+            )
+        ):
+            return https_fn.Response(
+                json.dumps({"error": "Account not found"}), status=404
+            )
+
+        firestore_functions.save_documents_to_collection("accounts", [api_account])
+
+        return https_fn.Response(
+            json.dumps(
+                {
+                    "message": "Account added",
+                    "account": api_account,
+                }
+            ),
+            status=200,
+        )
+
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
+        )
+
+
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
 def current_version(
     event: scheduler_fn.ScheduledEvent,
@@ -565,28 +626,3 @@ def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
         "active_pro_games",
         mapped_games,
     )
-
-
-@firestore_fn.on_document_created(
-    region="europe-central2", document="pro_players/{region}/{team}/{player}"
-)
-def on_pro_player_create(
-    event: firestore_fn.Event[firestore_fn.DocumentSnapshot],
-) -> None:
-    document_reference = event.data.reference
-    document_data = event.data.to_dict()
-
-    player = document_data.get("player", None)
-    region = document_data.get("region", None)
-    account_name = document_data.get("gameName", None)
-    account_tag = document_data.get("tagLine", None)
-
-    if not player or not region or not account_name or not account_tag:
-        return
-
-    account = firestore_functions.save_participant_to_firebase(
-        region, game_name=account_name, tag_line=account_tag
-    )
-
-    if account:
-        document_reference.update({"puuid": account.get("puuid")})
