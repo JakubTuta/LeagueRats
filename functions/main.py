@@ -148,13 +148,8 @@ def league_entry(
 
     region = regions.api_regions_2[region].lower()
 
-    request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
-
     try:
-        response = requests.get(
-            request_url,
-            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
-        )
+        response = firestore_functions.get_league_entry(region, summoner_id)
 
         if response.status_code != 200:
             return https_fn.Response(
@@ -600,15 +595,31 @@ def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_player_game_names()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="0,10,20,30,40,50 * * * *")
-def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
-    # tier_1_teams = ["G2", "T1", "GENG", "TL"]
-    # tier_2_teams = ["FNC", "C9", "HLE", "DK"]
-    # tier_3_teams = ["TH", "KT", "FLY", "MAD"]
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every hour")
+def update_bootcamp_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
+    scheduled_functions.update_bootcamp_leaderboard()
 
-    tier_1_teams = ["G2", "FNC"]
-    tier_2_teams = ["MAD", "TH"]
-    tier_3_teams = []
+
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def request_update_bootcamp_leaderboard(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    try:
+        scheduled_functions.update_bootcamp_leaderboard()
+        return https_fn.Response(
+            json.dumps({"message": "Leaderboard updated"}), status=200
+        )
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"error": f"Error occurred: {str(e)}"}), status=500
+        )
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every 10 minutes")
+def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
+    tier_1_teams = ["G2", "T1", "GENG", "TL"]
+    tier_2_teams = ["FNC", "LNG", "HLE", "DK"]
+    tier_3_teams = ["TH", "FLY", "MAD", "TES"]
 
     active_pro_games = []
 

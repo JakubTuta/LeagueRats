@@ -12,8 +12,8 @@
     "preview": "nuxt preview",
     "typecheck": "vue-tsc --noEmit",
     "deploy-functions": "firebase deploy --only functions",
-    "emulator": "firebase emulators:start",
-    "emulator-functions": "firebase emulators:start --only functions"
+    "emulate": "firebase emulators:start",
+    "emulate-functions": "firebase emulators:start --only functions"
   },
   "dependencies": {
     "@antfu/eslint-config": "^2.21.2",

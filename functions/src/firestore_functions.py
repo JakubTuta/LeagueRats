@@ -8,6 +8,24 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 from src.models.match_history import MatchData
 
 
+def get_league_entry(region, summoner_id):
+    request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
+
+    try:
+        response = requests.get(
+            request_url,
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+        )
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()
+
+    except:
+        return None
+
+
 def get_account_from_firestore(puuid=None, region=None, game_name=None, tag_line=None):
     if puuid:
         query = firebase_init.collections["accounts"].where(
@@ -252,7 +270,22 @@ def _get_active_game(region, puuid):
 def _append_active_game(games, player):
     for puuid in player["puuid"]:
         if game := _get_active_game(player["region"], puuid):
-            games.append((player, game))
+            player_participant = next(
+                (
+                    participant
+                    for participant in game["participants"]
+                    if participant["puuid"] == puuid
+                ),
+                None,
+            )
+
+            mapped_game = {
+                "player": player,
+                "participant": player_participant,
+                "region": game["platformId"],
+            }
+
+            games.append(mapped_game)
 
             return
 

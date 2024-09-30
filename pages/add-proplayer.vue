@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { proRegions, teamPerRegion } from '~/helpers/regions';
-import { useFirebase } from '~/helpers/useFirebase';
-import type { IAccount } from '~/models/account';
+import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { proRegions, teamPerRegion } from '~/helpers/regions'
+import { useFirebase } from '~/helpers/useFirebase'
+import type { IAccount } from '~/models/account'
 
 const { firestore } = useFirebase()
 
@@ -129,82 +129,82 @@ watch(password, (value) => {
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
-  <v-card
-    v-if="!isCorrectPassword"
-    class="ma-2"
-  >
-    <v-card-text>
-      <v-text-field
-        v-model="password"
-        variant="outlined"
-        label="Password"
-      />
-    </v-card-text>
-  </v-card>
+  <v-container>
+    <v-card
+      v-if="!isCorrectPassword"
+    >
+      <v-card-text>
+        <v-text-field
+          v-model="password"
+          variant="outlined"
+          label="Password"
+        />
+      </v-card-text>
+    </v-card>
 
-  <v-card
-    v-else
-    class="ma-2"
-  >
-    <v-card-text>
-      <v-select
-        v-model="region"
-        variant="outlined"
-        :items="proRegions"
-        label="region"
-      />
+    <v-card
+      v-else
+    >
+      <v-card-text>
+        <v-select
+          v-model="region"
+          variant="outlined"
+          :items="proRegions"
+          label="region"
+        />
 
-      <v-autocomplete
-        v-model="team"
-        variant="outlined"
-        :items="region
-          ? teamPerRegion[region]
-          : []"
-        label="team"
-      />
+        <v-autocomplete
+          v-model="team"
+          variant="outlined"
+          :items="region
+            ? teamPerRegion[region]
+            : []"
+          label="team"
+        />
 
-      <v-select
-        v-model="role"
-        variant="outlined"
-        :items="roles"
-        label="role"
-      />
+        <v-select
+          v-model="role"
+          variant="outlined"
+          :items="roles"
+          label="role"
+        />
 
-      <v-text-field
-        v-model="name"
-        variant="outlined"
-        label="name"
-      />
+        <v-text-field
+          v-model="name"
+          variant="outlined"
+          label="name"
+        />
 
-      <v-select
-        v-model="accountRegion"
-        variant="outlined"
-        :items="accountRegions"
-        label="account region"
-      />
+        <v-select
+          v-model="accountRegion"
+          variant="outlined"
+          :items="accountRegions"
+          label="account region"
+        />
 
-      <v-text-field
-        v-model="accountName"
-        variant="outlined"
-        label="account name"
-      />
+        <v-text-field
+          v-model="accountName"
+          variant="outlined"
+          label="account name"
+        />
 
-      <v-text-field
-        v-model="accountTag"
-        variant="outlined"
-        label="account tag"
-      />
+        <v-text-field
+          v-model="accountTag"
+          variant="outlined"
+          label="account tag"
+        />
 
-      <v-btn
-        variant="outlined"
-        @click="add"
-      >
-        Add
-      </v-btn>
+        <v-btn
+          variant="outlined"
+          @click="add"
+        >
+          Add
+        </v-btn>
 
-      <v-btn>
-        Function
-      </v-btn>
-    </v-card-text>
-  </v-card>
+        <v-btn>
+          Function
+        </v-btn>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>

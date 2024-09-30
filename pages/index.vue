@@ -56,18 +56,12 @@ const shuffledGames = computed(() => {
   return copiedArray
 })
 
-function findProPlayer(game: IProActiveGame) {
-  return game.game.participants.find(participant => game.player.puuid.includes(participant.puuid))!
-}
-
 const splitProGames = computed(() => {
   if (!activeGames.value)
     return []
 
   activeGames.value.forEach((game) => {
-    const player = findProPlayer(game)
-
-    const [gameName, tagLine] = player.riotId.split('#')
+    const [gameName, tagLine] = game.participant.riotId.split('#')
 
     // @ts-expect-error added fields
     game.player.gameName = gameName
@@ -138,12 +132,8 @@ function getIcons() {
     storageStore.getTeamImages(teamRegion, team)
   })
 
-  const uniqueChampionIds = [...new Set(activeGames.value.map(game => findPlayerParticipant(game).championId))]
+  const uniqueChampionIds = [...new Set(activeGames.value.map(game => game.participant.championId))]
   uniqueChampionIds.forEach(championId => storageStore.getChampionIcon(championId))
-}
-
-function findPlayerParticipant(game: IProActiveGame) {
-  return game.game.participants.find(participant => game.player.puuid.includes(participant.puuid))!
 }
 
 function regionItemsProps(item: any) {
@@ -373,7 +363,7 @@ function goToPlayerAccount(game: IProActiveGame) {
             >
               <v-col
                 v-for="game in games"
-                :key="game.game.gameId"
+                :key="game.participant.puuid"
                 cols="4"
               >
                 <v-card
@@ -404,7 +394,7 @@ function goToPlayerAccount(game: IProActiveGame) {
                       >
                         <v-img
                           lazy-src="~/assets/default.png"
-                          :src="championIcons[findPlayerParticipant(game).championId]"
+                          :src="championIcons[game.participant.championId]"
                         />
                       </v-avatar>
                     </div>
@@ -418,9 +408,9 @@ function goToPlayerAccount(game: IProActiveGame) {
                       </p>
 
                       <p>
-                        {{ game.player?.gameName || '' }}
+                        {{ game.participant.riotId.split('#')[0] || '' }}
                         <span class="text-gray">
-                          {{ ` #${game.player?.tagLine || ''}` }}
+                          {{ ` #${game.participant.riotId.split('#')[1] || ''}` }}
                         </span>
                       </p>
                     </div>

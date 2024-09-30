@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { teamPerRegion } from '~/helpers/regions';
-import type { IProPlayer } from '~/models/proPlayer';
+import { teamPerRegion } from '~/helpers/regions'
+import type { IProPlayer } from '~/models/proPlayer'
 
 const props = defineProps<{
   team: string

@@ -1,14 +1,17 @@
-import type { IActiveGame } from './activeGame'
+import type { IParticipant } from './activeGame'
 import type { IProPlayer } from './proPlayer'
+import type { TApiRegions2 } from '~/helpers/regions'
 
 export interface IProActiveGame {
   player: IProPlayer
-  game: IActiveGame
+  participant: IParticipant
+  region: TApiRegions2
 }
 
-export function mapProActiveGame(data: { player: IProPlayer, game: IActiveGame }): IProActiveGame | null {
+export function mapProActiveGame(data: any): IProActiveGame | null {
   return {
     player: data.player,
-    game: data.game,
+    participant: data.participant,
+    region: data.region,
   } as IProActiveGame
 }

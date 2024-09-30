@@ -107,3 +107,49 @@ def update_player_game_names() -> None:
         "account_names",
         document_data,
     )
+
+
+def update_bootcamp_leaderboard():
+    accounts = []
+
+    for region in regions.pro_regions:
+        teams_in_region = regions.teams_per_region[region]
+
+        for team in teams_in_region:
+            player_docs = firestore_functions.get_pro_player_documents(region, team)
+
+            for player_doc in player_docs:
+                player_data = player_doc.to_dict()
+
+                for puuid in player_data["puuid"]:
+                    request_region = regions.pro_region_to_api_region_2[region]
+
+                    if (
+                        account_data := firestore_functions.get_account_from_firestore(
+                            puuid=puuid
+                        )
+                    ) and (
+                        league_entry := firestore_functions.get_league_entry(
+                            request_region, account_data["id"]
+                        )
+                    ):
+                        if soloq_entry := next(
+                            (
+                                entry
+                                for entry in league_entry
+                                if entry["queueType"] == "RANKED_SOLO_5x5"
+                            ),
+                            None,
+                        ):
+                            data = {
+                                **player_data,
+                                **account_data,
+                                **soloq_entry,
+                            }
+                            accounts.append(data)
+
+                time.sleep(0.5)
+
+    firestore_functions.save_documents_to_collection(
+        "eu_bootcamp_leaderboard", accounts
+    )
