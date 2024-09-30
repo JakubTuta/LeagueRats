@@ -1,6 +1,7 @@
 {
   "universal": {
     "title": "League Rats",
+    "search": "Search",
     "polish": "Polski",
     "english": "English",
     "light": "Light",
@@ -148,5 +149,30 @@
   "cookies": {
     "title": "Cookies",
     "text": "We use cookies to personalize content. We save information about the selected language and theme. You can disable them in your browser settings. We do not share data with any third party."
+  },
+  "bootcamp": {
+    "title": "World players bootcamping in Europe",
+    "nextUpdate": "Next update in {time}",
+    "team": "Team",
+    "player": "Player",
+    "account": "Account",
+    "role": "Role",
+    "totalGames": "Total games",
+    "wins": "Wins",
+    "losses": "Losses",
+    "winRate": "Win rate",
+    "rank": "Rank"
+  },
+  "ranks": {
+    "IRON": "Iron",
+    "BRONZE": "Bronze",
+    "SILVER": "Silver",
+    "GOLD": "Gold",
+    "PLATINUM": "Platinum",
+    "EMERALD": "Emerald",
+    "DIAMOND": "Diamond",
+    "MASTER": "Master",
+    "GRANDMASTER": "Grandmaster",
+    "CHALLENGER": "Challenger"
   }
 }

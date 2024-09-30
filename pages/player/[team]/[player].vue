@@ -12,6 +12,7 @@ import adcIcon from '~/assets/roles/adc.png'
 import supIcon from '~/assets/roles/sup.png'
 import { queueTypes } from '~/helpers/queueTypes'
 import { proRegionToSelectRegion } from '~/helpers/regions'
+import { calculateTotalLP } from '~/helpers/totalLP'
 import type { IAccount } from '~/models/account'
 import type { ILeagueEntry } from '~/models/leagueEntry'
 import type { IMatchData } from '~/models/matchData'
@@ -31,18 +32,6 @@ const player = ref<IProPlayer | null>(null)
 const loading = ref(false)
 const proAccounts = ref<{ account: IAccount, leagueEntry: ILeagueEntry | null }[]>([])
 const last8Games = ref<Record<string, IMatchData[]>>({})
-
-const mappedRanks: { [key: string]: number } = {
-  CHALLENGER: 1,
-  GRANDMASTER: 2,
-  MASTER: 3,
-  DIAMOND: 4,
-  PLATINUM: 5,
-  GOLD: 6,
-  SILVER: 7,
-  BRONZE: 8,
-  IRON: 9,
-}
 
 onMounted(async () => {
   loading.value = true
@@ -70,23 +59,7 @@ onMounted(async () => {
         storageStore.getRankIcon(leagueEntry.tier.toLowerCase())
 
       return { account, leagueEntry }
-    }).sort((a, b) => {
-      if (!a.leagueEntry || !b.leagueEntry)
-        return 0
-
-      // 1. rank
-      // 2. tier
-      // 3. leaguePoints
-
-      if (a.leagueEntry.rank === b.leagueEntry.rank) {
-        if (a.leagueEntry.tier === b.leagueEntry.tier)
-          return b.leagueEntry.leaguePoints - a.leagueEntry.leaguePoints
-        else
-          return romanToNumber(a.leagueEntry.tier) - romanToNumber(b.leagueEntry.tier)
-      }
-
-      return mappedRanks[a.leagueEntry.rank] - mappedRanks[b.leagueEntry.rank]
-    })
+    }).sort((a, b) => calculateTotalLP(a.leagueEntry) - calculateTotalLP(b.leagueEntry))
 
     storageStore.getTeamImages(player.value.region, team)
   }
@@ -177,7 +150,7 @@ function isWin(game: IMatchData, account: IAccount) {
     style="display: flex;
     justify-content: center;
     align-items: center;
-    height: 90%;"
+    height: 75%;"
   >
     <v-container>
       <v-card v-if="loading">
@@ -270,6 +243,7 @@ function isWin(game: IMatchData, account: IAccount) {
             <v-list-item
               v-for="account in accounts"
               :key="account.account.puuid"
+              justify="center"
               :to="`/account/${account.account.region}/${account.account.gameName}-${account.account.tagLine}`"
             >
               <template
@@ -318,7 +292,9 @@ function isWin(game: IMatchData, account: IAccount) {
                 <v-card
                   v-for="game in last8Games[account.account.puuid]"
                   :key="game.metadata.matchId"
-                  class="mx-1 mt-4"
+                  :class="account.leagueEntry
+                    ? 'mx-1 mt-4'
+                    : 'mx-1 mb-4'"
                   :color="isWin(game, account.account)
                     ? 'league-blue'
                     : 'league-red'"

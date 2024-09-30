@@ -1,6 +1,7 @@
 {
   "universal": {
     "title": "League Rats",
+    "search": "Szukaj",
     "polish": "Polski",
     "english": "English",
     "light": "Jasny",
@@ -148,5 +149,30 @@
   "cookies": {
     "title": "Ciasteczka",
     "text": "Używamy ciasteczek, aby spersonalizować treści. Zapisujemy informacje o wybranym języku i motywie. Możesz je wyłączyć w ustawieniach przeglądarki. Nie udostępniamy danych żadnej trzeciej stronie."
+  },
+  "bootcamp": {
+    "title": "Zawodnicy Worldsów w Europie",
+    "nextUpdate": "Następna aktualizacja za {time}",
+    "team": "Drużyna",
+    "player": "Gracz",
+    "account": "Konto",
+    "role": "Rola",
+    "totalGames": "Wszystkie gry",
+    "wins": "Wygrane",
+    "losses": "Przegrane",
+    "winRate": "Win rate",
+    "rank": "Ranga"
+  },
+  "ranks": {
+    "IRON": "Żelazo",
+    "BRONZE": "Brąz",
+    "SILVER": "Srebro",
+    "GOLD": "Złoto",
+    "PLATINUM": "Platyna",
+    "EMERALD": "Szmaragd",
+    "DIAMOND": "Diament",
+    "MASTER": "Mistrz",
+    "GRANDMASTER": "Arcy Mistrz",
+    "CHALLENGER": "Pretendent"
   }
 }

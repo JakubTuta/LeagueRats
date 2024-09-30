@@ -11,19 +11,12 @@ from src.models.match_history import MatchData
 def get_league_entry(region, summoner_id):
     request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
 
-    try:
-        response = requests.get(
-            request_url,
-            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
-        )
+    response = requests.get(
+        request_url,
+        headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+    )
 
-        if response.status_code != 200:
-            return None
-
-        return response.json()
-
-    except:
-        return None
+    return response.json()
 
 
 def get_account_from_firestore(puuid=None, region=None, game_name=None, tag_line=None):

@@ -3,6 +3,7 @@ import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/fi
 import { proRegions, teamPerRegion } from '~/helpers/regions'
 import { useFirebase } from '~/helpers/useFirebase'
 import type { IActiveGame } from '~/models/activeGame'
+import type { IBootcampAccount } from '~/models/bootcampAccount'
 import type { IProActiveGame } from '~/models/proActiveGame'
 import { mapProActiveGame } from '~/models/proActiveGame'
 import { type IProPlayer, mapIProPlayer } from '~/models/proPlayer'
@@ -23,6 +24,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   const activeGames = ref<IProActiveGame[]>([])
   const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
   const proAccountNames = ref<IProAccountNames | null>(null)
+  const bootcampAccounts = ref<IBootcampAccount[]>([])
 
   const { firestore } = useFirebase()
 
@@ -225,10 +227,23 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     }
   }
 
+  const getBootcampAccounts = async () => {
+    try {
+      const docs = await getDocs(collection(firestore, 'eu_bootcamp_leaderboard'))
+
+      bootcampAccounts.value = docs.docs.map(doc => doc.data() as IBootcampAccount)
+    }
+    catch (error) {
+      bootcampAccounts.value = []
+      console.error(error)
+    }
+  }
+
   return {
     players,
     activeGames,
     proAccountNames,
+    bootcampAccounts,
     resetState,
     resetPlayers,
     getProPlayersForRegion,
@@ -239,5 +254,6 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     getPlayerFromName,
     getActiveProGamesFromDatabase,
     getProAccountNames,
+    getBootcampAccounts,
   }
 })

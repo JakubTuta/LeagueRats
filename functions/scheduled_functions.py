@@ -1,4 +1,4 @@
-import time
+import threading
 
 import requests
 import src.firestore_functions as firestore_functions
@@ -46,109 +46,183 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     firestore_functions.save_rune_data(rune_data_per_language)
 
 
+def _update_pro_accounts_for_team(new_documents, update_documents, region, team):
+    player_documents = firestore_functions.get_pro_player_documents(region, team)
+
+    for player_document in player_documents:
+        player_document_data = player_document.to_dict()
+
+        for puuid in player_document_data["puuid"]:
+            if not (
+                api_player_data := firestore_functions.get_api_account(
+                    player_document_data["region"], puuid=puuid
+                )
+            ):
+                continue
+
+            if account := firestore_functions.get_account_from_firestore(puuid=puuid):
+                if any(
+                    api_player_data[key] != account[key]
+                    for key in api_player_data
+                    if key in account
+                ):
+                    update_document = {
+                        "reference": account.reference,
+                        **api_player_data,
+                    }
+                    update_documents.append(update_document)
+            else:
+                new_documents.append(api_player_data)
+
+
 def update_pro_accounts(region) -> None:
-    teams = regions.teams_per_region[region]
+    new_documents = []
+    update_documents = []
 
-    for team in teams:
-        player_documents = firestore_functions.get_pro_player_documents(region, team)
+    threads = [
+        threading.Thread(
+            target=_update_pro_accounts_for_team,
+            args=(new_documents, update_documents, region, team),
+        )
+        for team in regions.teams_per_region[region]
+    ]
 
-        for player_document in player_documents:
-            player_document_data = player_document.to_dict()
+    for thread in threads:
+        thread.start()
 
-            for puuid in player_document_data["puuid"]:
-                if not (
-                    api_player_data := firestore_functions.get_api_account(
-                        player_document_data["region"], puuid=puuid
-                    )
-                ):
-                    continue
+    for thread in threads:
+        thread.join()
 
-                if account := firestore_functions.get_account_from_firestore(
-                    puuid=puuid
-                ):
-                    if any(
-                        api_player_data[key] != account[key]
-                        for key in api_player_data
-                        if key in account
-                    ):
-                        account.reference.update(api_player_data)
-                else:
-                    firestore_functions.save_documents_to_collection(
-                        "accounts", [api_player_data]
-                    )
+    firestore_functions.save_documents_to_collection("pro_players", new_documents)
 
-            time.sleep(0.5)
+    for document in update_documents:
+        del document["reference"]
+        document.reference.update(document)
+
+
+def _update_player_names_for_team(documents, region, team):
+    player_docs = firestore_functions.get_pro_player_documents(region, team)
+
+    for player_doc in player_docs:
+        player = player_doc.to_dict()
+
+        for puuid in player["puuid"]:
+            if firestore_functions.get_account_from_firestore(puuid=puuid):
+                documents.append(
+                    {
+                        "player": player["player"],
+                        "team": team,
+                        "puuid": puuid,
+                    }
+                )
 
 
 def update_player_game_names() -> None:
     firestore_functions.delete_document_from_collection("pro_players", "account_names")
 
-    document_data = {}
+    new_documents = []
 
-    for region in ["LEC", "LCS", "LCK"]:
-        teams_in_region = regions.teams_per_region[region]
+    threads = [
+        threading.Thread(
+            target=_update_player_names_for_team,
+            args=(new_documents, region, team),
+        )
+        for region in regions.pro_regions
+        for team in regions.teams_per_region[region]
+    ]
 
-        for team in teams_in_region:
-            player_docs = firestore_functions.get_pro_player_documents(region, team)
-            player_data = [doc.to_dict() for doc in player_docs]
+    for thread in threads:
+        thread.start()
 
-            for player in player_data:
-                for puuid in player["puuid"]:
-                    if firestore_functions.get_account_from_firestore(puuid=puuid):
-                        document_data[puuid] = {
-                            "player": player["player"],
-                            "team": team,
-                        }
+    for thread in threads:
+        thread.join()
 
-                time.sleep(0.5)
+    mapped_document = {
+        doc["puuid"]: {"player": doc["player"], "team": doc["team"]}
+        for doc in new_documents
+    }
 
     firestore_functions.set_document_in_collection(
         "pro_players",
         "account_names",
-        document_data,
+        mapped_document,
     )
 
 
+def _get_league_entries_for_team(accounts, region, team):
+    player_docs = firestore_functions.get_pro_player_documents(region, team)
+
+    for player_doc in player_docs:
+        player_data = player_doc.to_dict()
+
+        for puuid in player_data["puuid"]:
+            request_region = "EUW1"
+
+            if (
+                (
+                    account_data := firestore_functions.get_account_from_firestore(
+                        puuid=puuid
+                    )
+                )
+                and (
+                    league_entry := firestore_functions.get_league_entry(
+                        request_region, account_data["id"]
+                    )
+                )
+                and (
+                    soloq_entry := next(
+                        (
+                            entry
+                            for entry in league_entry
+                            if entry["queueType"] == "RANKED_SOLO_5x5"
+                        ),
+                        None,
+                    )
+                )
+            ):
+                data = {
+                    **account_data,
+                    **soloq_entry,
+                    "player": player_data["player"],
+                    "team": team,
+                    "role": player_data["role"],
+                }
+                accounts.append(data)
+
+
 def update_bootcamp_leaderboard():
+    firestore_functions.clear_collection("eu_bootcamp_leaderboard")
+
+    worlds_teams = (
+        ("LEC", "G2"),
+        ("LEC", "FNC"),
+        ("LEC", "MAD"),
+        ("LCS", "FLY"),
+        ("LCS", "TL"),
+        ("LCK", "HLE"),
+        ("LCK", "GENG"),
+        ("LCK", "DK"),
+        ("LCK", "T1"),
+        ("LPL", "BLG"),
+        ("LPL", "TES"),
+        ("LPL", "LNG"),
+        ("LPL", "WBG"),
+    )
+
     accounts = []
 
-    for region in regions.pro_regions:
-        teams_in_region = regions.teams_per_region[region]
+    threads = [
+        threading.Thread(
+            target=_get_league_entries_for_team, args=(accounts, region, team)
+        )
+        for region, team in worlds_teams
+    ]
 
-        for team in teams_in_region:
-            player_docs = firestore_functions.get_pro_player_documents(region, team)
+    for thread in threads:
+        thread.start()
 
-            for player_doc in player_docs:
-                player_data = player_doc.to_dict()
-
-                for puuid in player_data["puuid"]:
-                    request_region = regions.pro_region_to_api_region_2[region]
-
-                    if (
-                        account_data := firestore_functions.get_account_from_firestore(
-                            puuid=puuid
-                        )
-                    ) and (
-                        league_entry := firestore_functions.get_league_entry(
-                            request_region, account_data["id"]
-                        )
-                    ):
-                        if soloq_entry := next(
-                            (
-                                entry
-                                for entry in league_entry
-                                if entry["queueType"] == "RANKED_SOLO_5x5"
-                            ),
-                            None,
-                        ):
-                            data = {
-                                **player_data,
-                                **account_data,
-                                **soloq_entry,
-                            }
-                            accounts.append(data)
-
-                time.sleep(0.5)
+    for thread in threads:
+        thread.join()
 
     firestore_functions.save_documents_to_collection(
         "eu_bootcamp_leaderboard", accounts

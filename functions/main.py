@@ -151,12 +151,7 @@ def league_entry(
     try:
         response = firestore_functions.get_league_entry(region, summoner_id)
 
-        if response.status_code != 200:
-            return https_fn.Response(
-                json.dumps(response.json()), status=response.status_code
-            )
-
-        return https_fn.Response(json.dumps(response.json()), status=200)
+        return https_fn.Response(json.dumps(response), status=200)
 
     except Exception as e:
         return https_fn.Response(
@@ -575,19 +570,24 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:03")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:02")
 def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LEC")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:04")
 def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCS")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:09")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
 def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCK")
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:08")
+def update_LPL_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    scheduled_functions.update_pro_accounts("LPL")
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:12")
@@ -598,21 +598,6 @@ def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every hour")
 def update_bootcamp_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_bootcamp_leaderboard()
-
-
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def request_update_bootcamp_leaderboard(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    try:
-        scheduled_functions.update_bootcamp_leaderboard()
-        return https_fn.Response(
-            json.dumps({"message": "Leaderboard updated"}), status=200
-        )
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({"error": f"Error occurred: {str(e)}"}), status=500
-        )
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every 10 minutes")
@@ -628,12 +613,8 @@ def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
 
         active_pro_games.extend(tier_games)
 
-    mapped_games = list(
-        map(lambda game: {"player": game[0], "game": game[1]}, active_pro_games)
-    )
-
     firestore_functions.clear_collection("active_pro_games")
     firestore_functions.save_documents_to_collection(
         "active_pro_games",
-        mapped_games,
+        active_pro_games,
     )

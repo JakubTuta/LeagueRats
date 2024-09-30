@@ -109,7 +109,7 @@ watch(activeGames, async (value) => {
   await new Promise(resolve => setTimeout(resolve, 100))
 })
 
-setInterval(getNextUpdateTIme, 1000)
+setInterval(getNextUpdateTime, 1000)
 
 function findRegionForTeam(team: string) {
   for (const [key, value] of Object.entries(teamPerRegion)) {
@@ -178,7 +178,7 @@ function sendToUserView() {
   router.push(`/account/${region.value}/${gameName.value}-${tagLine.value}`)
 }
 
-function getNextUpdateTIme() {
+function getNextUpdateTime() {
   const now = new Date()
   const next10Minutes = new Date()
   next10Minutes.setSeconds(0)
