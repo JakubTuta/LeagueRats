@@ -84,7 +84,7 @@ function getPlayerRoleIcon(player: { role: string }) {
     style="display: flex;
     justify-content: center;
     align-items: center;
-    height: 75%;"
+    height: 90%;"
   >
     <v-container>
       <v-card v-if="loading">

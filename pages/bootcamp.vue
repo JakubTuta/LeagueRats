@@ -47,6 +47,7 @@ const headers = computed(() => [
     title: t('bootcamp.rank'),
     key: 'rank',
     value: 'rank',
+    isSorted: true,
     sortRaw: (a: any, b: any) => {
       return calculateTotalLP(a) - calculateTotalLP(b)
     },
@@ -109,7 +110,7 @@ function customFilter(_value: string, query: string, item: any) {
     style="display: flex;
     justify-content: center;
     align-items: center;
-    height: 75%;"
+    height: 80%;"
   >
     <v-container>
       <v-card v-if="loading">
@@ -153,21 +154,18 @@ function customFilter(_value: string, query: string, item: any) {
             hide-default-footer
           >
             <template #item.team="{item}">
-              <!--
-                <NuxtLink
+              <NuxtLink
                 class="pa-1"
                 style="cursor: pointer; text-decoration: none; color: inherit;"
                 :to="`/team/${item.team}`"
-                >
-                {{ item.team }}
-                </NuxtLink>
-              -->
-              <v-chip
-                width="100px"
-                :color="colorForTeam[item.team]"
               >
-                {{ item.team }}
-              </v-chip>
+                <v-chip
+                  width="100px"
+                  :color="colorForTeam[item.team]"
+                >
+                  {{ item.team }}
+                </v-chip>
+              </NuxtLink>
             </template>
 
             <template #item.player="{item}">

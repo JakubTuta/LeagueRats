@@ -150,7 +150,7 @@ function isWin(game: IMatchData, account: IAccount) {
     style="display: flex;
     justify-content: center;
     align-items: center;
-    height: 75%;"
+    height: 90%;"
   >
     <v-container>
       <v-card v-if="loading">
