@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify';
+
 const languageStore = useLanguageStore()
 const themeStore = useThemeStore()
+
+const { height, width } = useDisplay()
 
 onMounted(() => {
   languageStore.setDefaultLanguage()
@@ -11,7 +15,10 @@ onMounted(() => {
 <template>
   <NuxtLayout>
     <v-app>
-      <v-main class="bg-image">
+      <v-main
+        class="bg-image"
+        :style="`width: ${width}px; height: ${height}px`"
+      >
         <NavBar />
 
         <NuxtPage />
@@ -24,7 +31,8 @@ onMounted(() => {
 
 <style scoped>
 .bg-image {
-  background-image: url('~/assets/backgrounds/lec_bg2.jpg');
+  background-image: url('~/assets/background.jpg');
+  background-size: cover;
   background-position: top;
   background-repeat: no-repeat;
 }

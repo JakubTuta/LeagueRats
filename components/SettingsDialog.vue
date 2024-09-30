@@ -35,6 +35,7 @@ watch(language, (newLang) => {
   <v-dialog
     :model-value="isShow"
     max-width="800px"
+    min-width="350px"
     @update:model-value="onClose"
   >
     <v-card>

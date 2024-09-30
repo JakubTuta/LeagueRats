@@ -20,7 +20,7 @@ import adcIcon from '~/assets/roles/adc.png'
 import supIcon from '~/assets/roles/sup.png'
 import { teamFullName, teamPerRegion } from '~/helpers/regions'
 
-const { mdAndUp, sm, height } = useDisplay()
+const { mdAndUp, sm, height, mobile } = useDisplay()
 const { t } = useI18n()
 
 const proStore = useProPlayerStore()
@@ -194,238 +194,249 @@ function getPlayerRoleIcon(player: { role: string }) {
 </script>
 
 <template>
-  <v-container>
-    <v-card>
-      <v-card-title class="mb-10 mt-2">
-        <v-row>
-          <v-col
-            v-for="region in regions"
-            :key="region.value"
-            align="center"
-            cols="12"
-            sm="3"
-          >
-            <!-- primary-transparent -->
-            <v-card
-              elevation="0"
-              style="cursor: pointer;"
-              :color="region.value === selectedRegion
-                ? 'rgba(142, 147, 108, 0.25)'
-                : ''"
-              @click.stop="() => selectedRegion = region.value"
-            >
-              <v-img
-                :src="region.image"
-                :max-width="imageWidth"
-                aspect-ratio="1"
-                cover
-                class="mb-5"
-              />
-
-              {{ region.title }}
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <v-tabs
-          v-model="selectedTab"
-          class="mx-4 mt-10"
-          color="primary"
-          align-tabs="center"
-          grow
-          :show-arrows="false"
-        >
-          <v-tab
-            v-for="tab in tabs"
-            :key="tab.value"
-            :value="tab.value"
-          >
-            {{ tab.title }}
-          </v-tab>
-        </v-tabs>
-      </v-card-title>
-
-      <v-card-text
-        v-if="loading"
-        align="center"
-      >
-        <v-skeleton-loader
-          type="card"
-          class="ma-4"
-        />
-
-        {{ `${selectedTab === 'teams'
-          ? $t('proPlayers.loadingTeams')
-          : $t('proPlayers.loadingPlayers')}...` }}
-      </v-card-text>
-
-      <v-card-text v-else-if="!loading && selectedTab === 'teams'">
-        <v-row>
-          <v-col
-            v-for="team in teamPerRegion[selectedRegion.toUpperCase()]"
-            :key="team"
-            cols="6"
-            sm="4"
-            md="3"
-            class="mb-10"
-          >
-            <v-card
-              elevation="0"
-              :to="`/team/${team}`"
+  <v-container
+    :class="mobile
+      ? ''
+      : 'fill-height'"
+  >
+    <v-row
+      class="pa-2"
+      align="center"
+      justify="center"
+    >
+      <v-card>
+        <v-card-title class="mb-10 mt-2">
+          <v-row>
+            <v-col
+              v-for="region in regions"
+              :key="region.value"
               align="center"
+              cols="12"
+              sm="3"
             >
-              <v-avatar
-                size="150"
-                rounded="0"
+              <!-- primary-transparent -->
+              <v-card
+                elevation="0"
+                style="cursor: pointer;"
+                :color="region.value === selectedRegion
+                  ? 'rgba(142, 147, 108, 0.25)'
+                  : ''"
+                @click.stop="() => selectedRegion = region.value"
               >
                 <v-img
-                  :src="teamLogos[team]"
+                  :src="region.image"
+                  :max-width="imageWidth"
                   aspect-ratio="1"
                   cover
+                  class="mb-5"
                 />
-              </v-avatar>
 
-              <v-card-title class="mt-1">
-                {{ teamFullName[team] }}
-              </v-card-title>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-card-text>
+                {{ region.title }}
+              </v-card>
+            </v-col>
+          </v-row>
 
-      <v-card-text v-else-if="!loading && selectedTab === 'players'">
-        <v-row>
-          <v-col
-            cols="12"
-            sm="6"
+          <v-tabs
+            v-model="selectedTab"
+            class="mx-4 mt-10"
+            color="primary"
+            align-tabs="center"
+            grow
+            :show-arrows="false"
           >
-            <v-select
-              v-model="filterRoles"
-              chips
-              clearable
-              single-line
-              multiple
-              :label="$t('proPlayers.roles')"
-              :items="[
-                'TOP',
-                'JNG',
-                'MID',
-                'ADC',
-                'SUP',
-              ]"
-              @click:clear="() => filterRoles = []"
+            <v-tab
+              v-for="tab in tabs"
+              :key="tab.value"
+              :value="tab.value"
             >
-              <template #prepend-item>
-                <v-list-item
-                  class="mb-1"
-                  :title="$t('universal.selectAll')"
-                  @click="() => filterRoles = [
-                    'TOP',
-                    'JNG',
-                    'MID',
-                    'ADC',
-                    'SUP',
-                  ]"
-                />
-              </template>
-            </v-select>
-          </v-col>
+              {{ tab.title }}
+            </v-tab>
+          </v-tabs>
+        </v-card-title>
 
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <v-autocomplete
-              v-model="filterTeams"
-              multiple
-              chips
-              single-line
-              clearable
-              :label="$t('proPlayers.teams')"
-              :items="mapTeamItems"
-              :custom-filter="teamCustomFilter"
-              @click:clear="() => filterTeams = []"
-            >
-              <template #prepend-item>
-                <v-list-item
-                  class="mb-1"
-                  :title="$t('universal.selectAll')"
-                  @click="() => filterTeams = teamPerRegion[selectedRegion.toUpperCase()]"
-                />
-              </template>
-            </v-autocomplete>
-          </v-col>
-        </v-row>
-
-        <v-infinite-scroll
-          :max-height="scrollHeight"
-          empty-text=""
-          @load="loadPlayers"
+        <v-card-text
+          v-if="loading"
+          align="center"
         >
-          <template
-            v-for="player in filteredPlayers"
-            :key="player.player"
-          >
-            <v-list-item
-              class="my-2"
-              lines="three"
-              :to="`/player/${player.team}/${player.player}`"
+          <v-skeleton-loader
+            type="card"
+            class="ma-4"
+          />
+
+          {{ `${selectedTab === 'teams'
+            ? $t('proPlayers.loadingTeams')
+            : $t('proPlayers.loadingPlayers')}...` }}
+        </v-card-text>
+
+        <v-card-text v-else-if="!loading && selectedTab === 'teams'">
+          <v-row>
+            <v-col
+              v-for="team in teamPerRegion[selectedRegion.toUpperCase()]"
+              :key="team"
+              cols="6"
+              sm="4"
+              md="3"
+              class="mb-10"
             >
-              <template #prepend>
+              <v-card
+                elevation="0"
+                :to="`/team/${team}`"
+                align="center"
+              >
                 <v-avatar
+                  size="150"
                   rounded="0"
-                  size="70"
-                  class="mr-1"
+                  class="pa-2"
                 >
                   <v-img
-                    :src="teamImages[player.team]?.[player.player.toLowerCase()]"
-                    lazy-src="~/assets/default.png"
+                    :src="teamLogos[team]"
+                    aspect-ratio="1"
+                    cover
                   />
                 </v-avatar>
 
-                <span>
-                  <p>
-                    <v-avatar
-                      rounded="0"
-                      size="35"
-                    >
-                      <v-img
-                        :src="teamImages[player.team]?.team"
-                        lazy-src="~/assets/default.png"
-                      />
-                    </v-avatar>
-                  </p>
+                <v-card-title class="mt-1">
+                  {{ teamFullName[team] }}
+                </v-card-title>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
 
-                  <p>
-                    <v-avatar
-                      rounded="0"
-                      size="35"
-                    >
-                      <v-img :src="getPlayerRoleIcon(player)" />
-                    </v-avatar>
-                  </p>
-                </span>
-              </template>
+        <v-card-text v-else-if="!loading && selectedTab === 'players'">
+          <v-row>
+            <v-col
+              cols="12"
+              sm="6"
+            >
+              <v-select
+                v-model="filterRoles"
+                chips
+                clearable
+                single-line
+                multiple
+                :label="$t('proPlayers.roles')"
+                :items="[
+                  'TOP',
+                  'JNG',
+                  'MID',
+                  'ADC',
+                  'SUP',
+                ]"
+                @click:clear="() => filterRoles = []"
+              >
+                <template #prepend-item>
+                  <v-list-item
+                    class="mb-1"
+                    :title="$t('universal.selectAll')"
+                    @click="() => filterRoles = [
+                      'TOP',
+                      'JNG',
+                      'MID',
+                      'ADC',
+                      'SUP',
+                    ]"
+                  />
+                </template>
+              </v-select>
+            </v-col>
 
-              <v-row align="center">
-                <v-col
-                  cols="12"
-                  sm="5"
-                  md="4"
-                >
-                  <p class="text-h6">
-                    {{ player.player }}
-                  </p>
+            <v-col
+              cols="12"
+              sm="6"
+            >
+              <v-autocomplete
+                v-model="filterTeams"
+                multiple
+                chips
+                single-line
+                clearable
+                :label="$t('proPlayers.teams')"
+                :items="mapTeamItems"
+                :custom-filter="teamCustomFilter"
+                @click:clear="() => filterTeams = []"
+              >
+                <template #prepend-item>
+                  <v-list-item
+                    class="mb-1"
+                    :title="$t('universal.selectAll')"
+                    @click="() => filterTeams = teamPerRegion[selectedRegion.toUpperCase()]"
+                  />
+                </template>
+              </v-autocomplete>
+            </v-col>
+          </v-row>
 
-                  <p class="text-subtitle-2 text-gray">
-                    {{ teamFullName[player.team] }}
-                  </p>
-                </v-col>
-              </v-row>
-            </v-list-item>
-          </template>
-        </v-infinite-scroll>
-      </v-card-text>
-    </v-card>
+          <v-infinite-scroll
+            :max-height="scrollHeight"
+            empty-text=""
+            @load="loadPlayers"
+          >
+            <template
+              v-for="player in filteredPlayers"
+              :key="player.player"
+            >
+              <v-list-item
+                class="my-2"
+                lines="three"
+                :to="`/player/${player.team}/${player.player}`"
+              >
+                <template #prepend>
+                  <v-avatar
+                    rounded="0"
+                    size="80"
+                    class="mr-1"
+                  >
+                    <v-img
+                      :src="teamImages[player.team]?.[player.player.toLowerCase()]"
+                      lazy-src="~/assets/default.png"
+                    />
+                  </v-avatar>
+
+                  <span>
+                    <p>
+                      <v-avatar
+                        rounded="0"
+                        size="40"
+                      >
+                        <v-img
+                          :src="teamImages[player.team]?.team"
+                          lazy-src="~/assets/default.png"
+                        />
+                      </v-avatar>
+                    </p>
+
+                    <p>
+                      <v-avatar
+                        rounded="0"
+                        size="40"
+                      >
+                        <v-img :src="getPlayerRoleIcon(player)" />
+                      </v-avatar>
+                    </p>
+                  </span>
+                </template>
+
+                <v-row align="center">
+                  <v-col
+                    cols="12"
+                    sm="5"
+                    md="4"
+                  >
+                    <p class="text-h6">
+                      {{ player.player }}
+                    </p>
+
+                    <p class="text-subtitle-2 text-gray">
+                      {{ teamFullName[player.team] }}
+                    </p>
+                  </v-col>
+                </v-row>
+              </v-list-item>
+            </template>
+          </v-infinite-scroll>
+        </v-card-text>
+      </v-card>
+    </v-row>
   </v-container>
 </template>

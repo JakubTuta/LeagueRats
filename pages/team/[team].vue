@@ -143,7 +143,7 @@ function getPlayerRoleIcon(player: { role: string }) {
               <template #prepend>
                 <v-avatar
                   rounded="0"
-                  size="70"
+                  size="90"
                   class="mr-1"
                 >
                   <v-img
@@ -154,7 +154,7 @@ function getPlayerRoleIcon(player: { role: string }) {
 
                 <v-avatar
                   rounded="0"
-                  size="35"
+                  size="45"
                 >
                   <v-img :src="getPlayerRoleIcon(player)" />
                 </v-avatar>

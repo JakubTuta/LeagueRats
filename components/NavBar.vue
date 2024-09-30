@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { selectRegions } from '~/helpers/regions'
-import { lengthRule } from '~/helpers/rules'
+import { useDisplay } from 'vuetify';
+import { selectRegions } from '~/helpers/regions';
+import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
@@ -98,7 +98,7 @@ async function sendToUserView() {
   loading.value = false
 }
 
-const isExtension = computed(() => !mobile.value && route.path !== '/')
+const isExtension = computed(() => route.path !== '/')
 
 function toggleSettings() {
   isShowSettings.value = !isShowSettings.value
@@ -115,13 +115,14 @@ function toggleSettings() {
       ? 'rgba(50, 50, 50, 0.9)'
       : 'rgba(200, 200, 200, 0.9)'"
     scroll-behavior="fully-hide"
-    scroll-threshold="100"
+    scroll-threshold="10"
   >
     <template
       v-if="isExtension"
       #extension
     >
       <v-row
+        v-if="!mobile"
         no-gutters
         align="center"
         class="mt-6"
@@ -189,6 +190,21 @@ function toggleSettings() {
           </v-text-field>
         </v-col>
       </v-row>
+
+      <v-tabs
+        v-else
+        grow
+        color="primary"
+      >
+        <v-tab
+          v-for="tab in tabs"
+          :key="tab.title"
+          :to="tab.to"
+          rounded="xl"
+        >
+          {{ tab.title }}
+        </v-tab>
+      </v-tabs>
     </template>
 
     <v-avatar

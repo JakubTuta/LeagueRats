@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify';
 import { colorForTeam } from '~/helpers/teamUniqueColors';
 import { calculateTotalLP } from '~/helpers/totalLP';
 
 const { t } = useI18n()
+const { mobile } = useDisplay()
 
 const proStore = useProPlayerStore()
 const { bootcampAccounts } = storeToRefs(proStore)
@@ -106,13 +108,16 @@ function customFilter(_value: string, query: string, item: any) {
 </script>
 
 <template>
-  <div
-    style="display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80%;"
+  <v-container
+    :class="mobile
+      ? ''
+      : 'fill-height'"
   >
-    <v-container>
+    <v-row
+      class="pa-2"
+      align="center"
+      justify="center"
+    >
       <v-card v-if="loading">
         <v-skeleton-loader
           type="table-heading, table-row, table-row, table-row, table-row, table-row, table-row, table-row, table-row, table-tfoot"
@@ -214,6 +219,6 @@ function customFilter(_value: string, query: string, item: any) {
           </v-data-table>
         </v-card-text>
       </v-card>
-    </v-container>
-  </div>
+    </v-row>
+  </v-container>
 </template>
