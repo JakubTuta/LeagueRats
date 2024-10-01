@@ -98,7 +98,9 @@ async function sendToUserView() {
   loading.value = false
 }
 
-const isExtension = computed(() => route.path !== '/')
+const isExtension = computed(() => (mobile.value
+  ? true
+  : route.path !== '/'))
 
 function toggleSettings() {
   isShowSettings.value = !isShowSettings.value

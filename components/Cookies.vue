@@ -1,12 +1,12 @@
 <script setup lang="ts">
 const isShow = ref(false)
-const isAcceptedCookies = useCookie('is-accepted-cookies', {
-  default: () => false,
+const isAcceptedCookies = useCookie<boolean | null>('is-accepted-cookies', {
+  default: () => null,
   maxAge: 60 * 60 * 24 * 30,
 })
 
 onMounted(() => {
-  if (!isAcceptedCookies.value) {
+  if (isAcceptedCookies.value === null) {
     isShow.value = true
   }
 })

@@ -9,9 +9,9 @@ export const useThemeStore = defineStore('theme', () => {
     default: () => ('dark'),
     maxAge: 60 * 60 * 24 * 365,
   })
-  const isAcceptedCookies = useCookie('is-accepted-cookies', {
-    default: () => false,
-    maxAge: 60 * 60 * 24 * 365,
+  const isAcceptedCookies = useCookie<boolean | null>('is-accepted-cookies', {
+    default: () => null,
+    maxAge: 60 * 60 * 24 * 30,
   })
 
   const isDark = computed(() => theme.global.name.value === 'dark')

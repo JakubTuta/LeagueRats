@@ -2,7 +2,7 @@
 import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import logo from '~/assets/logo.png'
-import { proRegionToSelectRegion, selectRegions, teamPerRegion } from '~/helpers/regions'
+import { mapApiRegion2ToSelect, proRegionToSelectRegion, selectRegions, teamPerRegion } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
 import type { IProActiveGame } from '~/models/proActiveGame'
 
@@ -239,7 +239,9 @@ function goToPlayerAccount(game: IProActiveGame) {
       <v-img
         :src="logo"
         draggable="false"
-        max-width="400"
+        :max-width="mobile
+          ? 250
+          : 400"
         rounded="pill"
       />
     </v-row>
@@ -404,7 +406,7 @@ function goToPlayerAccount(game: IProActiveGame) {
                         class="text-subtitle-2 text-gray"
                         style="margin-top: auto"
                       >
-                        {{ game.player.region }}
+                        {{ mapApiRegion2ToSelect(game.region) }}
                       </p>
 
                       <p>
