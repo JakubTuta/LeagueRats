@@ -17,6 +17,7 @@ const region = ref('EUW')
 const gameNameError = ref('')
 const tagLineError = ref('')
 const isShowSettings = ref(false)
+const selectedTab = ref<string | null>(null)
 
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
@@ -195,6 +196,8 @@ function toggleSettings() {
 
       <v-tabs
         v-else
+        v-model="selectedTab"
+        :mandatory="false"
         grow
         color="primary"
       >
@@ -223,6 +226,7 @@ function toggleSettings() {
         class="pa-1"
         style="cursor: pointer; text-decoration: none; color: inherit;"
         to="/"
+        @click="selectedTab = null"
       >
         <v-tooltip
           activator="parent"
@@ -236,6 +240,8 @@ function toggleSettings() {
 
     <v-tabs
       v-if="!mobile"
+      v-model="selectedTab"
+      :mandatory="false"
       height="50px"
       style="position: absolute; left: 0; right: 0"
       align-tabs="center"
@@ -244,6 +250,7 @@ function toggleSettings() {
       <v-tab
         v-for="tab in tabs"
         :key="tab.title"
+        :value="tab.to"
         :to="tab.to"
         rounded="xl"
       >

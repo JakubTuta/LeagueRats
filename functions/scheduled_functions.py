@@ -154,45 +154,42 @@ def _get_league_entries_for_team(accounts, region, team):
 
     for player_doc in player_docs:
         player_data = player_doc.to_dict()
-
         for puuid in player_data["puuid"]:
             request_region = "EUW1"
 
-            if (
+            account_data = firestore_functions.get_account_from_firestore(puuid=puuid)
+            if not account_data:
+                continue
+
+            league_entry = firestore_functions.get_league_entry(
+                request_region, account_data["id"]
+            )
+            if not league_entry:
+                continue
+
+            soloq_entry = next(
                 (
-                    account_data := firestore_functions.get_account_from_firestore(
-                        puuid=puuid
-                    )
-                )
-                and (
-                    league_entry := firestore_functions.get_league_entry(
-                        request_region, account_data["id"]
-                    )
-                )
-                and (
-                    soloq_entry := next(
-                        (
-                            entry
-                            for entry in league_entry
-                            if entry["queueType"] == "RANKED_SOLO_5x5"
-                        ),
-                        None,
-                    )
-                )
-            ):
-                data = {
-                    **account_data,
-                    **soloq_entry,
-                    "player": player_data["player"],
-                    "team": team,
-                    "role": player_data["role"],
-                }
-                accounts.append(data)
+                    entry
+                    for entry in league_entry
+                    if isinstance(entry, dict)
+                    and entry.get("queueType") == "RANKED_SOLO_5x5"
+                ),
+                None,
+            )
+            if not soloq_entry:
+                continue
+
+            data = {
+                **account_data,
+                **soloq_entry,
+                "player": player_data["player"],
+                "team": team,
+                "role": player_data["role"],
+            }
+            accounts.append(data)
 
 
 def update_bootcamp_leaderboard():
-    firestore_functions.clear_collection("eu_bootcamp_leaderboard")
-
     worlds_teams = (
         ("LEC", "G2"),
         ("LEC", "FNC"),
@@ -224,6 +221,9 @@ def update_bootcamp_leaderboard():
     for thread in threads:
         thread.join()
 
-    firestore_functions.save_documents_to_collection(
-        "eu_bootcamp_leaderboard", accounts
-    )
+    if len(accounts) > 0:
+        firestore_functions.clear_collection("eu_bootcamp_leaderboard")
+
+        firestore_functions.save_documents_to_collection(
+            "eu_bootcamp_leaderboard", accounts
+        )

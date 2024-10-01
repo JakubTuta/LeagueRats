@@ -22,9 +22,10 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
 
   const players = ref<IProPlayer[]>([])
   const activeGames = ref<IProActiveGame[]>([])
-  const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
   const proAccountNames = ref<IProAccountNames | null>(null)
   const bootcampAccounts = ref<IBootcampAccount[]>([])
+
+  const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
 
   const { firestore } = useFirebase()
 
@@ -32,9 +33,11 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     playersPerRegion = {}
     playersPerTeam = {}
     playerPerName = {}
-    players.value = []
 
+    players.value = []
     activeGames.value = []
+    proAccountNames.value = null
+    bootcampAccounts.value = []
 
     if (activeGamesUnsubscribe.value) {
       activeGamesUnsubscribe.value()

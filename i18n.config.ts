@@ -1,13 +1,13 @@
-import pl from './locales/pl.json'
 import en from './locales/en.json'
+import pl from './locales/pl.json'
 
 export default defineI18nConfig(() => ({
   useCookie: true,
   legacy: false,
-  locale: 'pl',
+  locale: 'en',
   locales: ['pl', 'en'],
-  defaultLocale: 'pl',
-  fallbackLocale: 'en',
+  defaultLocale: 'en',
+  fallbackLocale: 'pl',
   messages: {
     pl,
     en,
