@@ -44,6 +44,9 @@ const headers = computed(() => [
     title: t('bootcamp.account'),
     key: 'account',
     value: 'account',
+    sortRaw: (a: any, b: any) => {
+      return a.gameName.localeCompare(b.gameName)
+    },
   },
   {
     title: t('bootcamp.rank'),
@@ -59,6 +62,9 @@ const headers = computed(() => [
     key: 'totalGames',
     value: 'totalGames',
     align: 'center',
+    sortRaw: (a: any, b: any) => {
+      return (a.wins + a.losses) - (b.wins + b.losses)
+    },
   },
   {
     title: t('bootcamp.wins'),

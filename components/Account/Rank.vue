@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ILeagueEntry } from '~/models/leagueEntry'
+import type { ILeagueEntry } from '~/models/leagueEntry';
 
 const props = defineProps<{
   leagueEntries: ILeagueEntry[]
@@ -89,7 +89,7 @@ const items = computed(() => [
 <template>
   <v-row
     v-if="!loading && !items.length"
-    class="text-h5 my-8"
+    class="text-h5 mx-2 my-8"
     justify="center"
   >
     {{ $t('profile.rank.noRank') }}
@@ -136,7 +136,7 @@ const items = computed(() => [
             class="text-subtitle-1 py-2"
             justify="center"
           >
-            {{ `${entry.tier} ${romanToNumber(entry.rank)}` }}
+            {{ `${$t(`ranks.${entry.tier}`)} ${romanToNumber(entry.rank)}` }}
           </v-row>
 
           <v-row

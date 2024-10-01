@@ -5,10 +5,11 @@ const mappedRanks: { [key: string]: number } = {
   SILVER: 2,
   GOLD: 3,
   PLATINUM: 4,
-  DIAMOND: 5,
-  MASTER: 6,
-  GRANDMASTER: 7,
-  CHALLENGER: 8,
+  EMERALD: 5,
+  DIAMOND: 6,
+  MASTER: 7,
+  GRANDMASTER: 8,
+  CHALLENGER: 9,
 }
 
 const romanToNumber: { [key: string]: number } = {
