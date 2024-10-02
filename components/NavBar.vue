@@ -110,15 +110,13 @@ function toggleSettings() {
 
 <template>
   <v-app-bar
-    :style="`position: fixed; top: 10px; left: 10px; width: ${width - 35}px;`"
+    :style="`position: absolute; top: 10px; left: 10px; width: ${width - 35}px;`"
     rounded="xl"
     flat
     extension-height="60"
     :color="isDark
       ? 'rgba(50, 50, 50, 0.9)'
       : 'rgba(200, 200, 200, 0.9)'"
-    scroll-behavior="fully-hide"
-    scroll-threshold="10"
   >
     <template
       v-if="isExtension"
