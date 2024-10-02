@@ -2,7 +2,7 @@
 import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import logo from '~/assets/logo.png'
-import { mapApiRegion2ToSelect, proRegionToSelectRegion, selectRegions, teamPerRegion } from '~/helpers/regions'
+import { proRegionToSelectRegion, selectRegions, teamPerRegion } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
 import type { IProActiveGame } from '~/models/proActiveGame'
 
@@ -406,7 +406,7 @@ function goToPlayerAccount(game: IProActiveGame) {
                         class="text-subtitle-2 text-gray"
                         style="margin-top: auto"
                       >
-                        {{ mapApiRegion2ToSelect(game.region) }}
+                        {{ game.region }}
                       </p>
 
                       <p>

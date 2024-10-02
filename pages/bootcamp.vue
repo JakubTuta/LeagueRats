@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import { colorForTeam } from '~/helpers/teamUniqueColors';
-import { calculateTotalLP } from '~/helpers/totalLP';
+import { useDisplay } from 'vuetify'
+import { colorForTeam } from '~/helpers/teamUniqueColors'
+import { calculateTotalLP } from '~/helpers/totalLP'
 
 const { t } = useI18n()
 const { mobile } = useDisplay()

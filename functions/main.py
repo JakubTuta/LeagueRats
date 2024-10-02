@@ -619,9 +619,9 @@ def request_update_bootcamp_leaderboard(
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every 10 minutes")
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
-    tier_1_teams = ["G2", "T1", "GENG", "TL"]
+    tier_1_teams = ["G2", "T1", "GENG", "BLG"]
     tier_2_teams = ["FNC", "LNG", "HLE", "DK"]
-    tier_3_teams = ["TH", "FLY", "MAD", "TES"]
+    tier_3_teams = ["FLY", "MAD", "TES", "LNG", "TL"]
 
     active_pro_games = []
 

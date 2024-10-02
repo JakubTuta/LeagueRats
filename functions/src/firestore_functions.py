@@ -1,5 +1,6 @@
 import re
 import threading
+import time
 
 import requests
 import src.firebase_init as firebase_init
@@ -262,41 +263,44 @@ def _get_active_game(region, puuid):
 
 def _append_active_game(games, player):
     for puuid in player["puuid"]:
-        if game := _get_active_game(player["region"], puuid):
-            player_participant = next(
-                (
-                    participant
-                    for participant in game["participants"]
-                    if participant["puuid"] == puuid
-                ),
-                None,
-            )
+        if not (account := get_account_from_firestore(puuid=puuid)):
+            continue
 
-            mapped_game = {
-                "player": player,
-                "participant": player_participant,
-                "region": game["platformId"],
-            }
+        if not (game := _get_active_game(account["region"], puuid)):
+            continue
 
-            games.append(mapped_game)
+        player_participant = next(
+            (
+                participant
+                for participant in game["participants"]
+                if participant["puuid"] == puuid
+            ),
+            None,
+        )
 
-            return
+        mapped_game = {
+            "player": player,
+            "participant": player_participant,
+            "region": account["region"],
+        }
+
+        games.append(mapped_game)
+
+        return
 
 
 def _get_pro_games_for_team(active_games, team):
-    threads = []
-
     region = _find_pro_region_for_team(team)
 
     player_docs = get_pro_player_documents(region, team)
     player_data = [doc.to_dict() for doc in player_docs]
 
-    for player in player_data:
-        thread = threading.Thread(
-            target=_append_active_game,
-            args=(active_games, player),
-        )
-        threads.append(thread)
+    threads = [
+        threading.Thread(target=_append_active_game, args=(active_games, player))
+        for player in player_data
+    ]
+
+    for thread in threads:
         thread.start()
 
     for thread in threads:
@@ -304,15 +308,16 @@ def _get_pro_games_for_team(active_games, team):
 
 
 def get_active_games_per_team(teams):
-    threads = []
     active_games = []
 
-    for team in teams:
-        thread = threading.Thread(
-            target=_get_pro_games_for_team, args=(active_games, team)
-        )
-        threads.append(thread)
+    threads = [
+        threading.Thread(target=_get_pro_games_for_team, args=(active_games, team))
+        for team in teams
+    ]
+
+    for thread in threads:
         thread.start()
+        time.sleep(1)
 
     for thread in threads:
         thread.join()
