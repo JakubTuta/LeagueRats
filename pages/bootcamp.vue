@@ -28,9 +28,6 @@ onMounted(async () => {
   }
 })
 
-// eslint-disable-next-line vue/no-side-effects-in-computed-properties
-const sortedAccounts = computed(() => bootcampAccounts.value.sort((a, b) => calculateTotalLP(b) - calculateTotalLP(a)))
-
 const headers = computed(() => [
   {
     title: t('bootcamp.team'),
@@ -161,11 +158,17 @@ function customFilter(_value: string, query: string, item: any) {
         <v-card-text>
           <v-data-table
             :headers="headers"
-            :items="sortedAccounts"
+            :items="bootcampAccounts"
             :items-per-page="10"
             :custom-filter="customFilter"
             :search="search"
             must-sort
+            :sort-by="[
+              {
+                'key': 'rank',
+                'order': 'desc',
+              },
+            ]"
             :items-per-page-options="[
               {'title': '10',
                'value': 10},
