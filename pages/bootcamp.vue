@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import { colorForTeam } from '~/helpers/teamUniqueColors';
-import { calculateTotalLP } from '~/helpers/totalLP';
+import { useDisplay } from 'vuetify'
+import { colorForTeam } from '~/helpers/teamUniqueColors'
+import { calculateTotalLP } from '~/helpers/totalLP'
 
 const { t } = useI18n()
 const { mobile } = useDisplay()
@@ -159,10 +159,13 @@ function customFilter(_value: string, query: string, item: any) {
           <v-data-table
             :headers="headers"
             :items="bootcampAccounts"
-            :items-per-page="bootcampAccounts.length"
+            :items-per-page="10"
             :custom-filter="customFilter"
             :search="search"
-            hide-default-footer
+            :items-per-page-options="[
+              {'title': '10',
+               'value': 10},
+            ]"
           >
             <template #item.team="{item}">
               <NuxtLink
