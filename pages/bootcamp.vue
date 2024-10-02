@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { colorForTeam } from '~/helpers/teamUniqueColors'
-import { calculateTotalLP } from '~/helpers/totalLP'
+import { useDisplay } from 'vuetify';
+import { colorForTeam } from '~/helpers/teamUniqueColors';
+import { calculateTotalLP } from '~/helpers/totalLP';
 
 const { t } = useI18n()
 const { mobile } = useDisplay()
@@ -27,6 +27,9 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+// eslint-disable-next-line vue/no-side-effects-in-computed-properties
+const sortedAccounts = computed(() => bootcampAccounts.value.sort((a, b) => calculateTotalLP(b) - calculateTotalLP(a)))
 
 const headers = computed(() => [
   {
@@ -158,10 +161,11 @@ function customFilter(_value: string, query: string, item: any) {
         <v-card-text>
           <v-data-table
             :headers="headers"
-            :items="bootcampAccounts"
+            :items="sortedAccounts"
             :items-per-page="10"
             :custom-filter="customFilter"
             :search="search"
+            must-sort
             :items-per-page-options="[
               {'title': '10',
                'value': 10},
