@@ -243,7 +243,7 @@ def _find_pro_region_for_team(team):
 
 
 def _get_active_game(region, puuid):
-    region = regions.pro_region_to_api_region_2[region]
+    region = regions.api_regions_2[region]
     request_url = f"https://{region}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}"
 
     try:

@@ -45,8 +45,10 @@ const cardColor = computed(() => {
     : 'rgba(200, 200, 200, 0.9)'
 })
 
+const filteredGames = computed(() => activeGames.value.filter((game, index, self) => index === self.findIndex(g => g.player.player === game.player.player)))
+
 const shuffledGames = computed(() => {
-  const copiedArray = activeGames.value.map(game => game)
+  const copiedArray = filteredGames.value.map(game => game)
 
   for (let i = copiedArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -57,17 +59,8 @@ const shuffledGames = computed(() => {
 })
 
 const splitProGames = computed(() => {
-  if (!activeGames.value)
+  if (!filteredGames.value)
     return []
-
-  activeGames.value.forEach((game) => {
-    const [gameName, tagLine] = game.participant.riotId.split('#')
-
-    // @ts-expect-error added fields
-    game.player.gameName = gameName
-    // @ts-expect-error added fields
-    game.player.tagLine = tagLine
-  })
 
   const result = []
   let i = 0
@@ -100,7 +93,7 @@ watch(tagLine, (newTagLine, oldTagLine) => {
     clearError()
 })
 
-watch(activeGames, async (value) => {
+watch(filteredGames, async (value) => {
   if (!value.length)
     return
 
@@ -122,7 +115,7 @@ function findRegionForTeam(team: string) {
 }
 
 function getIcons() {
-  const uniqueTeams = [...new Set(activeGames.value.map(game => game.player.team))]
+  const uniqueTeams = [...new Set(filteredGames.value.map(game => game.player.team))]
   uniqueTeams.forEach((team) => {
     const teamRegion = findRegionForTeam(team)
 
@@ -132,7 +125,7 @@ function getIcons() {
     storageStore.getTeamImages(teamRegion, team)
   })
 
-  const uniqueChampionIds = [...new Set(activeGames.value.map(game => game.participant.championId))]
+  const uniqueChampionIds = [...new Set(filteredGames.value.map(game => game.participant.championId))]
   uniqueChampionIds.forEach(championId => storageStore.getChampionIcon(championId))
 }
 
@@ -333,7 +326,7 @@ function goToPlayerAccount(game: IProActiveGame) {
       height="300px"
     >
       <v-card-text
-        v-if="!activeGames.length"
+        v-if="!filteredGames.length"
         style="height: 100%"
       >
         {{ $t('index.nextUpdate', {"time": refreshTime}) }}
@@ -352,14 +345,14 @@ function goToPlayerAccount(game: IProActiveGame) {
           cycle
           hide-delimiters
           height="250"
-          :show-arrows="activeGames.length > playersPerSlide"
+          :show-arrows="filteredGames.length > playersPerSlide"
         >
           <v-carousel-item
             v-for="(games, index) in splitProGames"
             :key="index"
           >
             <v-row
-              :class="activeGames.length > playersPerSlide
+              :class="filteredGames.length > playersPerSlide
                 ? 'mx-15'
                 : ''"
             >
