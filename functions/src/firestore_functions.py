@@ -1,6 +1,5 @@
 import re
 import threading
-import time
 
 import requests
 import src.firebase_init as firebase_init
@@ -22,9 +21,11 @@ def get_league_entry(region, summoner_id):
 
 def get_account_from_firestore(puuid=None, region=None, game_name=None, tag_line=None):
     if puuid:
-        query = firebase_init.collections["accounts"].where(
-            filter=FieldFilter("puuid", "==", puuid)
-        )
+        doc_ref = firebase_init.collections["accounts"].document(puuid)
+        doc = doc_ref.get()
+
+        return doc.to_dict() if doc.exists else None
+
     elif game_name and tag_line and region:
         query = (
             firebase_init.collections["accounts"]
@@ -34,13 +35,13 @@ def get_account_from_firestore(puuid=None, region=None, game_name=None, tag_line
             .where(filter=FieldFilter("tagLine", "==", tag_line))
             .where(filter=FieldFilter("region", "==", region))
         )
-    else:
-        return None
 
-    docs = query.stream()
-    doc = next(docs, None)
+        docs = query.stream()
+        doc = next(docs, None)
 
-    return doc.to_dict() if doc else None
+        return doc.to_dict() if doc else None
+
+    return None
 
 
 def _get_account_from_region(region, puuid=None, game_name=None, tag_line=None):
@@ -102,6 +103,7 @@ def get_api_account(region, puuid=None, game_name=None, tag_line=None):
         )
     ):
         return None
+    print(summoner_details)
 
     account_model = {
         "gameName": account_details.get("gameName"),
@@ -150,7 +152,7 @@ def _save_account_from_region(regions, my_region, game_name, tag):
         "summonerLevel": summoner_details.get("summonerLevel"),
     }
 
-    firebase_init.collections["accounts"].add(account_model)
+    save_accounts([account_model])
 
     regions[my_region] = account_model
 
@@ -243,13 +245,16 @@ def _find_pro_region_for_team(team):
 
 
 def _get_active_game(region, puuid):
-    region = regions.api_regions_2[region]
-    request_url = f"https://{region}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}"
+    request_region = regions.api_regions_2[region].lower()
+    request_url = f"https://{request_region}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}"
 
     try:
         response = requests.get(
             request_url,
-            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+            headers={
+                "X-Riot-Token": firebase_init.app.options.get("riot_api_key"),
+                "Origin": "https://developer.riotgames.com",
+            },
         )
 
         if response.status_code != 200:
@@ -317,7 +322,6 @@ def get_active_games_per_team(teams):
 
     for thread in threads:
         thread.start()
-        time.sleep(1)
 
     for thread in threads:
         thread.join()
@@ -343,3 +347,11 @@ def save_documents_to_collection(collection_name, documents):
 
 def delete_document_from_collection(collection_name, document_id):
     firebase_init.collections[collection_name].document(document_id).delete()
+
+
+def save_accounts(accounts):
+    for account in accounts:
+        if account["puuid"]:
+            firebase_init.collections["accounts"].document(account["puuid"]).set(
+                account
+            )

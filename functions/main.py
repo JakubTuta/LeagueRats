@@ -498,28 +498,71 @@ def active_pro_games(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def add_account(
+def get_account(
     req: https_fn.Request,
 ) -> https_fn.Response:
-    # url: /add_account/region/gameName/tagLine
+    # url: /get_account/region?gameName={gameName}&tagLine={tagLine}&puuid={puuid}
 
     try:
         url_params = req.path.split("/")
 
         region = url_params[1]
-        game_name = url_params[2]
-        tag_line = url_params[3]
 
-        if not region or not game_name or not tag_line:
-            raise Exception("Missing region, gameName or tagLine")
+        if not region:
+            raise Exception("Missing region")
     except:
         return https_fn.Response(
             json.dumps({"error": "Invalid request data"}), status=400
         )
 
+    game_name = req.args.get("gameName", None)
+    tag_line = req.args.get("tagLine", None)
+    puuid = req.args.get("puuid", None)
+
+    try:
+        if account := firestore_functions.get_account_from_firestore(
+            region=region, puuid=puuid, game_name=game_name, tag_line=tag_line
+        ):
+            return https_fn.Response(json.dumps(account), status=200)
+
+        if api_account := firestore_functions.get_api_account(
+            region, puuid=puuid, game_name=game_name, tag_line=tag_line
+        ):
+            return https_fn.Response(json.dumps(api_account), status=200)
+
+        return https_fn.Response(json.dumps({"error": "Account not found"}), status=404)
+
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
+        )
+
+
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def add_account(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    # url: /add_account/region?gameName={gameName}&tagLine={tagLine}&puuid={puuid}
+
+    try:
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+
+        if not region:
+            raise Exception("Missing region")
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    game_name = req.args.get("username", None)
+    tag_line = req.args.get("tag", None)
+    puuid = req.args.get("puuid", None)
+
     try:
         if firestore_account := firestore_functions.get_account_from_firestore(
-            region=region, game_name=game_name, tag_line=tag_line
+            region=region, puuid=puuid, game_name=game_name, tag_line=tag_line
         ):
             return https_fn.Response(
                 json.dumps(
@@ -533,14 +576,14 @@ def add_account(
 
         if not (
             api_account := firestore_functions.get_api_account(
-                region, game_name=game_name, tag_line=tag_line
+                region, puuid=puuid, game_name=game_name, tag_line=tag_line
             )
         ):
             return https_fn.Response(
                 json.dumps({"error": "Account not found"}), status=404
             )
 
-        firestore_functions.save_documents_to_collection("accounts", [api_account])
+        firestore_functions.save_accounts([api_account])
 
         return https_fn.Response(
             json.dumps(
@@ -570,27 +613,27 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:02")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:01")
 def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LEC")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:04")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:02")
 def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCS")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:06")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:03")
 def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCK")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:08")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:04")
 def update_LPL_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LPL")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:12")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:05")
 def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_player_game_names()
 

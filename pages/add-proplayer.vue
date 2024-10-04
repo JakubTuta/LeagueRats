@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
-import { proRegions, teamPerRegion } from '~/helpers/regions'
-import { useFirebase } from '~/helpers/useFirebase'
-import type { IAccount } from '~/models/account'
+import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { proRegions, teamPerRegion } from '~/helpers/regions';
+import { useFirebase } from '~/helpers/useFirebase';
+import type { IAccount } from '~/models/account';
 
 const { firestore } = useFirebase()
 
@@ -23,6 +23,10 @@ const accountRegion = ref<string | null>(null)
 const roles = ['TOP', 'JNG', 'MID', 'ADC', 'SUP']
 
 const accountRegions = ['NA', 'EUW', 'KR']
+
+watch(password, (value) => {
+  isCorrectPassword.value = value === correctPassword
+})
 
 async function add() {
   if (!region.value || !team.value || !role.value || !name.value)
@@ -66,65 +70,6 @@ async function add() {
   accountName.value = ''
   accountTag.value = ''
 }
-
-watch(password, (value) => {
-  isCorrectPassword.value = value === correctPassword
-})
-
-// function addTeams() {
-//   proRegions.forEach((region) => {
-//     teamPerRegion[region].forEach(async (team) => {
-//       const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
-//       const querySnapshot = await getDocs(collectionRef)
-
-//       querySnapshot.forEach((document) => {
-//         updateDoc(document.ref, { team })
-//       })
-//     })
-//   })
-// }
-
-// function changeNames() {
-//   regions.forEach((region) => {
-//     teamPerRegion[region].forEach(async (team) => {
-//       const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
-//       const querySnapshot = await getDocs(collectionRef)
-
-//       querySnapshot.forEach((document) => {
-//         const docRef = doc(collectionRef, document.id)
-//         const docData = mapIProPlayer(document.data())
-
-//         deleteDoc(docRef)
-//         setDoc(doc(collectionRef, docRef.id.toLowerCase()), docData)
-//       })
-//     })
-//   })
-// }
-
-// function puuidToArray() {
-//   proRegions.forEach((region) => {
-//     teamPerRegion[region].forEach(async (team) => {
-//       const collectionRef = collection(firestore, `pro_players/${region}/${team}`)
-//       const querySnapshot = await getDocs(collectionRef)
-
-//       querySnapshot.forEach((document) => {
-//         const docRef = doc(collectionRef, document.id)
-
-//         deleteDoc(docRef)
-
-//         const docData = document.data()
-//         const newDocData = {
-//           player: docData.player,
-//           region: docData.region,
-//           role: docData.role,
-//           team: docData.team,
-//           puuid: [docData.puuid],
-//         }
-//         setDoc(doc(collectionRef, docRef.id), newDocData)
-//       })
-//     })
-//   })
-// }
 </script>
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->

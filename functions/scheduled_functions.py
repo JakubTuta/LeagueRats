@@ -1,5 +1,4 @@
 import threading
-import time
 
 import requests
 import src.firestore_functions as firestore_functions
@@ -218,7 +217,6 @@ def update_bootcamp_leaderboard():
 
     for thread in threads:
         thread.start()
-        time.sleep(1)
 
     for thread in threads:
         thread.join()

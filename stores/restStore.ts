@@ -205,8 +205,26 @@ export const useRestStore = defineStore('rest', () => {
     return proActiveGames
   }
 
-  const saveAccount = async (region: string, gameName: string, tagLine: string): Promise<IAccount | null> => {
-    const response = await getFirebaseFunction(`add_account/${region}/${gameName}/${tagLine}`)
+  const getAccountWithPuuid = async (region: string, puuid: string): Promise<IAccount | null> => {
+    const response = await getFirebaseFunction(`get_account/${region}?puuid=${puuid}`)
+
+    if (!isResponseOk(response))
+      return null
+
+    return response.data as IAccount
+  }
+
+  const getAccountWithGameName = async (region: string, gameName: string, tagLine: string): Promise<IAccount | null> => {
+    const response = await getFirebaseFunction(`get_account/${region}?gameName=${gameName}&tagLine=${tagLine}`)
+
+    if (!isResponseOk(response))
+      return null
+
+    return response.data as IAccount
+  }
+
+  const saveAccount = async (region: string, puuid: string | null = null, gameName: string | null = null, tagLine: string | null = null): Promise<IAccount | null> => {
+    const response = await getFirebaseFunction(`add_account/${region}?puuid=${puuid}&gameName=${gameName}&tagLine=${tagLine}`)
 
     if (!isResponseOk(response))
       return null
@@ -227,6 +245,8 @@ export const useRestStore = defineStore('rest', () => {
     findAccountsInAllRegions,
     getMatchData,
     getActiveProGames,
+    getAccountWithPuuid,
+    getAccountWithGameName,
     saveAccount,
   }
 })
