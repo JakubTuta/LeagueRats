@@ -39,7 +39,7 @@ async function add() {
 
   let account: IAccount | null = null
   if (accountRegion.value && accountName.value && accountTag.value)
-    account = await restStore.saveAccount(accountRegion.value, accountName.value, accountTag.value)
+    account = await restStore.saveAccount(accountRegion.value, null, accountName.value, accountTag.value)
 
   if (docData.exists() && account) {
     const newPuuids = [...docData.data().puuid]

@@ -556,8 +556,8 @@ def add_account(
             json.dumps({"error": "Invalid request data"}), status=400
         )
 
-    game_name = req.args.get("username", None)
-    tag_line = req.args.get("tag", None)
+    game_name = req.args.get("gameName", None)
+    tag_line = req.args.get("tagLine", None)
     puuid = req.args.get("puuid", None)
 
     try:
@@ -574,25 +574,23 @@ def add_account(
                 status=200,
             )
 
-        if not (
-            api_account := firestore_functions.get_api_account(
-                region, puuid=puuid, game_name=game_name, tag_line=tag_line
-            )
+        if api_account := firestore_functions.get_api_account(
+            region, puuid=puuid, game_name=game_name, tag_line=tag_line
         ):
-            return https_fn.Response(
-                json.dumps({"error": "Account not found"}), status=404
-            )
+            firestore_functions.save_accounts([api_account])
 
-        firestore_functions.save_accounts([api_account])
+            return https_fn.Response(
+                json.dumps(
+                    {
+                        "message": "Account added",
+                        "account": api_account,
+                    }
+                ),
+                status=200,
+            )
 
         return https_fn.Response(
-            json.dumps(
-                {
-                    "message": "Account added",
-                    "account": api_account,
-                }
-            ),
-            status=200,
+            json.dumps({"error": "Account not found", "account": None}), status=404
         )
 
     except Exception as e:

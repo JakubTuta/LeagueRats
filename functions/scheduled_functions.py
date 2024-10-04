@@ -19,7 +19,7 @@ def current_version(
         firestore_functions.save_current_version(current_version)
 
     except Exception as e:
-        print(f"Error occurred: {str(e)}")
+        pass
 
 
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
@@ -38,7 +38,7 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
             response = requests.get(base_url)
             rune_data = response.json()
         except Exception as e:
-            print(f"Error occurred: {str(e)}")
+            pass
 
         short_language = language.split("_")[0]
         rune_data_per_language[short_language] = rune_data

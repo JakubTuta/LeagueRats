@@ -103,7 +103,6 @@ def get_api_account(region, puuid=None, game_name=None, tag_line=None):
         )
     ):
         return None
-    print(summoner_details)
 
     account_model = {
         "gameName": account_details.get("gameName"),
