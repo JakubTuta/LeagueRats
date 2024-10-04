@@ -224,7 +224,16 @@ export const useRestStore = defineStore('rest', () => {
   }
 
   const saveAccount = async (region: string, puuid: string | null = null, gameName: string | null = null, tagLine: string | null = null): Promise<IAccount | null> => {
-    const response = await getFirebaseFunction(`add_account/${region}?puuid=${puuid}&gameName=${gameName}&tagLine=${tagLine}`)
+    let optionalKeys = ''
+
+    if (puuid)
+      optionalKeys += `puuid=${puuid}&`
+    if (gameName)
+      optionalKeys += `gameName=${gameName}&`
+    if (tagLine)
+      optionalKeys += `tagLine=${tagLine}&`
+
+    const response = await getFirebaseFunction(`add_account/${region}?${optionalKeys}`)
 
     if (!isResponseOk(response))
       return null
