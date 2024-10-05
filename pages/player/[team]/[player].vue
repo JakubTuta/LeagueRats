@@ -279,7 +279,7 @@ function getWinRatio(champion: IChampionHistory) {
           v-else
           class="mt-4"
         >
-          <v-row align="center">
+          <v-row>
             <v-col
               cols="12"
               sm="7"
@@ -438,7 +438,7 @@ function getWinRatio(champion: IChampionHistory) {
 
 <style scoped>
 .scroll-list {
-  height: 300px;
+  height: 310px;
   overflow-y: auto
 }
 </style>
