@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { colorForTeam } from '~/helpers/teamUniqueColors'
-import { calculateTotalLP } from '~/helpers/totalLP'
+import { useDisplay } from 'vuetify';
+import { colorForTeam } from '~/helpers/teamUniqueColors';
+import { calculateTotalLP } from '~/helpers/totalLP';
 
 const { t } = useI18n()
 const { mobile } = useDisplay()
@@ -120,7 +120,7 @@ function customFilter(_value: string, query: string, item: any) {
       : 'fill-height'"
   >
     <v-row
-      class="pa-2"
+      class="pa-3"
       align="center"
       justify="center"
     >

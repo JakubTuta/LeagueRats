@@ -144,7 +144,8 @@
     "accounts": "Accounts",
     "noAccounts": "No accounts found",
     "players": "Players",
-    "lastGames": "Last {games} games"
+    "lastGames": "Last {games} games",
+    "games": "Games"
   },
   "cookies": {
     "title": "Cookies",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { selectRegions } from '~/helpers/regions'
-import { lengthRule } from '~/helpers/rules'
+import { useDisplay } from 'vuetify';
+import { selectRegions } from '~/helpers/regions';
+import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
@@ -110,7 +110,9 @@ function toggleSettings() {
 
 <template>
   <v-app-bar
-    :style="`position: absolute; top: 10px; left: 10px; width: ${width - 35}px;`"
+    :style="`position: absolute; top: 10px; left: 10px; width: ${mobile
+      ? width - 10
+      : width - 35}px;`"
     rounded="xl"
     flat
     extension-height="60"

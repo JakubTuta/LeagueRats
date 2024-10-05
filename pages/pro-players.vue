@@ -200,7 +200,7 @@ function getPlayerRoleIcon(player: { role: string }) {
       : 'fill-height'"
   >
     <v-row
-      class="pa-2"
+      class="pa-3"
       align="center"
       justify="center"
     >
@@ -286,7 +286,7 @@ function getPlayerRoleIcon(player: { role: string }) {
                 <v-avatar
                   size="150"
                   rounded="0"
-                  class="pa-2"
+                  class="pa-3"
                 >
                   <v-img
                     :src="teamLogos[team]"

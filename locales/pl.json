@@ -144,7 +144,8 @@
     "accounts": "Konta",
     "noAccounts": "Nie znaleziono żadnych kont",
     "players": "Gracze",
-    "lastGames": "Ostatnie {games} gier"
+    "lastGames": "Ostatnie {games} gier",
+    "games": "Gry"
   },
   "cookies": {
     "title": "Ciasteczka",

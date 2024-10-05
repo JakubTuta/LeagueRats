@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import topIcon from '~/assets/roles/top.png'
 // @ts-expect-error correct path
@@ -13,6 +14,7 @@ import { teamFullName, teamPerRegion } from '~/helpers/regions'
 import type { IProPlayer } from '~/models/proPlayer'
 
 const route = useRoute()
+const { mobile } = useDisplay()
 
 const storageStore = useStorageStore()
 const { teamImages } = storeToRefs(storageStore)
@@ -80,13 +82,16 @@ function getPlayerRoleIcon(player: { role: string }) {
 </script>
 
 <template>
-  <div
-    style="display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90%;"
+  <v-container
+    :class="mobile
+      ? ''
+      : 'fill-height'"
   >
-    <v-container>
+    <v-row
+      class="pa-3"
+      align="center"
+      justify="center"
+    >
       <v-card v-if="loading">
         <v-skeleton-loader
           type="card"
@@ -174,6 +179,6 @@ function getPlayerRoleIcon(player: { role: string }) {
           </v-list>
         </v-card-text>
       </v-card>
-    </v-container>
-  </div>
+    </v-row>
+  </v-container>
 </template>

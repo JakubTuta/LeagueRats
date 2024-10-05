@@ -32,7 +32,8 @@ const playersPerSlide = 3
 const errorMessage = t('rules.requiredField')
 
 onMounted(() => {
-  proStore.getActiveProGamesFromDatabase()
+  if (!mobile.value)
+    proStore.getActiveProGamesFromDatabase()
 })
 
 onUnmounted(() => {
@@ -159,6 +160,8 @@ function clearValues() {
   gameNameError.value = ''
   tagLineError.value = ''
   loading.value = false
+  region.value = 'EUW'
+  refreshTime.value = '00:00'
 }
 
 function sendToUserView() {

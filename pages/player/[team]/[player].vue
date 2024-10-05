@@ -10,7 +10,10 @@ import midIcon from '~/assets/roles/mid.png'
 import adcIcon from '~/assets/roles/adc.png'
 // @ts-expect-error correct path
 import supIcon from '~/assets/roles/sup.png'
+import { championIdsToTitles } from '~/helpers/championIds'
+import { mapKDAToColor } from '~/helpers/kdaColors'
 import { queueTypes } from '~/helpers/queueTypes'
+import { regionColors } from '~/helpers/regionColors'
 import { proRegionToSelectRegion } from '~/helpers/regions'
 import { calculateTotalLP } from '~/helpers/totalLP'
 import type { IAccount } from '~/models/account'
@@ -18,8 +21,18 @@ import type { ILeagueEntry } from '~/models/leagueEntry'
 import type { IMatchData } from '~/models/matchData'
 import type { IProPlayer } from '~/models/proPlayer'
 
+interface IChampionHistory {
+  championId: number
+  games: number
+  wins: number
+  loses: number
+  kills: number
+  deaths: number
+  assists: number
+}
+
 const route = useRoute()
-const { smAndDown } = useDisplay()
+const { smAndDown, mobile } = useDisplay()
 
 const storageStore = useStorageStore()
 const { teamImages, rankIcons, championIcons } = storeToRefs(storageStore)
@@ -31,7 +44,7 @@ const restStore = useRestStore()
 const player = ref<IProPlayer | null>(null)
 const loading = ref(false)
 const proAccounts = ref<{ account: IAccount, leagueEntry: ILeagueEntry | null }[]>([])
-const last8Games = ref<Record<string, IMatchData[]>>({})
+const lastGames = ref<IMatchData[]>([])
 
 onMounted(async () => {
   loading.value = true
@@ -47,7 +60,7 @@ onMounted(async () => {
     const promises = player.value.puuid.map(async puuid => await accountStore.getAccount(puuid, region, false))
     const accounts = (await Promise.all(promises)).filter(account => account !== null) as IAccount[]
 
-    accounts.forEach(account => getLast8Games(account))
+    accounts.forEach(account => getLastGames(account))
 
     const leagueEntryPromises = accounts.map(async account => await restStore.getLeagueEntryBySummonerId(account.id, account.region))
     const leagueEntries = await Promise.all(leagueEntryPromises)
@@ -59,7 +72,7 @@ onMounted(async () => {
         storageStore.getRankIcon(leagueEntry.tier.toLowerCase())
 
       return { account, leagueEntry }
-    }).sort((a, b) => calculateTotalLP(a.leagueEntry) - calculateTotalLP(b.leagueEntry))
+    }).sort((a, b) => calculateTotalLP(b.leagueEntry) - calculateTotalLP(a.leagueEntry))
 
     storageStore.getTeamImages(player.value.region, team)
   }
@@ -84,11 +97,11 @@ const groupedAccounts = computed(() => {
   return sortedRegions
 })
 
-async function getLast8Games(account: IAccount) {
+async function getLastGames(account: IAccount) {
   const requestQueueType = queueTypes.SOLOQ
 
   const optionalKeys = {
-    count: 8,
+    count: 20,
     queue: requestQueueType.id,
     type: requestQueueType.name,
     startTime: Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000),
@@ -96,11 +109,12 @@ async function getLast8Games(account: IAccount) {
 
   const matchIds = await restStore.getAccountMatchHistory(account, optionalKeys)
 
-  const matchData = (await Promise.all(matchIds.map(async matchId => await restStore.getMatchData(matchId))))
+  const promises = matchIds.map(async matchId => await restStore.getMatchData(matchId))
+  const matchData = (await Promise.all(promises))
     .filter(item => item !== null)
     .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
 
-  last8Games.value[account.puuid] = matchData
+  lastGames.value.push(...matchData)
 
   const playerChampions = matchData.map(match => match.info.participants.find(participant => participant.puuid === account.puuid)!.championId)
   playerChampions.forEach(championId => storageStore.getChampionIcon(championId))
@@ -138,21 +152,73 @@ function getPlayerRoleIcon(player: { role: string }) {
   }
 }
 
-function isWin(game: IMatchData, account: IAccount) {
-  const participant = game.info.participants.find(participant => participant.puuid === account.puuid)
+const mapChampionHistory = computed(() => {
+  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+  const championHistory = lastGames.value
+    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
+    .slice(0, 20)
+    .reduce((acc, game) => {
+      const participant = game.info.participants.find(participant => participant.puuid === proAccounts.value[0].account.puuid)!
 
-  return participant!.win
+      let champion = acc.find(champ => champ.championId === participant.championId)
+
+      if (!champion) {
+        champion = {
+          championId: participant.championId,
+          games: 0,
+          wins: 0,
+          loses: 0,
+          kills: 0,
+          deaths: 0,
+          assists: 0,
+        }
+        acc.push(champion)
+      }
+
+      champion.games++
+      champion.kills += participant.kills
+      champion.deaths += participant.deaths
+      champion.assists += participant.assists
+
+      if (participant.win) {
+        champion.wins++
+      }
+      else {
+        champion.loses++
+      }
+
+      return acc
+    }, [] as IChampionHistory[])
+    .sort((a, b) => b.games - a.games)
+
+  return championHistory
+})
+
+function getKDA(champion: IChampionHistory) {
+  const kda = (champion.kills + champion.assists) / champion.deaths
+
+  return kda.toFixed(2)
+}
+
+function getWinRatio(champion: IChampionHistory) {
+  const winRatio = champion.wins / champion.games
+
+  return (winRatio * 100).toFixed(2)
 }
 </script>
 
+<!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
-  <div
-    style="display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90%;"
+  <v-container
+    :class="mobile
+      ? ''
+      : 'fill-height'"
   >
-    <v-container>
+    <v-row
+      class="pa-3"
+      align="center"
+      justify="center"
+    >
       <v-card v-if="loading">
         <v-skeleton-loader
           type="card"
@@ -202,117 +268,177 @@ function isWin(game: IMatchData, account: IAccount) {
           </div>
         </v-card-title>
 
-        <v-card-text class="mt-4">
-          <span class="text-h5 ml-5">
-            {{ $t('proPlayers.accounts') }}
-          </span>
+        <v-card-text
+          v-if="!proAccounts.length"
+          class="text-h5 ma-6"
+        >
+          {{ $t('proPlayers.noAccounts') }}
+        </v-card-text>
 
-          <p
-            v-if="!proAccounts.length"
-            class="text-subtitle-1 ma-4"
-          >
-            {{ $t('proPlayers.noAccounts') }}
-          </p>
-
-          <v-list
-            v-for="([
-              region,
-              accounts,
-            ], index) in Object.entries(groupedAccounts)"
-            v-else
-            :key="region"
-            lines="three"
-            class="my-4"
-          >
-            <div
-              style="display: flex; align-items: center; justify-content: space-between"
-              class="mx-10 mb-2"
+        <v-card-text
+          v-else
+          class="mt-4"
+        >
+          <v-row align="center">
+            <v-col
+              cols="12"
+              sm="7"
+              :order="smAndDown
+                ? 2
+                : 1"
             >
-              <span class="text-h6">
-                {{ region }}
+              <span class="text-h5 ml-5">
+                {{ $t('proPlayers.accounts') }}
               </span>
 
-              <span
-                v-if="index === 0"
-                class="text-h6"
+              <v-list
+                v-for="[
+                  region,
+                  accounts,
+                ] in Object.entries(groupedAccounts)"
+                :key="region"
+                lines="three"
+                class="my-4"
               >
-                {{ $t('proPlayers.lastGames', {"games": 8}) }}
-              </span>
-            </div>
-
-            <v-list-item
-              v-for="account in accounts"
-              :key="account.account.puuid"
-              justify="center"
-              :to="`/account/${account.account.region}/${account.account.gameName}-${account.account.tagLine}`"
-            >
-              <template
-                v-if="account.leagueEntry"
-                #prepend
-              >
-                <div>
-                  <v-avatar
-                    size="70"
-                  >
-                    <v-img
-                      :src="rankIcons[account.leagueEntry.tier.toLowerCase()]"
-                      lazy-src="~/assets/default.png"
-                    />
-                  </v-avatar>
-
-                  <p
-                    v-if="[
-                      'CHALLENGER',
-                      'GRANDMASTER',
-                      'MASTER',
-                    ].includes(account.leagueEntry.tier)"
-                    class="text-subtitle-2"
-                  >
-                    {{ `${account.leagueEntry.tier} ${account.leagueEntry.leaguePoints}LP` }}
-                  </p>
-
-                  <p v-else>
-                    {{ `${account.leagueEntry.tier} ${romanToNumber(account.leagueEntry.rank)}` }}
-                  </p>
-                </div>
-              </template>
-
-              <v-list-item-title class="text-h6 ml-7">
-                {{ account.account.gameName }}
-
-                <span class="text-gray">
-                  {{ ` #${account.account.tagLine}` }}
-                </span>
-              </v-list-item-title>
-
-              <template
-                v-if="!smAndDown"
-                #append
-              >
-                <v-card
-                  v-for="game in last8Games[account.account.puuid]"
-                  :key="game.metadata.matchId"
-                  :class="account.leagueEntry
-                    ? 'mx-1 mt-4'
-                    : 'mx-1 mb-4'"
-                  :color="isWin(game, account.account)
-                    ? 'league-blue'
-                    : 'league-red'"
+                <v-chip
+                  class="ml-8"
+                  variant="elevated"
+                  :color="regionColors[region]"
+                  size="large"
                 >
-                  <v-avatar
-                    size="50"
+                  {{ region }}
+                </v-chip>
+
+                <v-list-item
+                  v-for="account in accounts"
+                  :key="account.account.puuid"
+                  class="my-2"
+                  justify="center"
+                  :to="`/account/${account.account.region}/${account.account.gameName}-${account.account.tagLine}`"
+                >
+                  <template
+                    v-if="account.leagueEntry"
+                    #prepend
                   >
-                    <v-img
-                      :src="championIcons[game.info.participants.find(participant => participant.puuid === account.account.puuid)!.championId]"
-                      lazy-src="~/assets/default.png"
-                    />
-                  </v-avatar>
-                </v-card>
-              </template>
-            </v-list-item>
-          </v-list>
+                    <div align="center">
+                      <v-avatar
+                        size="70"
+                      >
+                        <v-img
+                          :src="rankIcons[account.leagueEntry.tier.toLowerCase()]"
+                          lazy-src="~/assets/default.png"
+                        />
+                      </v-avatar>
+
+                      <p
+                        v-if="[
+                          'CHALLENGER',
+                          'GRANDMASTER',
+                          'MASTER',
+                        ].includes(account.leagueEntry.tier)"
+                        class="text-subtitle-2"
+                      >
+                        {{ `${account.leagueEntry.tier} ${account.leagueEntry.leaguePoints}LP` }}
+                      </p>
+
+                      <p v-else>
+                        {{ `${account.leagueEntry.tier} ${romanToNumber(account.leagueEntry.rank)}` }}
+                      </p>
+                    </div>
+                  </template>
+
+                  <v-list-item-title class="text-h6 ml-7">
+                    {{ account.account.gameName }}
+
+                    <span class="text-gray">
+                      {{ ` #${account.account.tagLine}` }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-col>
+
+            <v-col
+              v-if="lastGames.length"
+              cols="12"
+              sm="5"
+              :order="smAndDown
+                ? 1
+                : 2"
+            >
+              <span class="text-h5 ml-5">
+                {{ $t('proPlayers.lastGames', {"games": lastGames.length}) }}
+              </span>
+
+              <v-list
+                class="scroll-list"
+                lines="two"
+              >
+                <v-list-item
+                  v-for="champion in mapChampionHistory"
+                  :key="champion.championId"
+                >
+                  <template #prepend>
+                    <v-avatar
+                      size="45"
+                    >
+                      <v-img
+                        :src="championIcons[champion.championId]"
+                        lazy-src="~/assets/default.png"
+                      />
+                    </v-avatar>
+                  </template>
+
+                  <v-row align="center">
+                    <v-col cols="4">
+                      <p class="text-h6">
+                        {{ championIdsToTitles[champion.championId] }}
+                      </p>
+
+                      <p class="text-subtitle-2">
+                        {{ `${$t('proPlayers.games')}: ${champion.games}` }}
+                      </p>
+                    </v-col>
+
+                    <v-col
+                      cols="4"
+                      align="center"
+                    >
+                      <p class="text-h6">
+                        {{ getWinRatio(champion) }}%
+                      </p>
+
+                      <p class="text-caption">
+                        Win rate
+                      </p>
+                    </v-col>
+
+                    <v-col
+                      cols="4"
+                      align="center"
+                    >
+                      <p :class="`text-h6 text-${mapKDAToColor(Number(getKDA(champion)))}`">
+                        {{ getKDA(champion) }}
+                      </p>
+
+                      <p class="text-caption">
+                        KDA
+                      </p>
+                    </v-col>
+                  </v-row>
+                </v-list-item>
+              </v-list>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
-    </v-container>
-  </div>
+    </v-row>
+  </v-container>
 </template>
+
+<style scoped>
+.scroll-list {
+  height: 300px;
+  overflow-y: auto
+}
+</style>

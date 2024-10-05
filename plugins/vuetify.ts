@@ -52,6 +52,10 @@ export default defineNuxtPlugin((app) => {
       VContainer: {
         style: 'max-width: 1200px',
       },
+      VCard: {
+        rounded: 'lg',
+        width: '100%',
+      },
     },
     display: {
       mobileBreakpoint: 'sm',
