@@ -269,8 +269,15 @@ async function findChampions() {
         align-tabs="center"
         grow
         :show-arrows="mobile"
-        :items="tabs"
-      />
+      >
+        <v-tab
+          v-for="tab in tabs"
+          :key="tab.value"
+          :value="tab.value"
+        >
+          {{ tab.text }}
+        </v-tab>
+      </v-tabs>
 
       <v-card-text v-if="!loading">
         <v-card v-if="tabLoading">

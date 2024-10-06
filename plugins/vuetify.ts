@@ -56,6 +56,13 @@ export default defineNuxtPlugin((app) => {
         rounded: 'lg',
         width: '100%',
       },
+      VTab: {
+        rounded: 'xl',
+        size: 'large',
+      },
+      VListItem: {
+        rounded: 'lg',
+      },
     },
     display: {
       mobileBreakpoint: 'sm',

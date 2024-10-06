@@ -28,8 +28,8 @@ const tabs = computed(() => [
     to: '/pro-players',
   },
   {
-    title: 'Bootcamp',
-    to: '/bootcamp',
+    title: 'Worlds 24',
+    to: '/worlds-24',
   },
 ])
 
@@ -205,7 +205,6 @@ function toggleSettings() {
           v-for="tab in tabs"
           :key="tab.title"
           :to="tab.to"
-          rounded="xl"
         >
           {{ tab.title }}
         </v-tab>
@@ -252,7 +251,6 @@ function toggleSettings() {
         :key="tab.title"
         :value="tab.to"
         :to="tab.to"
-        rounded="xl"
       >
         {{ tab.title }}
       </v-tab>

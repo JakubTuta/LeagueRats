@@ -284,9 +284,9 @@ function getPlayerRoleIcon(player: { role: string }) {
                 align="center"
               >
                 <v-avatar
-                  size="150"
+                  size="130"
                   rounded="0"
-                  class="pa-3"
+                  class="pa-2"
                 >
                   <v-img
                     :src="teamLogos[team]"
