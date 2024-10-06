@@ -1,21 +1,20 @@
 import json
 import random
 
-import firebase_functions
 import requests
 import scheduled_functions
 import src.firebase_init as firebase_init
 import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
 import src.regions as regions
-from firebase_functions import https_fn, scheduler_fn
+from firebase_functions import https_fn, options, scheduler_fn
 from src.models.match_history import MatchData
 
 # cors_options = firebase_functions.options.CorsOptions(
 #     cors_methods=["GET", "POST", "OPTIONS"],
 #     cors_origins="*",
 # )
-cors_get_options = firebase_functions.options.CorsOptions(
+cors_get_options = options.CorsOptions(
     cors_methods=["GET", "OPTIONS"],
     cors_origins="*",
 )

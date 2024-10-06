@@ -153,12 +153,15 @@ function getPlayerRoleIcon(player: { role: string }) {
 }
 
 const mapChampionHistory = computed(() => {
+  if (!player.value)
+    return []
+
   // eslint-disable-next-line vue/no-side-effects-in-computed-properties
   const championHistory = lastGames.value
     .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
     .slice(0, 20)
     .reduce((acc, game) => {
-      const participant = game.info.participants.find(participant => participant.puuid === proAccounts.value[0].account.puuid)!
+      const participant = game.info.participants.find(participant => player.value!.puuid.includes(participant.puuid))!
 
       let champion = acc.find(champ => champ.championId === participant.championId)
 
@@ -282,7 +285,7 @@ function getWinRatio(champion: IChampionHistory) {
           <v-row>
             <v-col
               cols="12"
-              sm="7"
+              md="7"
               :order="smAndDown
                 ? 2
                 : 1"
@@ -361,13 +364,16 @@ function getWinRatio(champion: IChampionHistory) {
             <v-col
               v-if="lastGames.length"
               cols="12"
-              sm="5"
+              md="5"
               :order="smAndDown
                 ? 1
                 : 2"
+              class="mb-6"
             >
               <span class="text-h5 ml-5">
-                {{ $t('proPlayers.lastGames', {"games": lastGames.length}) }}
+                {{ $t('proPlayers.lastGames', {"games": lastGames.length > 20
+                  ? 20
+                  : lastGames.length}) }}
               </span>
 
               <v-list
