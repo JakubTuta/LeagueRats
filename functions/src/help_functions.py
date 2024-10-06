@@ -1,3 +1,6 @@
+import requests
+
+
 def find_highest_playrate_role(champion_data, champion_key):
     roles = champion_data.get(champion_key, None)
 
@@ -43,3 +46,14 @@ def get_optional_params(args, optional_keys):
     url_params = "&".join([f"{key}={value}" for key, value in optional_params.items()])
 
     return url_params
+
+
+def check_if_channel_is_live(channel_name):
+    contents = requests.get("https://www.twitch.tv/" + channel_name).content.decode(
+        "utf-8"
+    )
+
+    if "isLiveBroadcast" in contents:
+        return True
+    else:
+        return False

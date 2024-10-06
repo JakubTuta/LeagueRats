@@ -47,7 +47,7 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
 
 
 def _update_pro_accounts_for_team(new_documents, update_documents, region, team):
-    player_documents = firestore_functions.get_pro_player_documents(region, team)
+    player_documents = firestore_functions.get_pro_team_documents(region, team)
 
     for player_document in player_documents:
         player_document_data = player_document.to_dict()
@@ -101,7 +101,7 @@ def update_pro_accounts(region) -> None:
 
 
 def _update_player_names_for_team(documents, region, team):
-    player_docs = firestore_functions.get_pro_player_documents(region, team)
+    player_docs = firestore_functions.get_pro_team_documents(region, team)
 
     for player_doc in player_docs:
         player = player_doc.to_dict()
@@ -150,7 +150,7 @@ def update_player_game_names() -> None:
 
 
 def _get_league_entries_for_team(accounts, region, team):
-    player_docs = firestore_functions.get_pro_player_documents(region, team)
+    player_docs = firestore_functions.get_pro_team_documents(region, team)
 
     for player_doc in player_docs:
         player_data = player_doc.to_dict()

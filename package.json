@@ -37,6 +37,7 @@
     "firebase-tools": "^13.12.0",
     "nuxt": "^3.12.2",
     "pinia": "^2.1.7",
+    "twitch-stream-embed": "^1.0.5",
     "typescript": "^5.5.2",
     "unocss": "^0.61.3",
     "vite-plugin-vuetify": "^2.0.3",

@@ -598,6 +598,46 @@ def add_account(
         )
 
 
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def player_live(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    # url: /player_live/{region}/{team}/{player}
+
+    try:
+        url_params = req.path.split("/")
+
+        region = url_params[1]
+        team = url_params[2]
+        player = url_params[3]
+
+        if not region or not team or not player:
+            raise Exception("Missing region, team or player")
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    if region not in regions.pro_regions:
+        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
+
+    player_doc = firestore_functions.get_pro_player_document(region, team, player)
+
+    if not player_doc:
+        return https_fn.Response(json.dumps({"error": "Player not found"}), status=404)
+
+    player_data = player_doc.to_dict()
+    player_stream = player_data.get("socialMedia", {}).get("twitch", None)
+
+    if not player_stream:
+        return https_fn.Response(json.dumps({"isLive": 0}), status=200)
+
+    if help_functions.check_if_channel_is_live(player_stream):
+        return https_fn.Response(json.dumps({"isLive": 1}), status=200)
+    else:
+        return https_fn.Response(json.dumps({"isLive": 0}), status=200)
+
+
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
 def current_version(
     event: scheduler_fn.ScheduledEvent,

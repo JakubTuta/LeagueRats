@@ -229,12 +229,30 @@ def save_match_to_firebase(match):
     threading.Thread(target=func).start()
 
 
-def get_pro_player_documents(region, team):
+def get_pro_team_documents(region, team):
     player_docs = firebase_init.firestore_client.collection(
         f"pro_players/{region}/{team}"
     ).stream()
 
     return player_docs
+
+
+def get_pro_player_document(region, team, player):
+    # player_docs = (
+    #     firebase_init.firestore_client.collection(f"pro_players/{region}/{team}")
+    #     .where("gameName", "==", player)
+    #     .stream()
+    # )
+
+    # player_doc = next(player_docs, None)
+
+    player_doc = (
+        firebase_init.firestore_client.collection(f"pro_players/{region}/{team}")
+        .document(player.lower())
+        .get()
+    )
+
+    return player_doc if player_doc.exists else None
 
 
 def _find_pro_region_for_team(team):
@@ -296,7 +314,7 @@ def _append_active_game(games, player):
 def _get_pro_games_for_team(active_games, team):
     region = _find_pro_region_for_team(team)
 
-    player_docs = get_pro_player_documents(region, team)
+    player_docs = get_pro_team_documents(region, team)
     player_data = [doc.to_dict() for doc in player_docs]
 
     threads = [
