@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
-import { selectRegionToProRegion, selectRegions } from '~/helpers/regions'
+import { selectRegions, teamPerRegion } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
 import type { IChampionMastery } from '~/models/championMastery'
@@ -159,6 +159,13 @@ function handleTabData() {
 //   router.replace(fullPath.join('/'))
 // }
 
+function findRegionForTeam(team: string) {
+  for (const [region, teams] of Object.entries(teamPerRegion)) {
+    if (teams.includes(team))
+      return region
+  }
+}
+
 async function checkIfAccountIsPro() {
   if (!account.value?.puuid)
     return
@@ -169,13 +176,14 @@ async function checkIfAccountIsPro() {
       return
   }
 
-  const proRegion = selectRegionToProRegion[region.value]
-  if (!proRegion)
-    return
-
   proPlayer.value = proAccountNames.value[account.value.puuid] || null
 
   if (!proPlayer.value)
+    return
+
+  const proRegion = findRegionForTeam(proPlayer.value.team)
+
+  if (!proRegion)
     return
 
   storageStore.getTeamImages(proRegion, proPlayer.value.team)
