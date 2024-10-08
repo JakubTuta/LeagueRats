@@ -685,7 +685,7 @@ def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.check_for_live_streams()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every 10 minutes")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every 5 minutes")
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
     tier_1_teams = ["G2", "T1", "GENG", "BLG"]
     tier_2_teams = ["FNC", "LNG", "HLE", "DK"]
