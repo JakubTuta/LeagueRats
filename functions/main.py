@@ -680,21 +680,9 @@ def update_bootcamp_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_bootcamp_leaderboard()
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def request_update_bootcamp_leaderboard(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    # url: /request_update_bootcamp_leaderboard
-
-    try:
-        scheduled_functions.update_bootcamp_leaderboard()
-        return https_fn.Response(
-            json.dumps({"message": "Leaderboard updated"}), status=200
-        )
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({"error": f"Error occurred: {str(e)}"}), status=500
-        )
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every 15 minutes")
+def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
+    scheduled_functions.check_for_live_streams()
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every 10 minutes")

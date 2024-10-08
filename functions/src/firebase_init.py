@@ -40,6 +40,9 @@ firestore_client = None
 def add_collection(collection_name):
     global collections
 
+    if not firestore_client:
+        return
+
     collections[collection_name] = firestore_client.collection(collection_name)
 
 
@@ -59,6 +62,7 @@ def initialize_app():
         "pro_players",
         "active_pro_games",
         "eu_bootcamp_leaderboard",
+        "live_streams",
     ]
 
     for collection_name in collection_names:

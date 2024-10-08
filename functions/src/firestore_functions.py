@@ -372,3 +372,9 @@ def save_accounts(accounts):
             firebase_init.collections["accounts"].document(account["puuid"]).set(
                 account
             )
+
+
+def get_live_streams():
+    docs = firebase_init.collections["live_streams"].stream()
+
+    return docs
