@@ -192,6 +192,7 @@ function getNextUpdateTime() {
   nextUpdate.setSeconds(0)
 
   const diff = nextUpdate.getTime() - now.getTime()
+
   const minutesDiff = String(Math.floor(diff / 60000)).padStart(2, '0')
   const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
 
@@ -203,6 +204,18 @@ function goToPlayerAccount(game: IProActiveGame) {
 
   // @ts-expect-error added fields
   return `/account/${region}/${game.player.gameName}-${game.player.tagLine}`
+}
+
+function getTimeDiff(game: IProActiveGame) {
+  const now = new Date()
+  const gameDate = new Date(game.gameStartTime.toDate())
+
+  const diff = now.getTime() - gameDate.getTime()
+
+  const minutesDiff = Math.floor(diff / 60000)
+  const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
+
+  return `${minutesDiff}m ${secondsDiff}s`
 }
 </script>
 
@@ -328,7 +341,6 @@ function goToPlayerAccount(game: IProActiveGame) {
         {{ $t('index.nextUpdate', {"time": refreshTime}) }}
         <v-carousel
           class="mt-1"
-
           interval="10000"
           cycle
           hide-delimiters
@@ -356,6 +368,10 @@ function goToPlayerAccount(game: IProActiveGame) {
                   :to="goToPlayerAccount(game)"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
+                    <span style="position: absolute; top: 10px; right: 10px;">
+                      {{ getTimeDiff(game) }}
+                    </span>
+
                     <div>
                       <v-avatar
                         size="80"
