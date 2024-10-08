@@ -2,16 +2,18 @@
 import { useDisplay } from 'vuetify'
 // @ts-expect-error correct path
 import logo from '~/assets/logo.png'
-import { proRegionToSelectRegion, selectRegions, teamPerRegion } from '~/helpers/regions'
+import { selectRegions, teamPerRegion } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
+import { fullUrl } from '~/helpers/url'
 import type { IProActiveGame } from '~/models/proActiveGame'
+import type { IProPlayer } from '~/models/proPlayer'
 
 const { t } = useI18n()
 const router = useRouter()
 const { mobile } = useDisplay()
 
 const proStore = useProPlayerStore()
-const { activeGames } = storeToRefs(proStore)
+const { activeGames, liveStreams } = storeToRefs(proStore)
 
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
@@ -34,6 +36,9 @@ const errorMessage = t('rules.requiredField')
 onMounted(() => {
   if (!mobile.value)
     proStore.getActiveProGamesFromDatabase()
+
+  proStore.getLiveStreams()
+  proStore.getNotLiveStreams()
 })
 
 onUnmounted(() => {
@@ -200,10 +205,7 @@ function getNextUpdateTime() {
 }
 
 function goToPlayerAccount(game: IProActiveGame) {
-  const region = proRegionToSelectRegion[game.player.region]
-
-  // @ts-expect-error added fields
-  return `/account/${region}/${game.player.gameName}-${game.player.tagLine}`
+  return `/account/${game.account.region}/${game.account.gameName}-${game.account.tagLine}`
 }
 
 function getTimeDiff(game: IProActiveGame) {
@@ -216,6 +218,12 @@ function getTimeDiff(game: IProActiveGame) {
   const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
 
   return `${minutesDiff}m ${secondsDiff}s`
+}
+
+function getPlayerStream(player: IProPlayer) {
+  const stream = liveStreams.value[player.player] || null
+
+  return stream
 }
 </script>
 
@@ -368,6 +376,38 @@ function getTimeDiff(game: IProActiveGame) {
                   :to="goToPlayerAccount(game)"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
+                    <NuxtLink
+                      v-if="getPlayerStream(game.player)"
+                      external
+                      :to="`${fullUrl.twitch}/${getPlayerStream(game.player)}`"
+                      @click.stop
+                    >
+                      <v-avatar
+                        style="position: absolute; top: 5px; left: 5px;"
+                        size="50"
+                        rounded="0"
+                        variant="flat"
+                      >
+                        <v-badge
+                          dot
+                          color="red"
+                        >
+                          <v-icon
+                            size="40"
+                            icon="mdi-twitch"
+                            color="#6441a5"
+                          />
+
+                          <v-tooltip
+                            activator="parent"
+                            location="bottom"
+                          >
+                            {{ $t('proPlayers.isLive', {"player": game.player.player}) }}
+                          </v-tooltip>
+                        </v-badge>
+                      </v-avatar>
+                    </NuxtLink>
+
                     <span style="position: absolute; top: 10px; right: 10px;">
                       {{ getTimeDiff(game) }}
                     </span>
@@ -403,7 +443,7 @@ function getTimeDiff(game: IProActiveGame) {
                         class="text-subtitle-2 text-gray"
                         style="margin-top: auto"
                       >
-                        {{ game.region }}
+                        {{ game.account.region }}
                       </p>
 
                       <p>

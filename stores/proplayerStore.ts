@@ -1,4 +1,4 @@
-import type { QuerySnapshot, Unsubscribe } from 'firebase/firestore'
+import type { DocumentData, QuerySnapshot, Unsubscribe } from 'firebase/firestore'
 import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore'
 import { proRegions, teamPerRegion } from '~/helpers/regions'
 import { useFirebase } from '~/helpers/useFirebase'
@@ -25,7 +25,12 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   const proAccountNames = ref<IProAccountNames | null>(null)
   const bootcampAccounts = ref<IBootcampAccount[]>([])
 
+  const liveStreams = ref<Record<string, { player: string, team: string, twitch: string }>>({})
+  const notLiveStreams = ref<Record<string, { player: string, team: string, twitch: string }>>({})
+
   const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
+  const liveStreamsUnsubscribe = ref<Unsubscribe | null>(null)
+  const notLiveStreamsUnsubscribe = ref<Unsubscribe | null>(null)
 
   const { firestore } = useFirebase()
 
@@ -38,6 +43,19 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     activeGames.value = []
     proAccountNames.value = null
     bootcampAccounts.value = []
+
+    liveStreams.value = {}
+    notLiveStreams.value = {}
+
+    if (liveStreamsUnsubscribe.value) {
+      liveStreamsUnsubscribe.value()
+      liveStreamsUnsubscribe.value = null
+    }
+
+    if (notLiveStreamsUnsubscribe.value) {
+      notLiveStreamsUnsubscribe.value()
+      notLiveStreamsUnsubscribe.value = null
+    }
 
     if (activeGamesUnsubscribe.value) {
       activeGamesUnsubscribe.value()
@@ -242,11 +260,53 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     }
   }
 
+  const getLiveStreams = () => {
+    if (liveStreamsUnsubscribe.value) {
+      liveStreamsUnsubscribe.value()
+    }
+
+    const onSuccess = (snapshot: DocumentData) => {
+      liveStreams.value = snapshot.data() as Record<string, { player: string, team: string, twitch: string }>
+    }
+
+    const onError = (error: Error) => {
+      console.error(error)
+    }
+
+    liveStreamsUnsubscribe.value = onSnapshot(
+      doc(collection(firestore, 'live_streams'), 'live'),
+      onSuccess,
+      onError,
+    )
+  }
+
+  const getNotLiveStreams = () => {
+    if (notLiveStreamsUnsubscribe.value) {
+      notLiveStreamsUnsubscribe.value()
+    }
+
+    const onSuccess = (snapshot: DocumentData) => {
+      notLiveStreams.value = snapshot.data() as Record<string, { player: string, team: string, twitch: string }>
+    }
+
+    const onError = (error: Error) => {
+      console.error(error)
+    }
+
+    notLiveStreamsUnsubscribe.value = onSnapshot(
+      doc(collection(firestore, 'live_streams'), 'not_live'),
+      onSuccess,
+      onError,
+    )
+  }
+
   return {
     players,
     activeGames,
     proAccountNames,
     bootcampAccounts,
+    liveStreams,
+    notLiveStreams,
     resetState,
     resetPlayers,
     getProPlayersForRegion,
@@ -258,5 +318,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     getActiveProGamesFromDatabase,
     getProAccountNames,
     getBootcampAccounts,
+    getLiveStreams,
+    getNotLiveStreams,
   }
 })

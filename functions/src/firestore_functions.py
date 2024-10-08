@@ -1,3 +1,4 @@
+import datetime
 import re
 import threading
 
@@ -238,14 +239,6 @@ def get_pro_team_documents(region, team):
 
 
 def get_pro_player_document(region, team, player):
-    # player_docs = (
-    #     firebase_init.firestore_client.collection(f"pro_players/{region}/{team}")
-    #     .where("gameName", "==", player)
-    #     .stream()
-    # )
-
-    # player_doc = next(player_docs, None)
-
     player_doc = (
         firebase_init.firestore_client.collection(f"pro_players/{region}/{team}")
         .document(player.lower())
@@ -301,9 +294,12 @@ def _append_active_game(games, player):
         )
 
         mapped_game = {
+            "account": account,
             "player": player,
             "participant": player_participant,
-            "region": account["region"],
+            "gameStartTime": datetime.datetime.fromtimestamp(
+                game["gameStartTime"] / 1000
+            ),
         }
 
         games.append(mapped_game)
@@ -343,7 +339,27 @@ def get_active_games_per_team(teams):
     for thread in threads:
         thread.join()
 
-    return active_games
+    previous_games = firebase_init.collections["active_pro_games"].stream()
+
+    previous_games_dict = {
+        doc.to_dict()["participant"]["puuid"]: doc.to_dict() for doc in previous_games
+    }
+    current_games_list = [game["participant"]["puuid"] for game in active_games]
+
+    # Remove games that are no longer active
+    for previous_game in previous_games:
+        previous_game_data = previous_game.to_dict()
+        if previous_game_data["participant"]["puuid"] not in current_games_list:
+            previous_game.reference.delete()
+
+    # Add new games
+    new_games = [
+        game
+        for game in active_games
+        if game["participant"]["puuid"] not in previous_games_dict
+    ]
+
+    return new_games
 
 
 def clear_collection(collection_name):
@@ -353,8 +369,8 @@ def clear_collection(collection_name):
         doc.reference.delete()
 
 
-def set_document_in_collection(collection_name, document_id, document):
-    firebase_init.collections[collection_name].document(document_id).set(document)
+def set_document_in_collection(collection_name, document_id, document_data):
+    firebase_init.collections[collection_name].document(document_id).set(document_data)
 
 
 def save_documents_to_collection(collection_name, documents):
@@ -375,6 +391,14 @@ def save_accounts(accounts):
 
 
 def get_live_streams():
-    docs = firebase_init.collections["live_streams"].stream()
+    doc_ref = firebase_init.collections["live_streams"].document("live")
+    doc = doc_ref.get()
 
-    return docs
+    return doc if doc.exists else None
+
+
+def get_not_live_streams():
+    doc_ref = firebase_init.collections["live_streams"].document("not_live")
+    doc = doc_ref.get()
+
+    return doc if doc.exists else None

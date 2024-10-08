@@ -145,7 +145,8 @@
     "noAccounts": "No accounts found",
     "players": "Players",
     "lastGames": "Last {games} games",
-    "games": "Games"
+    "games": "Games",
+    "isLive": "{player} is live"
   },
   "cookies": {
     "title": "Cookies",

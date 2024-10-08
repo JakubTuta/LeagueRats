@@ -6,6 +6,11 @@ import src.help_functions as help_functions
 import src.regions as regions
 from firebase_functions import scheduler_fn
 
+minutes_5 = "5,10,15,20,25,30,35,40,45,50,55 * * * *"
+minutes_10 = "10,20,30,40,50 * * * *"
+minutes_15 = "15,30,45 * * * *"
+hours_1 = "0 * * * *"
+
 
 def current_version(
     event: scheduler_fn.ScheduledEvent,
@@ -240,7 +245,7 @@ def update_bootcamp_leaderboard():
         )
 
 
-def _get_live_streams_for_team(region, team, players_streaming):
+def _get_live_streams_for_team(region, team, live_streams, not_live_streams):
     player_docs = firestore_functions.get_pro_team_documents(region, team)
 
     for player_doc in player_docs:
@@ -249,28 +254,36 @@ def _get_live_streams_for_team(region, team, players_streaming):
         if not player_data:
             continue
 
-        if player_data.get("socialMedia", {}).get(
-            "twitch"
-        ) and help_functions.check_if_channel_is_live(
-            player_data["socialMedia"]["twitch"]
-        ):
-            players_streaming.append(
-                {
-                    "player": player_data["player"],
+        player_name = player_data["player"]
+
+        if player_data.get("socialMedia", {}).get("twitch"):
+            if help_functions.check_if_channel_is_live(
+                player_data["socialMedia"]["twitch"]
+            ):
+                live_streams[player_name] = {
+                    "player": player_name,
                     "team": team,
                     "twitch": player_data["socialMedia"]["twitch"],
                 }
-            )
+            else:
+                not_live_streams[player_name] = {
+                    "player": player_name,
+                    "team": team,
+                    "twitch": player_data["socialMedia"]["twitch"],
+                }
 
 
 def check_for_live_streams():
-    players_streaming = []
+    live_streams = {}
+    not_live_streams = {}
 
     threads = [
         threading.Thread(
-            target=_get_live_streams_for_team, args=(region, team, players_streaming)
+            target=_get_live_streams_for_team,
+            args=(region, team, live_streams, not_live_streams),
         )
-        for region, team in regions.teams_per_region.items()
+        for region, teams in regions.teams_per_region.items()
+        for team in teams
     ]
 
     for thread in threads:
@@ -279,25 +292,7 @@ def check_for_live_streams():
     for thread in threads:
         thread.join()
 
-    previous_streams = firestore_functions.get_live_streams()
-
-    # delete previous streams that are not live anymore
-    current_streams_dict = {stream["twitch"]: stream for stream in players_streaming}
-
-    for previous_stream in previous_streams:
-        previous_stream_data = previous_stream.to_dict()
-        if previous_stream_data["twitch"] not in current_streams_dict:
-            previous_stream.ref.delete()
-
-    # save new streams
-    previous_streams_dict = {
-        stream.to_dict()["twitch"]: stream.to_dict() for stream in previous_streams
-    }
-
-    new_streams = [
-        stream
-        for stream in players_streaming
-        if stream["twitch"] not in previous_streams_dict
-    ]
-
-    firestore_functions.save_documents_to_collection("live_streams", new_streams)
+    firestore_functions.set_document_in_collection("live_streams", "live", live_streams)
+    firestore_functions.set_document_in_collection(
+        "live_streams", "not_live", not_live_streams
+    )

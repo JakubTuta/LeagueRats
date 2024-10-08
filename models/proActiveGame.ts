@@ -1,20 +1,20 @@
 import type { Timestamp } from 'firebase/firestore'
+import type { IAccount } from './account'
 import type { IParticipant } from './activeGame'
 import type { IProPlayer } from './proPlayer'
-import type { TApiRegions1 } from '~/helpers/regions'
 
 export interface IProActiveGame {
+  account: IAccount
   player: IProPlayer
   participant: IParticipant
-  region: TApiRegions1
   gameStartTime: Timestamp
 }
 
 export function mapProActiveGame(data: any): IProActiveGame | null {
   return {
+    account: data.account,
     player: data.player,
     participant: data.participant,
-    region: data.region,
     gameStartTime: data.gameStartTime,
   } as IProActiveGame
 }

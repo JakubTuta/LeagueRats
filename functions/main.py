@@ -1,3 +1,4 @@
+import http
 import json
 import random
 
@@ -471,32 +472,6 @@ def match_data(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def active_pro_games(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    # url: /active_pro_games
-
-    tier_1_teams = ["G2", "T1", "GENG", "TL"]
-    tier_2_teams = ["FNC", "C9", "HLE", "DK"]
-    tier_3_teams = ["TH", "KT", "FLY", "MAD"]
-
-    active_pro_games = []
-
-    for teams_in_tier in [tier_1_teams, tier_2_teams, tier_3_teams]:
-        tier_games = firestore_functions.get_active_games_per_team(teams_in_tier)
-
-        active_pro_games.extend(tier_games)
-
-        if len(active_pro_games) >= 4:
-            break
-
-    mapped_games = list(
-        map(lambda game: {"player": game[0], "game": game[1]}, active_pro_games)
-    )
-    return https_fn.Response(json.dumps(mapped_games), status=200)
-
-
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def get_account(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -638,54 +613,60 @@ def player_live(
         return https_fn.Response(json.dumps({"isLive": 0}), status=200)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:00")
 def current_version(
     event: scheduler_fn.ScheduledEvent,
 ) -> None:
     scheduled_functions.current_version(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:00")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:00")
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:01")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:01")
 def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LEC")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:02")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:02")
 def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCS")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:03")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:03")
 def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCK")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:04")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:04")
 def update_LPL_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LPL")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 03:05")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:05")
 def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_player_game_names()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every hour")
+@scheduler_fn.on_schedule(
+    region="europe-central2", schedule=scheduled_functions.hours_1
+)
 def update_bootcamp_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_bootcamp_leaderboard()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every 15 minutes")
+@scheduler_fn.on_schedule(
+    region="europe-central2", schedule=scheduled_functions.minutes_5
+)
 def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.check_for_live_streams()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every 5 minutes")
+@scheduler_fn.on_schedule(
+    region="europe-central2", schedule=scheduled_functions.minutes_5
+)
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
     tier_1_teams = ["G2", "T1", "GENG", "BLG"]
     tier_2_teams = ["FNC", "LNG", "HLE", "DK"]

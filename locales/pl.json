@@ -145,7 +145,8 @@
     "noAccounts": "Nie znaleziono żadnych kont",
     "players": "Gracze",
     "lastGames": "Ostatnie {games} gier",
-    "games": "Gry"
+    "games": "Gry",
+    "isLive": "{player} jest na żywo"
   },
   "cookies": {
     "title": "Ciasteczka",

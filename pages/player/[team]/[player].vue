@@ -16,6 +16,7 @@ import { queueTypes } from '~/helpers/queueTypes'
 import { regionColors } from '~/helpers/regionColors'
 import { proRegionToSelectRegion } from '~/helpers/regions'
 import { calculateTotalLP } from '~/helpers/totalLP'
+import { fullUrl } from '~/helpers/url'
 import type { IAccount } from '~/models/account'
 import type { ILeagueEntry } from '~/models/leagueEntry'
 import type { IMatchData } from '~/models/matchData'
@@ -38,6 +39,8 @@ const storageStore = useStorageStore()
 const { teamImages, rankIcons, championIcons } = storeToRefs(storageStore)
 
 const proStore = useProPlayerStore()
+const { liveStreams, notLiveStreams } = storeToRefs(proStore)
+
 const accountStore = useAccountStore()
 const restStore = useRestStore()
 
@@ -48,6 +51,9 @@ const lastGames = ref<IMatchData[]>([])
 
 onMounted(async () => {
   loading.value = true
+
+  proStore.getLiveStreams()
+  proStore.getNotLiveStreams()
 
   const team = (route.params.team as string).toUpperCase()
   const playerName = route.params.player as string
@@ -79,6 +85,9 @@ onMounted(async () => {
 
   loading.value = false
 })
+
+const liveStream = computed(() => liveStreams.value[player.value?.player || ''] || null)
+const notLiveStream = computed(() => notLiveStreams.value[player.value?.player || ''] || null)
 
 const groupedAccounts = computed(() => {
   const regions = proAccounts.value.reduce((acc, account) => {
@@ -240,6 +249,56 @@ function getWinRatio(champion: IChampionHistory) {
       </v-card>
 
       <v-card v-else-if="!loading && player">
+        <NuxtLink
+          v-if="liveStream"
+          external
+          :to="`${fullUrl.twitch}/${liveStream.twitch}`"
+        >
+          <v-avatar
+            style="position: absolute; top: 25px; right: 25px;"
+            size="70"
+            rounded="0"
+            variant="flat"
+          >
+            <v-badge
+              dot
+              color="red"
+            >
+              <v-icon
+                size="60"
+                icon="mdi-twitch"
+                color="#6441a5"
+              />
+
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                {{ $t('proPlayers.isLive', {"player": player.player}) }}
+              </v-tooltip>
+            </v-badge>
+          </v-avatar>
+        </NuxtLink>
+
+        <NuxtLink
+          v-else-if="notLiveStream"
+          external
+          :to="`${fullUrl.twitch}/${notLiveStream.twitch}`"
+        >
+          <v-avatar
+            style="position: absolute; top: 25px; right: 25px;"
+            size="70"
+            rounded="0"
+            variant="flat"
+          >
+            <v-icon
+              size="60"
+              icon="mdi-twitch"
+              color="gray"
+            />
+          </v-avatar>
+        </NuxtLink>
+
         <v-card-title align="center">
           <p class="my-4">
             <v-avatar size="150">

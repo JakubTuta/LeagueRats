@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { proRegions, teamPerRegion } from '~/helpers/regions';
-import { useFirebase } from '~/helpers/useFirebase';
-import type { IAccount } from '~/models/account';
+import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { proRegions, teamPerRegion } from '~/helpers/regions'
+import { useFirebase } from '~/helpers/useFirebase'
+import type { IAccount } from '~/models/account'
 
 const { firestore } = useFirebase()
 
