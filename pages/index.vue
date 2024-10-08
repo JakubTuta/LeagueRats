@@ -176,37 +176,22 @@ function sendToUserView() {
 
 function getNextUpdateTime() {
   const now = new Date()
-  const next10Minutes = new Date()
-  next10Minutes.setSeconds(0)
+  const nextUpdate = new Date(now)
 
   const minutes = now.getMinutes()
+  const nextMinutes = Math.ceil(minutes / 5) * 5
 
-  if (minutes < 10) {
-    next10Minutes.setMinutes(10)
+  if (nextMinutes === 60) {
+    nextUpdate.setHours(now.getHours() + 1)
+    nextUpdate.setMinutes(0)
   }
-
-  else if (minutes < 20) {
-    next10Minutes.setMinutes(20)
-  }
-
-  else if (minutes < 30) {
-    next10Minutes.setMinutes(30)
-  }
-
-  else if (minutes < 40) {
-    next10Minutes.setMinutes(40)
-  }
-
-  else if (minutes < 50) {
-    next10Minutes.setMinutes(50)
-  }
-
   else {
-    next10Minutes.setHours(now.getHours() + 1)
-    next10Minutes.setMinutes(0)
+    nextUpdate.setMinutes(nextMinutes)
   }
 
-  const diff = next10Minutes.getTime() - now.getTime()
+  nextUpdate.setSeconds(0)
+
+  const diff = nextUpdate.getTime() - now.getTime()
   const minutesDiff = String(Math.floor(diff / 60000)).padStart(2, '0')
   const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
 
