@@ -15,6 +15,14 @@ interface IProAccountNames {
   }
 }
 
+export interface IStream {
+  player: string
+  team: string
+  region: string
+  twitch: string
+  isLive: boolean
+}
+
 export const useProPlayerStore = defineStore('proPlayer', () => {
   let playersPerRegion: Record<string, IProPlayer[]> = {}
   let playersPerTeam: Record<string, IProPlayer[]> = {}
@@ -25,8 +33,8 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   const proAccountNames = ref<IProAccountNames | null>(null)
   const bootcampAccounts = ref<IBootcampAccount[]>([])
 
-  const liveStreams = ref<Record<string, { player: string, team: string, twitch: string }>>({})
-  const notLiveStreams = ref<Record<string, { player: string, team: string, twitch: string }>>({})
+  const liveStreams = ref<Record<string, IStream>>({})
+  const notLiveStreams = ref<Record<string, IStream>>({})
 
   const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
   const liveStreamsUnsubscribe = ref<Unsubscribe | null>(null)
@@ -266,7 +274,11 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     }
 
     const onSuccess = (snapshot: DocumentData) => {
-      liveStreams.value = snapshot.data() as Record<string, { player: string, team: string, twitch: string }>
+      const data = snapshot.data()
+      for (const key in data) {
+        data[key].isLive = true
+      }
+      liveStreams.value = data as Record<string, IStream>
     }
 
     const onError = (error: Error) => {
@@ -286,7 +298,11 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     }
 
     const onSuccess = (snapshot: DocumentData) => {
-      notLiveStreams.value = snapshot.data() as Record<string, { player: string, team: string, twitch: string }>
+      const data = snapshot.data()
+      for (const key in data) {
+        data[key].isLive = false
+      }
+      notLiveStreams.value = data as Record<string, IStream>
     }
 
     const onError = (error: Error) => {

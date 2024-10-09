@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { selectRegions } from '~/helpers/regions'
-import { lengthRule } from '~/helpers/rules'
+import { useDisplay } from 'vuetify';
+import { selectRegions } from '~/helpers/regions';
+import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
@@ -30,6 +30,10 @@ const tabs = computed(() => [
   {
     title: 'Worlds 24',
     to: '/worlds-24',
+  },
+  {
+    title: t('navbar.streams'),
+    to: '/streams',
   },
 ])
 

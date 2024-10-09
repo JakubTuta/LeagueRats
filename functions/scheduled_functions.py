@@ -263,12 +263,14 @@ def _get_live_streams_for_team(region, team, live_streams, not_live_streams):
                 live_streams[player_name] = {
                     "player": player_name,
                     "team": team,
+                    "region": player_data["region"],
                     "twitch": player_data["socialMedia"]["twitch"],
                 }
             else:
                 not_live_streams[player_name] = {
                     "player": player_name,
                     "team": team,
+                    "region": player_data["region"],
                     "twitch": player_data["socialMedia"]["twitch"],
                 }
 

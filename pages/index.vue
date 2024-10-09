@@ -395,7 +395,7 @@ function getPlayerStream(player: IProPlayer) {
                           <v-icon
                             size="40"
                             icon="mdi-twitch"
-                            color="#6441a5"
+                            color="secondary"
                           />
 
                           <v-tooltip

@@ -19,7 +19,8 @@
   "navbar": {
     "home": "Strona głowna",
     "settings": "Ustawienia",
-    "proPlayers": "Pro gracze"
+    "proPlayers": "Pro gracze",
+    "streams": "Streamy"
   },
   "settings": {
     "title": "Ustawienia",
@@ -176,5 +177,8 @@
     "MASTER": "Mistrz",
     "GRANDMASTER": "Arcy Mistrz",
     "CHALLENGER": "Pretendent"
+  },
+  "streams": {
+    "profile": "Profil"
   }
 }

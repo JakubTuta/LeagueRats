@@ -19,7 +19,8 @@
   "navbar": {
     "home": "Home",
     "settings": "Settings",
-    "proPlayers": "Pro players"
+    "proPlayers": "Pro players",
+    "streams": "Streams"
   },
   "settings": {
     "title": "Settings",
@@ -176,5 +177,8 @@
     "MASTER": "Master",
     "GRANDMASTER": "Grandmaster",
     "CHALLENGER": "Challenger"
+  },
+  "streams": {
+    "profile": "Profile"
   }
 }

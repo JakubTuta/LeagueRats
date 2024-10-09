@@ -267,7 +267,7 @@ function getWinRatio(champion: IChampionHistory) {
               <v-icon
                 size="60"
                 icon="mdi-twitch"
-                color="#6441a5"
+                color="secondary"
               />
 
               <v-tooltip
