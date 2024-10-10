@@ -620,32 +620,32 @@ def current_version(
     scheduled_functions.current_version(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:00")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:01")
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description(event)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:01")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:02")
 def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LEC")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:02")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:03")
 def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCS")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:03")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:04")
 def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LCK")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:04")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:05")
 def update_LPL_accounts(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_pro_accounts("LPL")
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:05")
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:06")
 def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_player_game_names()
 
@@ -665,7 +665,7 @@ def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
 
 
 @scheduler_fn.on_schedule(
-    region="europe-central2", schedule=scheduled_functions.minutes_5
+    region="europe-central2", schedule=scheduled_functions.minutes_10
 )
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
     tier_1_teams = ["G2", "T1", "GENG", "BLG"]

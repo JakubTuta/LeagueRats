@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import 'twitch-stream-embed';
+import { useDisplay } from 'vuetify';
 import { fullUrl } from '~/helpers/url';
 import type { IStream } from '~/stores/proplayerStore';
 
@@ -8,6 +9,8 @@ const { liveStreams, notLiveStreams } = storeToRefs(proStore)
 
 const storageStore = useStorageStore()
 const { teamImages } = storeToRefs(storageStore)
+
+const { smAndDown, height } = useDisplay()
 
 const currentStream = ref<IStream | null>(null)
 const search = ref('')
@@ -96,8 +99,12 @@ function changeStream(stream: IStream) {
           <v-col
             cols="12"
             md="4"
+            :order="smAndDown
+              ? 2
+              : 1"
           >
             <v-list
+              :style="`max-height: ${height - 350}px; overflow-y: auto;`"
               lines="three"
               variant="elevated"
             >
@@ -210,12 +217,16 @@ function changeStream(stream: IStream) {
             cols="12"
             md="8"
             style="display: flex; justify-content: center; align-items: start;"
+            :order="smAndDown
+              ? 1
+              : 2"
           >
             <twitch-stream
               v-if="renderComponent && currentStream?.twitch"
               height="480px"
               width="854px"
               :channel="currentStream.twitch"
+              muted
             />
           </v-col>
         </v-row>
