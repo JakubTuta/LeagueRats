@@ -119,20 +119,14 @@ def _update_player_names_for_team(documents, region, team):
             continue
 
         for puuid in player["puuid"]:
-            if firestore_functions.get_account_from_firestore(puuid=puuid):
-                documents.append(
-                    {
-                        "player": player["player"],
-                        "team": team,
-                        "puuid": puuid,
-                    }
-                )
+            documents[puuid] = {
+                "player": player["player"],
+                "team": team,
+            }
 
 
 def update_player_game_names() -> None:
-    firestore_functions.delete_document_from_collection("pro_players", "account_names")
-
-    new_documents = []
+    new_documents = {}
 
     threads = [
         threading.Thread(
@@ -149,15 +143,10 @@ def update_player_game_names() -> None:
     for thread in threads:
         thread.join()
 
-    mapped_document = {
-        doc["puuid"]: {"player": doc["player"], "team": doc["team"]}
-        for doc in new_documents
-    }
-
     firestore_functions.set_document_in_collection(
         "pro_players",
         "account_names",
-        mapped_document,
+        new_documents,
     )
 
 

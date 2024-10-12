@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
+import { mapKDAToColor } from '~/helpers/kdaColors'
 import { queueTypes } from '~/helpers/queueTypes'
 import type { IAccount } from '~/models/account'
 import type { IMatchData } from '~/models/matchData'
+
+interface IChampionHistory {
+  championId: number
+  games: number
+  wins: number
+  loses: number
+  kills: number
+  deaths: number
+  assists: number
+}
 
 const props = defineProps<{
   account: IAccount | null
@@ -12,6 +23,9 @@ const { account } = toRefs(props)
 
 const { t } = useI18n()
 const { mobile } = useDisplay()
+
+const storageStore = useStorageStore()
+const { championIcons } = storeToRefs(storageStore)
 
 const restStore = useRestStore()
 
@@ -65,7 +79,7 @@ async function getMatchData(matchId: string) {
   return matchData
 }
 
-async function loadMatches(count: number = 10) {
+async function loadMatches(count: number = 20) {
   const matchIds = await getMatchIds(count)
 
   if (matchIds.length < count) {
@@ -101,6 +115,65 @@ async function getMatchHistory() {
 
   loading.value = false
 }
+
+// eslint-disable-next-line vue/no-side-effects-in-computed-properties
+const last20Games = computed(() => matchHistoryPerRegion.value[selectedTab.value]
+  ?.sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
+  .slice(0, 20) || [])
+
+const mapLast20Games = computed(() => {
+  return last20Games.value
+    .reduce((acc, game) => {
+      const participant = game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))!
+
+      storageStore.getChampionIcon(participant.championId)
+
+      let champion = acc.find(champ => champ.championId === participant.championId)
+
+      if (!champion) {
+        champion = {
+          championId: participant.championId,
+          games: 0,
+          wins: 0,
+          loses: 0,
+          kills: 0,
+          deaths: 0,
+          assists: 0,
+        }
+        acc.push(champion)
+      }
+
+      champion.games++
+      champion.kills += participant.kills
+      champion.deaths += participant.deaths
+      champion.assists += participant.assists
+
+      if (participant.win) {
+        champion.wins++
+      }
+      else {
+        champion.loses++
+      }
+
+      return acc
+    }, [] as IChampionHistory[])
+    .sort((a, b) => b.games - a.games)
+})
+
+function getKDA(champion: IChampionHistory) {
+  const kda = (champion.kills + champion.assists) / champion.deaths
+
+  return kda.toFixed(2)
+}
+
+function getWinRatio(champion: IChampionHistory) {
+  const winRatio = champion.wins / champion.games
+
+  return (winRatio * 100).toFixed(0)
+}
+
+const last20GamesWins = computed(() => last20Games.value.filter(game => game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
+const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
 </script>
 
 <template>
@@ -121,6 +194,79 @@ async function getMatchHistory() {
       {{ tab.title }}
     </v-tab>
   </v-tabs>
+
+  <v-card
+    v-if="!loading && mapLast20Games.length"
+    class="my-2"
+  >
+    <v-card-title>
+      {{ $t('profile.matchHistory.lastGames') }}
+    </v-card-title>
+
+    <v-card-text>
+      <v-row align="center">
+        <v-col
+          cols="12"
+          sm="3"
+          align="center"
+        >
+          <div>
+            <PieChart
+              :wins="last20GamesWins"
+              :losses="last20GamesLosses"
+            />
+          </div>
+
+          <p class="text-subtitle-2 mt-2 text-light-blue">
+            {{ `${$t('profile.rank.wins')}: ${last20GamesWins}` }}
+          </p>
+
+          <p class="text-subtitle-2 text-red">
+            {{ `${$t('profile.rank.losses')}: ${last20GamesLosses}` }}
+          </p>
+
+          <p class="text-subtitle-2 mt-1">
+            {{ `${$t('profile.rank.winRate')}: ${(last20GamesWins / 20 * 100).toFixed(0)}%` }}
+          </p>
+        </v-col>
+
+        <v-col
+          cols="12"
+          sm="9"
+        >
+          <div style="display: flex; overflow-x: auto; width: 100%">
+            <div
+              v-for="champion in mapLast20Games"
+              :key="champion.championId"
+              align="center"
+              style="min-width: 100px"
+            >
+              <v-avatar
+                size="50"
+              >
+                <v-img
+                  :src="championIcons[champion.championId]"
+                  lazy-src="~/assets/default.png"
+                />
+              </v-avatar>
+
+              <p class="text-subtitle-2">
+                {{ `${$t('proPlayers.games')}: ${champion.games}` }}
+              </p>
+
+              <p class="text-subtitle-2">
+                {{ getWinRatio(champion) }}%
+              </p>
+
+              <p :class="`text-subtitle-2 text-${mapKDAToColor(Number(getKDA(champion)))}`">
+                {{ getKDA(champion) }}
+              </p>
+            </div>
+          </div>
+        </v-col>
+      </v-row>
+    </v-card-text>
+  </v-card>
 
   <v-card v-if="!matchHistoryPerRegion[selectedTab]?.length && loading">
     <v-skeleton-loader

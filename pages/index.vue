@@ -34,8 +34,10 @@ const playersPerSlide = 3
 const errorMessage = t('rules.requiredField')
 
 onMounted(() => {
-  if (!mobile.value)
-    proStore.getActiveProGamesFromDatabase()
+  if (mobile.value)
+    return
+
+  proStore.getActiveProGamesFromDatabase()
 
   proStore.getLiveStreams()
   proStore.getNotLiveStreams()
@@ -43,12 +45,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearValues()
-})
-
-const cardColor = computed(() => {
-  return isDark.value
-    ? 'rgba(50, 50, 50, 0.9)'
-    : 'rgba(200, 200, 200, 0.9)'
 })
 
 const filteredGames = computed(() => activeGames.value.filter((game, index, self) => index === self.findIndex(g => g.player.player === game.player.player)))
@@ -214,16 +210,18 @@ function getTimeDiff(game: IProActiveGame) {
 
   const diff = now.getTime() - gameDate.getTime()
 
-  const minutesDiff = Math.floor(diff / 60000)
+  const minutesDiff = String(Math.floor(diff / 60000)).padStart(2, '0')
   const secondsDiff = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
 
-  return `${minutesDiff}m ${secondsDiff}s`
+  return `${minutesDiff}:${secondsDiff}`
 }
 
 function getPlayerStream(player: IProPlayer) {
   const stream = liveStreams.value[player.player] || null
 
   return stream
+    ? stream.twitch
+    : null
 }
 </script>
 
@@ -251,7 +249,9 @@ function getPlayerStream(player: IProPlayer) {
     <v-spacer />
 
     <v-card
-      :color="cardColor"
+      :class="isDark
+        ? 'card-dark'
+        : 'card-light'"
       min-height="150px"
     >
       <v-card-text
@@ -331,7 +331,9 @@ function getPlayerStream(player: IProPlayer) {
 
     <v-card
       v-if="!mobile"
-      :color="cardColor"
+      :class="isDark
+        ? 'card-dark'
+        : 'card-light'"
       height="300px"
     >
       <v-card-text

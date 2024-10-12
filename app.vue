@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import 'twitch-stream-embed';
-import { useDisplay } from 'vuetify';
+import 'twitch-stream-embed'
+import { useDisplay } from 'vuetify'
 
 const languageStore = useLanguageStore()
 const themeStore = useThemeStore()
@@ -36,5 +36,15 @@ onMounted(() => {
   background-size: cover;
   background-position: top;
   background-repeat: no-repeat;
+}
+</style>
+
+<style>
+.card-dark {
+  background-color: rgba(50, 50, 50, 0.9);
+}
+
+.card-light {
+  background-color: rgba(180, 180, 180, 0.9);
 }
 </style>

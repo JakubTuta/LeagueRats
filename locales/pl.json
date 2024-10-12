@@ -76,7 +76,8 @@
       "kills": "Zabójstwa",
       "assists": "Asysty",
       "deaths": "Śmierci",
-      "loadMore": "Załaduj więcej gier"
+      "loadMore": "Załaduj więcej gier",
+      "lastGames": "Ostatnie 20 gier"
     },
     "currentGame": {
       "title": "Gra na żywo",

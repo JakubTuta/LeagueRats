@@ -166,7 +166,7 @@ const mapChampionHistory = computed(() => {
     return []
 
   // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-  const championHistory = lastGames.value
+  return lastGames.value
     .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
     .slice(0, 20)
     .reduce((acc, game) => {
@@ -202,8 +202,6 @@ const mapChampionHistory = computed(() => {
       return acc
     }, [] as IChampionHistory[])
     .sort((a, b) => b.games - a.games)
-
-  return championHistory
 })
 
 function getKDA(champion: IChampionHistory) {

@@ -311,8 +311,9 @@ function getPlayerRoleIcon(player: { role: string }) {
             >
               <v-select
                 v-model="filterRoles"
-                chips
+
                 clearable
+                chips
                 single-line
                 multiple
                 :label="$t('proPlayers.roles')"

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import 'twitch-stream-embed';
-import { useDisplay } from 'vuetify';
-import { fullUrl } from '~/helpers/url';
-import type { IStream } from '~/stores/proplayerStore';
+import 'twitch-stream-embed'
+import { useDisplay } from 'vuetify'
+import { fullUrl } from '~/helpers/url'
+import type { IStream } from '~/stores/proplayerStore'
 
 const proStore = useProPlayerStore()
 const { liveStreams, notLiveStreams } = storeToRefs(proStore)

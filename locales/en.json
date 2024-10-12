@@ -76,7 +76,8 @@
       "kills": "Kills",
       "assists": "Assists",
       "deaths": "Deaths",
-      "loadMore": "Load more games"
+      "loadMore": "Load more games",
+      "lastGames": "Last 20 games"
     },
     "currentGame": {
       "title": "Live game",
