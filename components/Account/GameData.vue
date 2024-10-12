@@ -250,9 +250,9 @@ function chipColor() {
   <!-- league-blue-transparent -->
   <!-- league-red-transparent -->
   <v-card
-    :color="isWin
-      ? 'rgba(35, 167, 250, 0.3)'
-      : 'rgba(252, 38, 38, 0.3)'"
+    :class="isWin
+      ? 'fading-background-win'
+      : 'fading-background-lose'"
     class="pa-1"
   >
     <v-row
@@ -397,10 +397,7 @@ function chipColor() {
 
           /
 
-          <span
-            class="font-weight-bold"
-            color="red"
-          >
+          <span class="font-weight-bold text-red-darken-1">
             {{ gamer.deaths }}
           </span>
 
@@ -514,3 +511,15 @@ function chipColor() {
     </v-row>
   </v-card>
 </template>
+
+<!-- league-blue -->
+<!-- league-red -->
+<style scoped>
+.fading-background-win {
+  background: linear-gradient(to right, rgba(35, 167, 250, 0.75), rgba(35, 167, 250, 0.25));
+}
+
+.fading-background-lose {
+  background: linear-gradient(to right, rgba(252, 38, 38, 0.75), rgba(252, 38, 38, 0.25));
+}
+</style>

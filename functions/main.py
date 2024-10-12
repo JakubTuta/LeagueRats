@@ -658,7 +658,7 @@ def update_bootcamp_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
 
 
 @scheduler_fn.on_schedule(
-    region="europe-central2", schedule=scheduled_functions.minutes_5
+    region="europe-central2", schedule=scheduled_functions.minutes_10
 )
 def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.check_for_live_streams()

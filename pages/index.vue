@@ -184,7 +184,7 @@ function getNextUpdateTime() {
   const nextUpdate = new Date(now)
 
   const minutes = now.getMinutes()
-  const nextMinutes = Math.ceil(minutes / 5) * 5
+  const nextMinutes = Math.ceil(minutes / 10) * 10
 
   if (nextMinutes === 60) {
     nextUpdate.setHours(now.getHours() + 1)
