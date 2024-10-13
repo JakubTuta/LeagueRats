@@ -205,7 +205,7 @@ function getPlayerRoleIcon(player: { role: string }) {
       justify="center"
     >
       <v-card>
-        <v-card-title class="mb-10 mt-2">
+        <v-card-title class="mb-8 mt-2">
           <v-row>
             <v-col
               v-for="region in regions"
@@ -238,7 +238,7 @@ function getPlayerRoleIcon(player: { role: string }) {
 
           <v-tabs
             v-model="selectedTab"
-            class="mx-4 mt-10"
+            class="mx-4 mt-8"
             color="primary"
             align-tabs="center"
             grow
@@ -276,7 +276,7 @@ function getPlayerRoleIcon(player: { role: string }) {
               cols="6"
               sm="4"
               md="3"
-              class="mb-10"
+              class="mb-8"
             >
               <v-card
                 elevation="0"
