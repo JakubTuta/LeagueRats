@@ -10,7 +10,6 @@ import midIcon from '~/assets/roles/mid.png'
 import adcIcon from '~/assets/roles/adc.png'
 // @ts-expect-error correct path
 import supIcon from '~/assets/roles/sup.png'
-import { championIdsToTitles } from '~/helpers/championIds'
 import { mapKDAToColor } from '~/helpers/kdaColors'
 import { queueTypes } from '~/helpers/queueTypes'
 import { regionColors } from '~/helpers/regionColors'
@@ -41,6 +40,9 @@ const { teamImages, rankIcons, championIcons } = storeToRefs(storageStore)
 const proStore = useProPlayerStore()
 const { liveStreams, notLiveStreams } = storeToRefs(proStore)
 
+const championStore = useChampionStore()
+const { champions } = storeToRefs(championStore)
+
 const accountStore = useAccountStore()
 const restStore = useRestStore()
 
@@ -54,6 +56,9 @@ onMounted(async () => {
 
   proStore.getLiveStreams()
   proStore.getNotLiveStreams()
+
+  if (!Object.keys(champions.value).length)
+    championStore.getChampions()
 
   const team = (route.params.team as string).toUpperCase()
   const playerName = route.params.player as string
@@ -455,7 +460,7 @@ function getWinRatio(champion: IChampionHistory) {
                   <v-row align="center">
                     <v-col cols="4">
                       <p class="text-h6">
-                        {{ championIdsToTitles[champion.championId] }}
+                        {{ champions[champion.championId]?.title || '' }}
                       </p>
 
                       <p class="text-subtitle-2">

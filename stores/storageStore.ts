@@ -1,10 +1,12 @@
 import { getDownloadURL, listAll, ref as storageRef } from 'firebase/storage'
-import { championIds } from '~/helpers/championIds'
 import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
 import { useFirebase } from '~/helpers/useFirebase'
 
 export const useStorageStore = defineStore('storage', () => {
   const { storage } = useFirebase()
+
+  const championStore = useChampionStore()
+  const { champions } = storeToRefs(championStore)
 
   const championIcons = ref<Record<number, string>>({})
   const summonerSpellIcons = ref<Record<number, string>>({})
@@ -16,11 +18,18 @@ export const useStorageStore = defineStore('storage', () => {
   const teamImages = ref<Record<string, Record<string, string>>>({})
 
   const getChampionIcon = async (championId: number) => {
+    if (!Object.keys(champions.value).length) {
+      await championStore.getChampions()
+
+      if (!Object.keys(champions.value).length)
+        return
+    }
+
     if (championIcons.value[championId]) {
       return
     }
 
-    const championName = championIds[championId]
+    const championName = champions.value[championId].value
 
     const championsRef = storageRef(storage, `champions/icons/${championName}.png`)
 

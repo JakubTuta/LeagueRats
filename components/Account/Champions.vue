@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
-import { championIdsToTitles } from '~/helpers/championIds';
 import type { IAccount } from '~/models/account';
 import type { IChampionMastery } from '~/models/championMastery';
+import { useChampionStore } from '~/stores/championStore';
 
 const props = defineProps<{
   account: IAccount | null
@@ -20,10 +20,17 @@ const { championIcons } = storeToRefs(storageStore)
 const proStore = useProPlayerStore()
 const { proAccountNames } = storeToRefs(proStore)
 
+const championStore = useChampionStore()
+const { champions: storeChampions } = storeToRefs(championStore)
+
 const loadedChampions = ref<IChampionMastery[]>([])
 const isAccountPro = ref(false)
 
 onMounted(() => {
+  if (!Object.keys(storeChampions.value).length) {
+    championStore.getChampions()
+  }
+
   checkIfAccountIsPro()
 })
 
@@ -116,7 +123,7 @@ function loadChampions({ done }: { done: (status: string) => void }) {
         >
           <v-list-item class="my-1">
             <v-list-item-title class="text-h6">
-              {{ championIdsToTitles[champion.championId] }}
+              {{ storeChampions[champion.championId]?.title || '' }}
             </v-list-item-title>
 
             <v-list-item-subtitle>

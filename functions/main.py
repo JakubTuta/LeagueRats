@@ -1,6 +1,7 @@
 import http
 import json
 import random
+import sched
 
 import requests
 import scheduled_functions
@@ -617,12 +618,17 @@ def player_live(
 def current_version(
     event: scheduler_fn.ScheduledEvent,
 ) -> None:
-    scheduled_functions.current_version(event)
+    scheduled_functions.current_version()
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:01")
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
-    scheduled_functions.rune_description(event)
+    scheduled_functions.rune_description()
+
+
+@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:01")
+def champion_list(event: scheduler_fn.ScheduledEvent) -> None:
+    scheduled_functions.champion_list()
 
 
 @scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:02")

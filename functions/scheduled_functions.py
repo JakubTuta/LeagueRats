@@ -12,9 +12,7 @@ minutes_15 = "15,30,45 * * * *"
 hours_1 = "0 * * * *"
 
 
-def current_version(
-    event: scheduler_fn.ScheduledEvent,
-) -> None:
+def current_version() -> None:
     base_url = "https://ddragon.leagueoflegends.com/api/versions.json"
 
     try:
@@ -28,7 +26,7 @@ def current_version(
         pass
 
 
-def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
+def rune_description() -> None:
     recent_version = firestore_functions.get_current_version()
 
     if not recent_version:
@@ -50,6 +48,45 @@ def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
         rune_data_per_language[short_language] = rune_data
 
     firestore_functions.save_rune_data(rune_data_per_language)
+
+
+def _get_champion_list_data() -> dict | None:
+    recent_version = firestore_functions.get_current_version()
+
+    if not recent_version:
+        return
+
+    base_url = f"https://ddragon.leagueoflegends.com/cdn/{recent_version}/data/en_US/champion.json"
+
+    response = requests.get(base_url)
+
+    if not response.status_code == 200:
+        return None
+
+    try:
+        response_data = response.json()
+        champions_data = response_data["data"]
+    except:
+        return None
+
+    return champions_data
+
+
+def champion_list() -> None:
+    champions_data = _get_champion_list_data()
+
+    if champions_data is None:
+        return
+
+    champions = {
+        champion_data["key"]: {
+            "title": champion_data["name"],
+            "value": champion_data["id"],
+        }
+        for champion_data in champions_data.values()
+    }
+
+    firestore_functions.set_document_in_collection("help", "champions", champions)
 
 
 def _update_pro_accounts_for_team(new_documents, update_documents, region, team):
