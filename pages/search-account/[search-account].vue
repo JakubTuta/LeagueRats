@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { selectRegions } from '~/helpers/regions'
-import type { IAccount } from '~/models/account'
+import { selectRegions } from '~/helpers/regions';
+import type { IAccount } from '~/models/account';
 
 const route = useRoute()
 
@@ -60,7 +60,7 @@ watch(accounts, (newAccounts) => {
     <v-card v-if="loading">
       <v-skeleton-loader
         type="card"
-        width="90%"
+        width="80%"
         class="mx-auto my-16"
       />
     </v-card>

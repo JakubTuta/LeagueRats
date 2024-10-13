@@ -239,7 +239,7 @@ const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.
               v-for="champion in mapLast20Games"
               :key="champion.championId"
               align="center"
-              style="min-width: 100px"
+              style="min-width: 80px"
             >
               <v-avatar
                 size="50"
@@ -250,8 +250,8 @@ const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.
                 />
               </v-avatar>
 
-              <p class="text-subtitle-2">
-                {{ `${$t('proPlayers.games')}: ${champion.games}` }}
+              <p class="text-subtitle-2 mt-1">
+                {{ champion.games }}
               </p>
 
               <p class="text-subtitle-2">
@@ -271,7 +271,7 @@ const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.
   <v-card v-if="!matchHistoryPerRegion[selectedTab]?.length && loading">
     <v-skeleton-loader
       type="card"
-      width="90%"
+      width="80%"
       class="mx-auto my-8"
     />
   </v-card>

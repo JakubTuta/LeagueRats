@@ -1,23 +1,35 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { championIdsToTitles } from '~/helpers/championIds'
-import type { IChampionMastery } from '~/models/championMastery'
+import { useDisplay } from 'vuetify';
+import { championIdsToTitles } from '~/helpers/championIds';
+import type { IAccount } from '~/models/account';
+import type { IChampionMastery } from '~/models/championMastery';
 
 const props = defineProps<{
+  account: IAccount | null
   champions: IChampionMastery[]
   loading: boolean
 }>()
 
-const { champions, loading } = toRefs(props)
+const { champions, loading, account } = toRefs(props)
 
 const { height } = useDisplay()
 
 const storageStore = useStorageStore()
 const { championIcons } = storeToRefs(storageStore)
 
-const loadedChampions = ref<IChampionMastery[]>([])
+const proStore = useProPlayerStore()
+const { proAccountNames } = storeToRefs(proStore)
 
-const viewHeight = computed(() => height.value - 330)
+const loadedChampions = ref<IChampionMastery[]>([])
+const isAccountPro = ref(false)
+
+onMounted(() => {
+  checkIfAccountIsPro()
+})
+
+const viewHeight = computed(() => (isAccountPro.value
+  ? height.value - 490
+  : height.value - 350))
 
 watch(champions, (newChampions) => {
   if (!newChampions.length)
@@ -29,6 +41,21 @@ watch(champions, (newChampions) => {
     storageStore.getChampionIcon(champion.championId)
   })
 })
+
+async function checkIfAccountIsPro() {
+  if (!account.value?.puuid)
+    return
+
+  if (!proAccountNames.value) {
+    await proStore.getProAccountNames()
+    if (!proAccountNames.value)
+      return
+  }
+
+  const proPlayer = proAccountNames.value[account.value.puuid] || null
+
+  isAccountPro.value = !!proPlayer
+}
 
 function formatNumber(number: number) {
   const str = String(number)

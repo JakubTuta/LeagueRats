@@ -223,7 +223,7 @@ async function findChampions() {
     <v-card v-if="loading">
       <v-skeleton-loader
         type="card"
-        width="90%"
+        width="80%"
         class="mx-auto my-16"
       />
     </v-card>
@@ -240,7 +240,7 @@ async function findChampions() {
           v-if="proPlayer"
           class="mb-1"
         >
-          <v-avatar size="110">
+          <v-avatar size="100">
             <v-img
               :src="teamImages[proPlayer.team]?.[proPlayer.player.toLowerCase()]"
               lazy-src="~/assets/default.png"
@@ -250,7 +250,7 @@ async function findChampions() {
 
         <p
           v-if="proPlayer"
-          class="text-subtitle-1 mb-3"
+          class="text-subtitle-1 mb-2"
         >
           <NuxtLink
             class="text-blue"
@@ -265,7 +265,7 @@ async function findChampions() {
 
         {{ account?.gameName || '' }}
 
-        <span class="ml-1 text-gray font-italic">
+        <span class="text-gray font-italic">
           #{{ account?.tagLine || '' }}
         </span>
       </v-card-title>
@@ -291,7 +291,7 @@ async function findChampions() {
         <v-card v-if="tabLoading">
           <v-skeleton-loader
             type="card"
-            width="90%"
+            width="80%"
             class="mx-auto my-8"
           />
         </v-card>
@@ -316,6 +316,7 @@ async function findChampions() {
 
         <AccountChampions
           v-if="selectedTab === 3"
+          :account="account"
           :champions="championMasteries"
           :loading="tabLoading"
         />

@@ -95,7 +95,7 @@ function getPlayerRoleIcon(player: { role: string }) {
       <v-card v-if="loading">
         <v-skeleton-loader
           type="card"
-          width="90%"
+          width="80%"
           class="mx-auto my-8"
         />
       </v-card>
