@@ -20,7 +20,8 @@
     "home": "Home",
     "settings": "Settings",
     "proPlayers": "Pro players",
-    "streams": "Streams"
+    "streams": "Streams",
+    "champions": "Champions"
   },
   "settings": {
     "title": "Settings",
@@ -181,5 +182,9 @@
   },
   "streams": {
     "profile": "Profile"
+  },
+  "champion": {
+    "notFound": "Champion not found",
+    "noMatches": "No recent matches found"
   }
 }

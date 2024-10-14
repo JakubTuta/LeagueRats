@@ -247,8 +247,6 @@ function chipColor() {
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
-  <!-- league-blue-transparent -->
-  <!-- league-red-transparent -->
   <v-card
     :class="isWin
       ? 'fading-background-win'
@@ -511,15 +509,3 @@ function chipColor() {
     </v-row>
   </v-card>
 </template>
-
-<!-- league-blue -->
-<!-- league-red -->
-<style scoped>
-.fading-background-win {
-  background: linear-gradient(to right, rgba(35, 167, 250, 0.75), rgba(35, 167, 250, 0.25));
-}
-
-.fading-background-lose {
-  background: linear-gradient(to right, rgba(252, 38, 38, 0.75), rgba(252, 38, 38, 0.25));
-}
-</style>

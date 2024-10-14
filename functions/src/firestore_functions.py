@@ -362,6 +362,67 @@ def get_active_games_per_team(teams):
     return new_games
 
 
+def _get_match_history_ids(account, hours):
+    now = datetime.datetime.now()
+    past = now - datetime.timedelta(hours=hours)
+
+    optional_keys = {
+        "count": 100,
+        "queue": 420,
+        "type": "ranked",
+        "startTime": int(past.timestamp()),
+        "endTime": int(now.timestamp()),
+    }
+
+    url_params = "&".join([f"{key}={value}" for key, value in optional_keys.items()])
+
+    region = regions.api_regions_1[account["region"]].lower()
+    puuid = account["puuid"]
+
+    request_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{url_params}"
+
+    response = requests.get(
+        request_url,
+        headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+    )
+
+    if response.status_code != 200:
+        return []
+
+    match_ids: list[str] = response.json()
+
+    return match_ids
+
+
+def get_match_history(account, hours):
+    match_ids = _get_match_history_ids(account, hours)
+
+    matches = []
+    region = regions.api_regions_1[account["region"]]
+
+    for match_id in match_ids:
+        request_url = (
+            f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}"
+        )
+
+        response = requests.get(
+            request_url,
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+        )
+
+        if response.status_code != 200:
+            continue
+
+        response_data = response.json()
+
+        match_data = MatchData.from_dict(response_data).to_dict()
+        save_match_to_firebase(match_data)
+
+        matches.append(match_data)
+
+    return matches
+
+
 def clear_collection(collection_name):
     docs = firebase_init.collections[collection_name].stream()
 
@@ -402,3 +463,40 @@ def get_not_live_streams():
     doc = doc_ref.get()
 
     return doc if doc.exists else None
+
+
+def add_document_to_champion_history(champion_id, champion_stats, match_data):
+    champion_reference = firebase_init.collections["champion_history"].document(
+        str(champion_id)
+    )
+    champion_document = champion_reference.get()
+
+    if champion_document.exists:
+        champion_data = champion_document.to_dict()
+
+        if "games" in champion_data:
+            champion_data["games"] += champion_stats.get("games", 0)
+        else:
+            champion_data["games"] = champion_stats.get("games", 0)
+
+        if "wins" in champion_data:
+            champion_data["wins"] += champion_stats.get("wins", 0)
+        else:
+            champion_data["wins"] = champion_stats.get("wins", 0)
+
+        if "losses" in champion_data:
+            champion_data["losses"] += champion_stats.get("losses", 0)
+        else:
+            champion_data["losses"] = champion_stats.get("losses", 0)
+
+        champion_reference.update(champion_data)
+
+    else:
+        champion_reference.set(champion_stats)
+
+    champion_matches_reference = firebase_init.firestore_client.collection(
+        f"champion_history/{str(champion_id)}/matches"
+    )
+    champion_matches_reference.document(match_data["match"]["metadata"]["matchId"]).set(
+        match_data
+    )

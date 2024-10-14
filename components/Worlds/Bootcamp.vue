@@ -117,7 +117,7 @@ function customFilter(_value: string, query: string, item: any) {
     variant="flat"
   >
     <v-skeleton-loader
-      type="table-heading, table-row, table-row, table-row, table-row, table-row, table-row, table-row, table-row, table-tfoot"
+      type="table-heading, table-row@8, table-tfoot"
       width="80%"
       class="mx-auto my-8"
     />

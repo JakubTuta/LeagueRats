@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import { selectRegions } from '~/helpers/regions'
-import { lengthRule } from '~/helpers/rules'
+import { useDisplay } from 'vuetify';
+import { selectRegions } from '~/helpers/regions';
+import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
-const { mobile, width } = useDisplay()
+const { mdAndDown, width } = useDisplay()
 const { t } = useI18n()
 
 const accountStore = useAccountStore()
@@ -34,6 +34,10 @@ const tabs = computed(() => [
   {
     title: t('navbar.streams'),
     to: '/streams',
+  },
+  {
+    title: t('navbar.champions'),
+    to: '/champions',
   },
 ])
 
@@ -103,7 +107,7 @@ async function sendToUserView() {
   loading.value = false
 }
 
-const isExtension = computed(() => (mobile.value
+const isExtension = computed(() => (mdAndDown.value
   ? true
   : route.path !== '/'))
 
@@ -114,7 +118,7 @@ function toggleSettings() {
 
 <template>
   <v-app-bar
-    :style="`position: absolute; top: 10px; left: 10px; width: ${mobile
+    :style="`position: absolute; top: 10px; left: 10px; width: ${mdAndDown
       ? width - 10
       : width - 35}px;`"
     rounded="xl"
@@ -129,7 +133,7 @@ function toggleSettings() {
       #extension
     >
       <v-row
-        v-if="!mobile"
+        v-if="!mdAndDown"
         no-gutters
         align="center"
         class="mt-6"
@@ -242,7 +246,7 @@ function toggleSettings() {
     </span>
 
     <v-tabs
-      v-if="!mobile"
+      v-if="!mdAndDown"
       v-model="selectedTab"
       :mandatory="false"
       height="50px"

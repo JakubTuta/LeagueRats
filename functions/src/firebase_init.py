@@ -63,6 +63,7 @@ def initialize_app():
         "active_pro_games",
         "eu_bootcamp_leaderboard",
         "live_streams",
+        "champion_history",
     ]
 
     for collection_name in collection_names:

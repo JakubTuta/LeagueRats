@@ -4,7 +4,6 @@ import requests
 import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
 import src.regions as regions
-from firebase_functions import scheduler_fn
 
 minutes_5 = "5,10,15,20,25,30,35,40,45,50,55 * * * *"
 minutes_10 = "10,20,30,40,50 * * * *"
@@ -324,3 +323,67 @@ def check_for_live_streams():
     firestore_functions.set_document_in_collection(
         "live_streams", "not_live", not_live_streams
     )
+
+
+def _update_champion_history_for_team(region, team):
+    player_docs = firestore_functions.get_pro_team_documents(region, team)
+
+    for player_doc in player_docs:
+        player_data = player_doc.to_dict()
+
+        if not player_data:
+            continue
+
+        for puuid in player_data["puuid"]:
+            if not (
+                account := firestore_functions.get_account_from_firestore(puuid=puuid)
+            ):
+                continue
+
+            match_history = firestore_functions.get_match_history(account, hours=1)
+
+            for match in match_history:
+                player_participant = next(
+                    (
+                        participant
+                        for participant in match["info"]["participants"]
+                        if participant["puuid"] == puuid
+                    ),
+                    None,
+                )
+
+                if player_participant is None:
+                    continue
+
+                player_champion = player_participant["championId"]
+
+                champion_stats = {
+                    "games": 1,
+                    "wins": 1 if player_participant["win"] else 0,
+                    "losses": 0 if player_participant["win"] else 1,
+                }
+
+                match_data = {
+                    "player": player_data,
+                    "match": match,
+                }
+
+                firestore_functions.add_document_to_champion_history(
+                    player_champion, champion_stats, match_data
+                )
+
+
+def update_champion_history():
+    threads = [
+        threading.Thread(
+            target=_update_champion_history_for_team,
+            args=("LEC", team),
+        )
+        for team in regions.teams_per_region["LEC"]
+    ]
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()

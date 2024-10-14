@@ -20,7 +20,8 @@
     "home": "Strona głowna",
     "settings": "Ustawienia",
     "proPlayers": "Pro gracze",
-    "streams": "Streamy"
+    "streams": "Streamy",
+    "champions": "Postacie"
   },
   "settings": {
     "title": "Ustawienia",
@@ -181,5 +182,9 @@
   },
   "streams": {
     "profile": "Profil"
+  },
+  "champion": {
+    "notFound": "Nie znaleziono postaci",
+    "noMatches": "Nie znaleziono żadnych meczy w ostatnim czasie"
   }
 }

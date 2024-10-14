@@ -383,38 +383,6 @@ def match_history(
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def accounts_in_all_regions(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    # url: /accounts_in_all_regions/{gameName}/{tagLine}
-
-    try:
-        url_params = req.path.split("/")
-
-        game_name = url_params[1]
-        tag_line = url_params[2]
-
-        if not game_name or not tag_line:
-            raise Exception("Missing gameName or tagLine")
-    except:
-        return https_fn.Response(
-            json.dumps({"error": "Invalid request data"}), status=400
-        )
-
-    try:
-        accounts = firestore_functions.get_accounts_from_all_regions(
-            game_name, tag_line
-        )
-
-        return https_fn.Response(json.dumps(accounts), status=200)
-
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
-        )
-
-
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
 def match_data(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -469,6 +437,38 @@ def match_data(
     except Exception as e:
         return https_fn.Response(
             json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
+        )
+
+
+@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+def accounts_in_all_regions(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    # url: /accounts_in_all_regions/{gameName}/{tagLine}
+
+    try:
+        url_params = req.path.split("/")
+
+        game_name = url_params[1]
+        tag_line = url_params[2]
+
+        if not game_name or not tag_line:
+            raise Exception("Missing gameName or tagLine")
+    except:
+        return https_fn.Response(
+            json.dumps({"error": "Invalid request data"}), status=400
+        )
+
+    try:
+        accounts = firestore_functions.get_accounts_from_all_regions(
+            game_name, tag_line
+        )
+
+        return https_fn.Response(json.dumps(accounts), status=200)
+
+    except Exception as e:
+        return https_fn.Response(
+            json.dumps({"Firebase error": f"Error occurred: {str(e)}"}), status=500
         )
 
 
@@ -675,8 +675,8 @@ def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
 )
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
     tier_1_teams = ["G2", "T1", "GENG", "BLG"]
-    tier_2_teams = ["FNC", "LNG", "HLE", "DK"]
-    tier_3_teams = ["FLY", "MAD", "TES", "LNG", "TL"]
+    tier_2_teams = ["FNC", "LNG", "HLE"]
+    tier_3_teams = ["FLY", "MAD", "TES"]
 
     active_pro_games = []
 
@@ -690,3 +690,10 @@ def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
         "active_pro_games",
         active_pro_games,
     )
+
+
+@scheduler_fn.on_schedule(
+    region="europe-central2", schedule=scheduled_functions.hours_1
+)
+def update_champion_history(event: scheduler_fn.ScheduledEvent) -> None:
+    scheduled_functions.update_champion_history()
