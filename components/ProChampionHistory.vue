@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify'
 import type { IMatchData } from '~/models/matchData'
 import type { IProPlayer } from '~/models/proPlayer'
 // @ts-expect-error correct path
@@ -20,12 +21,15 @@ const props = defineProps<{
 const { player, match } = toRefs(props)
 
 const { t, locale } = useI18n()
+const { smAndDown } = useDisplay()
 
 const storageStore = useStorageStore()
 const { championIcons, teamImages, summonerSpellIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
 
 const runeStore = useRuneStore()
 const { runeInfo } = storeToRefs(runeStore)
+
+const secondaryRuneTreeId = ref(0)
 
 const gamer = computed(() => match.value.info.participants.find(participant => player.value.puuid.includes(participant.puuid))!)
 const isWin = computed(() => gamer.value.win)
@@ -58,6 +62,8 @@ watch(gamer, async (newGamer) => {
 
   if (keyRunePath)
     storageStore.getRuneIcons({ [keyRuneId.value]: keyRunePath })
+
+  findSecondaryRuneTree()
 }, { immediate: true })
 
 watch(enemy, (newEnemy) => {
@@ -171,6 +177,20 @@ function getPlayerRoleIcon() {
       return ''
   }
 }
+
+function findSecondaryRuneTree() {
+  if (!runeInfo.value)
+    return
+
+  const subStylePerks = gamer.value.perks.styles.find(e => e.description === 'subStyle')?.style || 0
+
+  const secondaryRuneTree = runeInfo.value[locale.value]?.find(rune => rune.id === subStylePerks) || null
+  const secondaryRuneTreeImagePath = secondaryRuneTree?.icon || null
+  secondaryRuneTreeId.value = secondaryRuneTree?.id || 0
+
+  if (secondaryRuneTreeImagePath)
+    storageStore.getRuneIcons({ [subStylePerks]: secondaryRuneTreeImagePath })
+}
 </script>
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
@@ -276,15 +296,7 @@ function getPlayerRoleIcon() {
         sm="1"
         align="center"
       >
-        <v-avatar
-          style="cursor: pointer"
-          size="50"
-        >
-          <v-img
-            :src="runeIcons[keyRuneId]"
-            lazy-src="~/assets/default.png"
-          />
-
+        <div style="cursor: pointer;">
           <v-menu
             activator="parent"
             :close-on-content-click="false"
@@ -292,7 +304,29 @@ function getPlayerRoleIcon() {
           >
             <AccountRuneTable :extended-runes="gamer.perks" />
           </v-menu>
-        </v-avatar>
+
+          <v-avatar
+            size="60"
+          >
+            <v-img
+              :src="runeIcons[keyRuneId]"
+              lazy-src="~/assets/default.png"
+            />
+          </v-avatar>
+
+          <v-avatar
+            v-if="secondaryRuneTreeId"
+            size="25"
+            :class="smAndDown
+              ? ''
+              : 'mt-3'"
+          >
+            <v-img
+              :src="runeIcons[secondaryRuneTreeId]"
+              lazy-src="~/assets/default.png"
+            />
+          </v-avatar>
+        </div>
       </v-col>
 
       <v-col

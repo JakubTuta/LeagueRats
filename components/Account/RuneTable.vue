@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { IPerks } from '~/models/activeGame'
-import type { IMatchHistoryPerks } from '~/models/matchData'
-import type { IRuneData } from '~/models/runeInfo'
+import type { IPerks } from '~/models/activeGame';
+import type { IMatchHistoryPerks } from '~/models/matchData';
+import type { IRuneData } from '~/models/runeInfo';
 
 const props = defineProps<{
   runes?: IPerks | null
