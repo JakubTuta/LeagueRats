@@ -34,6 +34,14 @@ onMounted(() => {
   checkIfAccountIsPro()
 })
 
+const mappedChampions = computed(() => {
+  return Object.entries(storeChampions.value).map(([id, value]) => ({
+    id: Number.parseInt(id),
+    title: value.title,
+    value: value.value,
+  }))
+})
+
 const viewHeight = computed(() => (isAccountPro.value
   ? height.value - 490
   : height.value - 350))
@@ -97,6 +105,10 @@ function loadChampions({ done }: { done: (status: string) => void }) {
 
   done('ok')
 }
+
+function findChampionFromId(championId: number) {
+  return mappedChampions.value.find(champion => champion.id === championId)?.value || ''
+}
 </script>
 
 <template>
@@ -121,7 +133,13 @@ function loadChampions({ done }: { done: (status: string) => void }) {
           v-for="champion in loadedChampions"
           :key="champion.championId"
         >
-          <v-list-item class="my-1">
+          <v-list-item
+            class="my-1"
+            lines="two"
+            :to="findChampionFromId(champion.championId)
+              ? `/champion/${findChampionFromId(champion.championId)}`
+              : ''"
+          >
             <v-list-item-title class="text-h6">
               {{ storeChampions[champion.championId]?.title || '' }}
             </v-list-item-title>

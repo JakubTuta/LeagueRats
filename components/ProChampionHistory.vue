@@ -346,7 +346,7 @@ function findChampionFromId(championId: number) {
       <v-col
         cols="6"
         sm="2"
-        class="d-flex justify-center"
+        class="d-flex mr-4 justify-start"
       >
         <v-avatar
           v-for="item in items"
