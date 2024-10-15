@@ -185,9 +185,13 @@
   },
   "champion": {
     "notFound": "Champion not found",
-    "noMatches": "No recent matches found"
+    "noMatches": "No recent matches found",
+    "position": "Position",
+    "enemy": "Against",
+    "enemyAll": "Against all"
   },
   "positions": {
+    "ALL": "All positions",
     "TOP": "Top",
     "JUNGLE": "Jungle",
     "MIDDLE": "Mid",

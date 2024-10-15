@@ -1,5 +1,11 @@
 <script setup lang="ts">
+import { useDisplay } from 'vuetify';
+import type { IMatchData } from '~/models/matchData';
+import type { IProPlayer } from '~/models/proPlayer';
+
 const route = useRoute()
+const { height } = useDisplay()
+const { t } = useI18n()
 
 const championStore = useChampionStore()
 const { champions, championStats, championMatches } = storeToRefs(championStore)
@@ -10,6 +16,9 @@ const { championIcons } = storeToRefs(storageStore)
 const champion = ref<{ id: number, title: string, value: string } | null>(null)
 const loading = ref(false)
 const secondaryLoading = ref(false)
+const loadedGames = ref<{ player: IProPlayer, match: IMatchData }[]>([])
+const selectedPosition = ref('ALL')
+const selectedEnemy = ref('ALL')
 
 onMounted(async () => {
   loading.value = true
@@ -18,7 +27,97 @@ onMounted(async () => {
     await championStore.getChampions()
   }
 
+  await storageStore.getAllChampionIcons()
+
   loading.value = false
+})
+
+const positionItems = computed(() => [
+  {
+    title: t('positions.ALL'),
+    value: 'ALL',
+  },
+  {
+    title: t('positions.TOP'),
+    value: 'TOP',
+  },
+  {
+    title: t('positions.JUNGLE'),
+    value: 'JUNGLE',
+  },
+  {
+    title: t('positions.MIDDLE'),
+    value: 'MIDDLE',
+  },
+  {
+    title: t('positions.BOTTOM'),
+    value: 'BOTTOM',
+  },
+  {
+    title: t('positions.UTILITY'),
+    value: 'UTILITY',
+  },
+])
+
+const enemyItems = computed(() => {
+  const mappedEnemies: { id: number, title: string, value: string }[] = [
+    {
+      id: 0,
+      title: t('champion.enemyAll'),
+      value: 'ALL',
+    },
+  ]
+
+  if (champion.value) {
+    for (const [id, value] of Object.entries(champions.value)) {
+      if (value.value.toLowerCase() === champion.value.value.toLowerCase()) {
+        continue
+      }
+
+      mappedEnemies.push({
+        id: Number(id),
+        title: value.title,
+        value: value.value,
+      })
+    }
+  }
+
+  return mappedEnemies
+})
+
+const filterGamesByPosition = computed(() => {
+  if (selectedPosition.value === 'ALL') {
+    return loadedGames.value
+  }
+
+  return loadedGames.value.filter((game) => {
+    const playerParticipant = game.match.info.participants.find(participant => game.player.puuid.includes(participant.puuid))
+
+    return playerParticipant?.teamPosition === selectedPosition.value
+  })
+})
+
+const filterGamesByEnemy = computed(() => {
+  if (selectedEnemy.value === 'ALL') {
+    return loadedGames.value
+  }
+
+  const enemyChampion = enemyItems.value.find(enemy => enemy.value === selectedEnemy.value)
+
+  if (!enemyChampion) {
+    return loadedGames.value
+  }
+
+  return loadedGames.value.filter((game) => {
+    const playerParticipant = game.match.info.participants.find(participant => game.player.puuid.includes(participant.puuid))
+    const enemyParticipant = game.match.info.participants.find(participant => playerParticipant?.teamPosition === participant.teamPosition && participant.puuid !== playerParticipant?.puuid)
+
+    return enemyParticipant?.championId === enemyChampion.id
+  })
+})
+
+const filterGames = computed(() => {
+  return filterGamesByPosition.value.filter(game => filterGamesByEnemy.value.includes(game))
 })
 
 watch(champions, (newChampions) => {
@@ -43,13 +142,28 @@ watch(champion, async (newChampion) => {
     const promises = [
       storageStore.getChampionIcon(newChampion.id),
       championStore.getChampionStats(newChampion.id),
-      championStore.getChampionMatches(newChampion.id),
+      championStore.getChampionMatches(newChampion.id, 5),
     ]
     await Promise.all(promises)
+
+    loadedGames.value = championMatches.value[newChampion.id].slice(0, 5)
 
     secondaryLoading.value = false
   }
 }, { immediate: true })
+
+async function loadGames({ done }: { done: (status: string) => void }) {
+  await championStore.getChampionMatches(champion.value!.id, 5)
+  loadedGames.value = championMatches.value[champion.value!.id]
+
+  if (loadedGames.value.length >= championStats.value[champion.value!.id].games) {
+    done('empty')
+
+    return
+  }
+
+  done('done')
+}
 </script>
 
 <template>
@@ -72,12 +186,10 @@ watch(champion, async (newChampion) => {
     </v-card>
 
     <v-card v-else-if="!loading && champion">
-      <v-card-title
-        align="center"
-      >
+      <v-card-title align="center">
         <v-avatar
           align="center"
-          size="130"
+          size="100"
           :image="championIcons[champion.id]"
         />
 
@@ -107,25 +219,69 @@ watch(champion, async (newChampion) => {
         </span>
       </v-card-text>
 
-      <v-card-text
-        v-else-if="!secondaryLoading && championMatches[champion.id].length"
-      >
-        <span
-          style="width: 100%; display: flex; justify-content: center;"
-          class="text-h6"
+      <v-card-text v-else-if="!secondaryLoading && championMatches[champion.id].length">
+        <v-row style="display: flex; align-items: center; justify-content: center">
+          <div align="center">
+            <PieChart
+              :wins="championStats[champion.id]?.wins || 0"
+              :losses="championStats[champion.id]?.losses || 0"
+              :size="100"
+            />
+          </div>
+
+          <div class="ml-4">
+            <p class="text-subtitle-1 text-light-blue">
+              {{ `${$t('profile.rank.wins')}: ${championStats[champion.id].wins}` }}
+            </p>
+
+            <p class="text-subtitle-1 text-red">
+              {{ `${$t('profile.rank.losses')}: ${championStats[champion.id].losses}` }}
+            </p>
+
+            <p class="text-subtitle-1">
+              {{ `${$t('profile.rank.winRate')}: ${(championStats[champion.id].wins / championStats[champion.id].games * 100).toFixed(0)}%` }}
+            </p>
+          </div>
+        </v-row>
+
+        <v-row class="mx-2 mt-5">
+          <v-col cols="6">
+            <v-select
+              v-model="selectedPosition"
+              :items="positionItems"
+              :label="$t('champion.position')"
+            />
+          </v-col>
+
+          <v-col cols="6">
+            <v-autocomplete
+              v-model="selectedEnemy"
+              auto-select-first
+              clearable
+              :items="enemyItems"
+              :label="$t('champion.enemy')"
+              @click:clear="selectedEnemy = 'ALL'"
+            />
+          </v-col>
+        </v-row>
+
+        <v-divider />
+
+        <v-infinite-scroll
+          :height="`${height - 550}px`"
+          @load="loadGames"
         >
-          {{ championStats[champion.id] }}
-        </span>
-
-        <v-divider class="mb-4 mt-2" />
-
-        <ProChampionHistory
-          v-for="match in championMatches[champion.id]"
-          :key="match.match.metadata.matchId"
-          class="mt-5"
-          :player="match.player"
-          :match="match.match"
-        />
+          <template
+            v-for="game in filterGames"
+            :key="game.match.metadata.matchId"
+          >
+            <ProChampionHistory
+              class="mt-4"
+              :player="game.player"
+              :match="game.match"
+            />
+          </template>
+        </v-infinite-scroll>
       </v-card-text>
     </v-card>
   </v-container>

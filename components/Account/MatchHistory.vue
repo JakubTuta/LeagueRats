@@ -214,6 +214,7 @@ const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.
             <PieChart
               :wins="last20GamesWins"
               :losses="last20GamesLosses"
+              :size="100"
             />
           </div>
 

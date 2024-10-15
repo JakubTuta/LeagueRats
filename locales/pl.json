@@ -185,9 +185,13 @@
   },
   "champion": {
     "notFound": "Nie znaleziono postaci",
-    "noMatches": "Nie znaleziono żadnych meczy w ostatnim czasie"
+    "noMatches": "Nie znaleziono żadnych meczy w ostatnim czasie",
+    "position": "Pozycja",
+    "enemy": "Przeciwko",
+    "enemyAll": "Przeciwko wszystkim"
   },
   "positions": {
+    "ALL": "Wszystkie pozycje",
     "TOP": "Top",
     "JUNGLE": "Jungle",
     "MIDDLE": "Mid",

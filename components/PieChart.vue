@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ArcElement, Chart as ChartJS } from 'chart.js'
-import { Doughnut } from 'vue-chartjs'
+import { ArcElement, Chart as ChartJS } from 'chart.js';
+import { Doughnut } from 'vue-chartjs';
 
 const props = defineProps<{
   wins: number
   losses: number
+  size: number
 }>()
 
 ChartJS.register(ArcElement)
 
-const { wins, losses } = toRefs(props)
+const { wins, losses, size } = toRefs(props)
 
 const { t } = useI18n()
 
@@ -32,7 +33,7 @@ const chartOptions = ref({
 
 <template>
   <Doughnut
-    style="width: 100px; height: 100px;"
+    :style="`width: ${size}px; height: ${size}px;`"
     :options="chartOptions"
     :data="chartData"
   />

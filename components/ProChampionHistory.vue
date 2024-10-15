@@ -29,6 +29,9 @@ const { championIcons, teamImages, summonerSpellIcons, runeIcons, itemIcons } = 
 const runeStore = useRuneStore()
 const { runeInfo } = storeToRefs(runeStore)
 
+const championStore = useChampionStore()
+const { champions } = storeToRefs(championStore)
+
 const secondaryRuneTreeId = ref(0)
 
 const gamer = computed(() => match.value.info.participants.find(participant => player.value.puuid.includes(participant.puuid))!)
@@ -41,6 +44,14 @@ onMounted(() => {
   if (player.value) {
     storageStore.getTeamImages(player.value.region, player.value.team)
   }
+})
+
+const mappedChampions = computed(() => {
+  return Object.entries(champions.value).map(([id, value]) => ({
+    id: Number.parseInt(id),
+    title: value.title,
+    value: value.value,
+  }))
 })
 
 watch(gamer, async (newGamer) => {
@@ -191,6 +202,10 @@ function findSecondaryRuneTree() {
   if (secondaryRuneTreeImagePath)
     storageStore.getRuneIcons({ [subStylePerks]: secondaryRuneTreeImagePath })
 }
+
+function findChampionFromId(championId: number) {
+  return mappedChampions.value.find(champion => champion.id === championId)?.value || ''
+}
 </script>
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
@@ -200,6 +215,7 @@ function findSecondaryRuneTree() {
       ? 'fading-background-win'
       : 'fading-background-lose'"
     class="pa-1"
+    min-height="120px"
   >
     <v-row
       no-gutters
@@ -368,12 +384,18 @@ function findSecondaryRuneTree() {
           vs
         </span>
 
-        <v-avatar size="50">
-          <v-img
-            :src="championIcons[enemy.championId]"
-            lazy-src="~/assets/default.png"
-          />
-        </v-avatar>
+        <NuxtLink
+          :to="findChampionFromId(enemy.championId)
+            ? `/champion/${findChampionFromId(enemy.championId)}`
+            : ''"
+        >
+          <v-avatar size="50">
+            <v-img
+              :src="championIcons[enemy.championId]"
+              lazy-src="~/assets/default.png"
+            />
+          </v-avatar>
+        </NuxtLink>
       </v-col>
     </v-row>
   </v-card>
