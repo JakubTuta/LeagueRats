@@ -269,6 +269,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
 
         <v-infinite-scroll
           :height="`${height - 550}px`"
+          empty-text=""
           @load="loadGames"
         >
           <template

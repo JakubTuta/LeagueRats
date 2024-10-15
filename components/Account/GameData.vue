@@ -29,6 +29,7 @@ const accountStore = useAccountStore()
 
 const team1 = ref<IParticipantStats[]>([])
 const team2 = ref<IParticipantStats[]>([])
+const secondaryRuneTreeId = ref(0)
 
 const gamer = computed(() => game.value.info.participants.find(participant => participant.puuid === account.value!.puuid)!)
 const isWin = computed(() => gamer.value.win)
@@ -98,6 +99,8 @@ watch(game, async (newGame) => {
 
   if (keyRunePath)
     storageStore.getRuneIcons({ [keyRuneId.value]: keyRunePath })
+
+  findSecondaryRuneTree()
 }, { immediate: true })
 
 function mapGameTime() {
@@ -243,6 +246,20 @@ function chipColor() {
       return 'gray'
   }
 }
+
+function findSecondaryRuneTree() {
+  if (!runeInfo.value)
+    return
+
+  const subStylePerks = gamer.value.perks.styles.find(e => e.description === 'subStyle')?.style || 0
+
+  const secondaryRuneTree = runeInfo.value[locale.value]?.find(rune => rune.id === subStylePerks) || null
+  const secondaryRuneTreeImagePath = secondaryRuneTree?.icon || null
+  secondaryRuneTreeId.value = secondaryRuneTree?.id || 0
+
+  if (secondaryRuneTreeImagePath)
+    storageStore.getRuneIcons({ [subStylePerks]: secondaryRuneTreeImagePath })
+}
 </script>
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
@@ -347,11 +364,20 @@ function chipColor() {
 
           <v-col cols="auto">
             <v-avatar
+              size="60"
               style="cursor: pointer"
-              size="50"
             >
               <v-img
                 :src="runeIcons[keyRuneId]"
+                lazy-src="~/assets/default.png"
+              />
+
+              <v-img
+                v-if="secondaryRuneTreeId"
+                :width="20"
+                :height="20"
+                style="position: absolute; bottom: 10px; right: 5px;"
+                :src="runeIcons[secondaryRuneTreeId]"
                 lazy-src="~/assets/default.png"
               />
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
 import type { IMatchData } from '~/models/matchData'
 import type { IProPlayer } from '~/models/proPlayer'
 // @ts-expect-error correct path
@@ -21,7 +20,6 @@ const props = defineProps<{
 const { player, match } = toRefs(props)
 
 const { t, locale } = useI18n()
-const { smAndDown } = useDisplay()
 
 const storageStore = useStorageStore()
 const { championIcons, teamImages, summonerSpellIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
@@ -312,7 +310,24 @@ function findChampionFromId(championId: number) {
         sm="1"
         align="center"
       >
-        <div style="cursor: pointer;">
+        <v-avatar
+          size="60"
+          style="cursor: pointer"
+        >
+          <v-img
+            :src="runeIcons[keyRuneId]"
+            lazy-src="~/assets/default.png"
+          />
+
+          <v-img
+            v-if="secondaryRuneTreeId"
+            :width="20"
+            :height="20"
+            style="position: absolute; bottom: 10px; right: 5px;"
+            :src="runeIcons[secondaryRuneTreeId]"
+            lazy-src="~/assets/default.png"
+          />
+
           <v-menu
             activator="parent"
             :close-on-content-click="false"
@@ -320,29 +335,7 @@ function findChampionFromId(championId: number) {
           >
             <AccountRuneTable :extended-runes="gamer.perks" />
           </v-menu>
-
-          <v-avatar
-            size="60"
-          >
-            <v-img
-              :src="runeIcons[keyRuneId]"
-              lazy-src="~/assets/default.png"
-            />
-          </v-avatar>
-
-          <v-avatar
-            v-if="secondaryRuneTreeId"
-            size="25"
-            :class="smAndDown
-              ? ''
-              : 'mt-3'"
-          >
-            <v-img
-              :src="runeIcons[secondaryRuneTreeId]"
-              lazy-src="~/assets/default.png"
-            />
-          </v-avatar>
-        </div>
+        </v-avatar>
       </v-col>
 
       <v-col
