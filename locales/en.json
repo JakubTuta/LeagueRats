@@ -186,5 +186,12 @@
   "champion": {
     "notFound": "Champion not found",
     "noMatches": "No recent matches found"
+  },
+  "positions": {
+    "TOP": "Top",
+    "JUNGLE": "Jungle",
+    "MIDDLE": "Mid",
+    "BOTTOM": "Bot",
+    "UTILITY": "Support"
   }
 }

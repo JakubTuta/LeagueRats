@@ -122,6 +122,7 @@ watch(champion, async (newChampion) => {
         <ProChampionHistory
           v-for="match in championMatches[champion.id]"
           :key="match.match.metadata.matchId"
+          class="mt-5"
           :player="match.player"
           :match="match.match"
         />

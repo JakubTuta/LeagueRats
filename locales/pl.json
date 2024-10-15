@@ -186,5 +186,12 @@
   "champion": {
     "notFound": "Nie znaleziono postaci",
     "noMatches": "Nie znaleziono żadnych meczy w ostatnim czasie"
+  },
+  "positions": {
+    "TOP": "Top",
+    "JUNGLE": "Jungle",
+    "MIDDLE": "Mid",
+    "BOTTOM": "Bot",
+    "UTILITY": "Support"
   }
 }

@@ -1,6 +1,16 @@
 <script setup lang="ts">
-import type { IMatchData } from '~/models/matchData';
-import type { IProPlayer } from '~/models/proPlayer';
+import type { IMatchData } from '~/models/matchData'
+import type { IProPlayer } from '~/models/proPlayer'
+// @ts-expect-error correct path
+import topIcon from '~/assets/roles/top.png'
+// @ts-expect-error correct path
+import jngIcon from '~/assets/roles/jng.png'
+// @ts-expect-error correct path
+import midIcon from '~/assets/roles/mid.png'
+// @ts-expect-error correct path
+import adcIcon from '~/assets/roles/adc.png'
+// @ts-expect-error correct path
+import supIcon from '~/assets/roles/sup.png'
 
 const props = defineProps<{
   player: IProPlayer
@@ -11,8 +21,51 @@ const { player, match } = toRefs(props)
 
 const { t, locale } = useI18n()
 
+const storageStore = useStorageStore()
+const { championIcons, teamImages, summonerSpellIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
+
+const runeStore = useRuneStore()
+const { runeInfo } = storeToRefs(runeStore)
+
 const gamer = computed(() => match.value.info.participants.find(participant => player.value.puuid.includes(participant.puuid))!)
 const isWin = computed(() => gamer.value.win)
+const keyRuneId = computed(() => (gamer.value.perks.styles.find(style => style.description === 'primaryStyle')!.selections[0].perk))
+const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5].filter(item => item !== 0))
+const enemy = computed(() => match.value.info.participants.find(participant => participant.teamPosition === gamer.value.teamPosition && participant.puuid !== gamer.value.puuid)!)
+
+onMounted(() => {
+  if (player.value) {
+    storageStore.getTeamImages(player.value.region, player.value.team)
+  }
+})
+
+watch(gamer, async (newGamer) => {
+  if (!newGamer)
+    return
+
+  storageStore.getSummonerSpellIcon(gamer.value.summoner1Id)
+  storageStore.getSummonerSpellIcon(gamer.value.summoner2Id)
+
+  storageStore.getItemIcons(items.value)
+
+  if (!runeInfo.value)
+    await runeStore.getRuneInfo()
+
+  if (!runeInfo.value)
+    return
+
+  const keyRunePath = runeInfo.value[locale.value]?.flatMap(rune => rune.slots.flatMap(slot => slot.runes)).find(rune => rune.id === keyRuneId.value)?.icon || null
+
+  if (keyRunePath)
+    storageStore.getRuneIcons({ [keyRuneId.value]: keyRunePath })
+}, { immediate: true })
+
+watch(enemy, (newEnemy) => {
+  if (!newEnemy)
+    return
+
+  storageStore.getChampionIcon(enemy.value.championId)
+}, { immediate: true })
 
 function whenWasGame() {
   const now = new Date()
@@ -101,8 +154,26 @@ function mapGameTime() {
 
   return `${minutes}:${seconds}`
 }
+
+function getPlayerRoleIcon() {
+  switch (gamer.value.teamPosition) {
+    case 'TOP':
+      return topIcon
+    case 'JUNGLE':
+      return jngIcon
+    case 'MIDDLE':
+      return midIcon
+    case 'BOTTOM':
+      return adcIcon
+    case 'UTILITY':
+      return supIcon
+    default:
+      return ''
+  }
+}
 </script>
 
+<!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
   <v-card
     :class="isWin
@@ -116,8 +187,8 @@ function mapGameTime() {
       class="mx-3"
     >
       <v-col
-        cols="5"
-        sm="2"
+        cols="3"
+        sm="1"
       >
         <p class="font-weight-bold">
           {{ isWin
@@ -125,7 +196,7 @@ function mapGameTime() {
             : $t('gameHistory.loss') }}
         </p>
 
-        <v-spacer class="my-2" />
+        <v-spacer class="my-4" />
 
         <p>
           {{ whenWasGame() }}
@@ -137,17 +208,91 @@ function mapGameTime() {
       </v-col>
 
       <v-col
-        cols="5"
+        cols="3"
         sm="2"
       >
-        {{ `${player.team} ${player.player}` }}
+        <v-col
+          cols="12"
+          align="center"
+        >
+          <NuxtLink
+            :to="`/player/${player.team}/${player.player}`"
+            style="cursor: pointer; text-decoration: none; color: inherit;"
+          >
+            <v-avatar
+              size="70"
+              class="mx-auto"
+            >
+              <v-img
+                :src="teamImages[player.team]?.[player.player.toLowerCase()]"
+                lazy-src="~/assets/default.png"
+              />
+            </v-avatar>
+
+            <p>
+              {{ `${player.team} ${player.player}` }}
+            </p>
+          </NuxtLink>
+        </v-col>
       </v-col>
 
       <v-col
         cols="2"
         sm="1"
+        align="center"
       >
-        lane
+        <v-avatar
+          size="30"
+          rounded="0"
+          :image="getPlayerRoleIcon()"
+        />
+
+        <p class="mt-2">
+          {{ $t(`positions.${gamer.teamPosition}`) }}
+        </p>
+      </v-col>
+
+      <v-col
+        cols="2"
+        sm="1"
+        align="center"
+      >
+        <v-avatar
+          size="30"
+          rounded="0"
+          :image="summonerSpellIcons[gamer.summoner1Id]"
+          class="mr-2"
+        />
+
+        <v-avatar
+          size="30"
+          rounded="0"
+          :image="summonerSpellIcons[gamer.summoner2Id]"
+        />
+      </v-col>
+
+      <v-col
+        cols="2"
+        sm="1"
+        align="center"
+      >
+        <v-avatar
+          style="cursor: pointer"
+          size="50"
+        >
+          <v-img
+            :src="runeIcons[keyRuneId]"
+            lazy-src="~/assets/default.png"
+          />
+
+          <v-menu
+            activator="parent"
+            :close-on-content-click="false"
+            location="start"
+          >
+            <AccountRuneTable :extended-runes="gamer.perks" />
+          </v-menu>
+        </v-avatar>
       </v-col>
 
       <v-col
@@ -157,16 +302,44 @@ function mapGameTime() {
 
       <v-col
         cols="6"
-        sm="3"
+        sm="2"
+        class="d-flex justify-center"
       >
-        items
+        <v-avatar
+          v-for="item in items"
+          :key="item"
+          size="30"
+          class="mx-1"
+          rounded="0"
+        >
+          <v-img
+            :src="itemIcons[item]"
+          />
+        </v-avatar>
       </v-col>
 
       <v-col
         cols="6"
-        sm="3"
+        sm="2"
+        align="end"
       >
-        vs
+        <v-avatar size="50">
+          <v-img
+            :src="championIcons[gamer.championId]"
+            lazy-src="~/assets/default.png"
+          />
+        </v-avatar>
+
+        <span class="mx-2">
+          vs
+        </span>
+
+        <v-avatar size="50">
+          <v-img
+            :src="championIcons[enemy.championId]"
+            lazy-src="~/assets/default.png"
+          />
+        </v-avatar>
       </v-col>
     </v-row>
   </v-card>
