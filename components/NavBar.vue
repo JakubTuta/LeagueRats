@@ -5,7 +5,7 @@ import { lengthRule } from '~/helpers/rules';
 
 const router = useRouter()
 const route = useRoute()
-const { mdAndDown, width } = useDisplay()
+const { mdAndDown, width, mobile } = useDisplay()
 const { t } = useI18n()
 
 const accountStore = useAccountStore()
@@ -118,7 +118,7 @@ function toggleSettings() {
 
 <template>
   <v-app-bar
-    :style="`position: absolute; top: 10px; left: 10px; width: ${mdAndDown
+    :style="`position: absolute; top: 10px; left: 10px; width: ${mobile
       ? width - 10
       : width - 35}px;`"
     rounded="xl"

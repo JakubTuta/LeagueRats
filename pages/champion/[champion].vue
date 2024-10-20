@@ -189,7 +189,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
       <v-card-title>
         <v-row
           style="display: flex; justify-content: space-between; align-items: start"
-          class="mt-4"
+          class="mt-2"
         >
           <v-col
             cols="0"
@@ -203,11 +203,11 @@ async function loadGames({ done }: { done: (status: string) => void }) {
           >
             <v-avatar
               align="center"
-              size="110"
+              size="100"
               :image="championIcons[champion.id]"
             />
 
-            <p class="text-h4 mt-2">
+            <p class="text-h5 mt-2">
               {{ champion.title }}
             </p>
           </v-col>
@@ -222,7 +222,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
               <PieChart
                 :wins="championStats[champion.id]?.wins || 0"
                 :losses="championStats[champion.id]?.losses || 0"
-                :size="110"
+                :size="100"
               />
             </div>
 
@@ -292,7 +292,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
         <v-divider />
 
         <v-infinite-scroll
-          :height="`${height - 480}px`"
+          :height="`${height - 455}px`"
           empty-text=""
           @load="loadGames"
         >
