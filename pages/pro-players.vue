@@ -311,7 +311,6 @@ function getPlayerRoleIcon(player: { role: string }) {
             >
               <v-select
                 v-model="filterRoles"
-
                 clearable
                 chips
                 single-line

@@ -35,7 +35,9 @@
     "userNotExist": "Użytkownik nie istnieje",
     "featuredGames": "Losowe gry na żywo",
     "nextUpdate": "Następna aktualizacja za {time}",
-    "noActiveGames": "Nie znaleziono aktywnych gier"
+    "noActiveGames": "Nie znaleziono aktywnych gier",
+    "or": "lub",
+    "searchProOrChampion": "Szukaj gracza lub postaci"
   },
   "rules": {
     "requiredField": "To pole jest wymagane",

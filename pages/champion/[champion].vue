@@ -186,19 +186,67 @@ async function loadGames({ done }: { done: (status: string) => void }) {
     </v-card>
 
     <v-card v-else-if="!loading && champion">
-      <v-card-title align="center">
-        <v-avatar
-          align="center"
-          size="100"
-          :image="championIcons[champion.id]"
-        />
+      <v-card-title>
+        <v-row
+          style="display: flex; justify-content: space-between; align-items: start"
+          class="mt-4"
+        >
+          <v-col
+            cols="0"
+            sm="2"
+          />
 
-        <p class="text-h4 mt-2">
-          {{ champion.title }}
-        </p>
+          <v-col
+            cols="12"
+            sm="4"
+            align="center"
+          >
+            <v-avatar
+              align="center"
+              size="110"
+              :image="championIcons[champion.id]"
+            />
+
+            <p class="text-h4 mt-2">
+              {{ champion.title }}
+            </p>
+          </v-col>
+
+          <v-col
+            v-if="!secondaryLoading && championMatches[champion.id].length"
+            cols="12"
+            sm="4"
+            style="display: flex; align-items: center; justify-content: center"
+          >
+            <div>
+              <PieChart
+                :wins="championStats[champion.id]?.wins || 0"
+                :losses="championStats[champion.id]?.losses || 0"
+                :size="110"
+              />
+            </div>
+
+            <div class="text-subtitle-1 ml-5">
+              <p class="text-light-blue">
+                {{ `${$t('profile.rank.wins')}: ${championStats[champion.id].wins}` }}
+              </p>
+
+              <p class="text-red">
+                {{ `${$t('profile.rank.losses')}: ${championStats[champion.id].losses}` }}
+              </p>
+
+              <p>
+                {{ `${$t('profile.rank.winRate')}: ${(championStats[champion.id].wins / championStats[champion.id].games * 100).toFixed(0)}%` }}
+              </p>
+            </div>
+          </v-col>
+
+          <v-col
+            cols="0"
+            sm="2"
+          />
+        </v-row>
       </v-card-title>
-
-      <v-spacer class="my-2" />
 
       <v-card-text
         v-if="secondaryLoading"
@@ -220,31 +268,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
       </v-card-text>
 
       <v-card-text v-else-if="!secondaryLoading && championMatches[champion.id].length">
-        <v-row style="display: flex; align-items: center; justify-content: center">
-          <div align="center">
-            <PieChart
-              :wins="championStats[champion.id]?.wins || 0"
-              :losses="championStats[champion.id]?.losses || 0"
-              :size="100"
-            />
-          </div>
-
-          <div class="ml-4">
-            <p class="text-subtitle-1 text-light-blue">
-              {{ `${$t('profile.rank.wins')}: ${championStats[champion.id].wins}` }}
-            </p>
-
-            <p class="text-subtitle-1 text-red">
-              {{ `${$t('profile.rank.losses')}: ${championStats[champion.id].losses}` }}
-            </p>
-
-            <p class="text-subtitle-1">
-              {{ `${$t('profile.rank.winRate')}: ${(championStats[champion.id].wins / championStats[champion.id].games * 100).toFixed(0)}%` }}
-            </p>
-          </div>
-        </v-row>
-
-        <v-row class="mx-2 mt-5">
+        <v-row class="mx-2 mt-4">
           <v-col cols="6">
             <v-select
               v-model="selectedPosition"
@@ -268,7 +292,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
         <v-divider />
 
         <v-infinite-scroll
-          :height="`${height - 550}px`"
+          :height="`${height - 480}px`"
           empty-text=""
           @load="loadGames"
         >
@@ -277,7 +301,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
             :key="game.match.metadata.matchId"
           >
             <ProChampionHistory
-              class="mt-4"
+              class="mb-4"
               :player="game.player"
               :match="game.match"
             />

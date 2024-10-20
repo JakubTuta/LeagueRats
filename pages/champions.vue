@@ -10,6 +10,7 @@ const storageStore = useStorageStore()
 const { championIcons } = storeToRefs(storageStore)
 
 const loading = ref(false)
+const search = ref('')
 
 onMounted(async () => {
   loading.value = true
@@ -28,6 +29,15 @@ const sortedChampions = computed(() => {
     return a[1].value.localeCompare(b[1].value, 'en', { sensitivity: 'base' })
   }).map(item => ({ id: item[0], title: item[1].title, value: item[1].value }))
 })
+
+const filteredChampions = computed(() => {
+  if (!search.value)
+    return sortedChampions.value
+
+  return sortedChampions.value.filter((champion) => {
+    return champion.title.toLowerCase().includes(search.value.toLowerCase())
+  })
+})
 </script>
 
 <template>
@@ -45,16 +55,34 @@ const sortedChampions = computed(() => {
         {{ $t('navbar.champions') }}
       </v-card-title>
 
+      <v-row justify="end">
+        <v-col
+          cols="12"
+          sm="6"
+          md="4"
+          class="mr-4"
+        >
+          <v-text-field
+            v-model="search"
+            :label="$t('universal.search')"
+            outlined
+            dense
+            clearable
+            prepend-inner-icon="mdi-magnify"
+          />
+        </v-col>
+      </v-row>
+
       <v-divider />
 
       <v-card-text>
         <v-row :style="`overflow-y: auto; height: ${height - 220}px`">
           <v-col
-            v-for="champion in sortedChampions"
+            v-for="champion in filteredChampions"
             :key="champion.id"
-            cols="6"
-            sm="4"
-            md="3"
+            cols="4"
+            sm="3"
+            md="2"
             align="center"
             class="my-2"
           >
@@ -64,7 +92,7 @@ const sortedChampions = computed(() => {
             >
               <v-card-text class="my-1">
                 <v-avatar
-                  size="90"
+                  size="80"
                   :image="championIcons[Number(champion.id)]"
                 />
 

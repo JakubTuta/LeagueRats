@@ -346,7 +346,7 @@ function findChampionFromId(championId: number) {
       <v-col
         cols="6"
         sm="2"
-        class="d-flex mr-4 justify-start"
+        class="d-flex justify-start"
       >
         <v-avatar
           v-for="item in items"
@@ -365,6 +365,7 @@ function findChampionFromId(championId: number) {
         cols="6"
         sm="2"
         align="end"
+        class="ml-auto mr-2"
       >
         <v-avatar size="50">
           <v-img

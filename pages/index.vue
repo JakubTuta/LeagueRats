@@ -13,13 +13,16 @@ const router = useRouter()
 const { mobile } = useDisplay()
 
 const proStore = useProPlayerStore()
-const { activeGames, liveStreams } = storeToRefs(proStore)
+const { activeGames, liveStreams, proAccountNames } = storeToRefs(proStore)
 
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
 
 const storageStore = useStorageStore()
 const { championIcons, teamImages } = storeToRefs(storageStore)
+
+const championStore = useChampionStore()
+const { champions } = storeToRefs(championStore)
 
 const gameName = ref<string | null>(null)
 const tagLine = ref<string | null>(null)
@@ -28,6 +31,7 @@ const tagLineError = ref('')
 const loading = ref(false)
 const region = ref('EUW')
 const refreshTime = ref('00:00')
+const search = ref('')
 
 const playersPerSlide = 3
 
@@ -41,6 +45,14 @@ onMounted(() => {
 
   proStore.getLiveStreams()
   proStore.getNotLiveStreams()
+
+  if (!Object.keys(champions.value).length)
+    championStore.getChampions()
+
+  if (!proAccountNames.value)
+    proStore.getProAccountNames()
+
+  storageStore.getAllChampionIcons()
 })
 
 onUnmounted(() => {
@@ -83,6 +95,49 @@ const regions = computed(() => {
       value: region,
     }
   })
+})
+
+const sortedChampions = computed(() => {
+  return Object.entries(champions.value).sort((a, b) => {
+    return a[1].value.localeCompare(b[1].value, 'en', { sensitivity: 'base' })
+  }).map(item => ({ id: item[0], title: item[1].title, value: item[1].value }))
+})
+
+const searchItems = computed(() => {
+  const championItems = sortedChampions.value.map((champion) => {
+    return {
+      title: champion.title,
+      value: champion.value,
+      isChampion: true,
+      id: champion.id,
+    }
+  })
+
+  if (!proAccountNames.value)
+    return championItems
+
+  const uniqueProPlayers = Object.values(proAccountNames.value).filter((player, index, self) => index === self.findIndex(p => p.player === player.player))
+
+  const proPlayerItems = uniqueProPlayers.map((player) => {
+    return {
+      title: `${player.team} ${player.player}`,
+      value: `${player.team.toLowerCase()} ${player.player.toLowerCase()}`,
+      isChampion: false,
+      team: player.team,
+      player: player.player,
+    }
+  })
+
+  return [...championItems, ...proPlayerItems]
+})
+
+const filteredSearchItems = computed(() => {
+  if (!search.value)
+    return []
+
+  return searchItems.value
+    .filter(item => item.value.toLowerCase().includes(search.value.toLowerCase())
+    || item.title.toLowerCase().includes(search.value.toLowerCase()))
 })
 
 watch(gameName, (newGameName, oldGameName) => {
@@ -223,6 +278,18 @@ function getPlayerStream(player: IProPlayer) {
     ? stream.twitch
     : null
 }
+
+function goToChampionOrPro(item: any) {
+  if (!item)
+    return
+
+  if (item.isChampion) {
+    router.push(`/champion/${item.id}`)
+  }
+  else {
+    router.push(`/player/${item.team}/${item.player}`)
+  }
+}
 </script>
 
 <template>
@@ -235,12 +302,15 @@ function getPlayerStream(player: IProPlayer) {
     <v-row
       justify="center"
       align="center"
+      :class="mobile
+        ? 'mb-2 mt-1'
+        : ''"
     >
       <v-img
         :src="logo"
         draggable="false"
         :max-width="mobile
-          ? 250
+          ? 200
           : 400"
         rounded="pill"
       />
@@ -319,6 +389,62 @@ function getPlayerStream(player: IProPlayer) {
               </template>
             </v-text-field>
           </v-col>
+
+          <v-col
+            cols="12"
+            class="mb-6 mt-2"
+            align="center"
+          >
+            <v-row
+              align="center"
+              font-italic
+            >
+              <v-col cols="5">
+                <v-divider style="max-width: 500px" />
+              </v-col>
+
+              <v-col
+                cols="2"
+                class="font-italic"
+              >
+                {{ $t('index.or') }}
+              </v-col>
+
+              <v-col cols="5">
+                <v-divider style="max-width: 500px" />
+              </v-col>
+            </v-row>
+          </v-col>
+
+          <v-col
+            cols="12"
+            align="center"
+          >
+            <v-autocomplete
+              style="max-width: 600px;"
+              prepend-inner-icon="mdi-magnify"
+              menu-icon=""
+              :label="$t('index.searchProOrChampion')"
+              :items="filteredSearchItems"
+              @keydown.enter="goToChampionOrPro"
+              @update:search="(searchValue: string) => search = searchValue"
+            >
+              <template #item="{item}">
+                <v-list-item
+                  lines="two"
+                  class="mb-2"
+                  :to="item.raw.isChampion
+                    ? `/champion/${item.raw.value}`
+                    : `/player/${item.raw.team}/${item.raw.player}`"
+                  :prepend-avatar="item.raw.isChampion
+                    ? championIcons[item.raw.id]
+                    : null"
+                >
+                  {{ item.raw.title }}
+                </v-list-item>
+              </template>
+            </v-autocomplete>
+          </v-col>
         </v-row>
       </v-card-text>
     </v-card>
@@ -376,6 +502,9 @@ function getPlayerStream(player: IProPlayer) {
                   style="height: 250px"
                   :ripple="false"
                   :to="goToPlayerAccount(game)"
+                  :class="isDark
+                    ? 'card-dark'
+                    : 'card-light'"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
                     <NuxtLink
