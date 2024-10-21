@@ -303,17 +303,20 @@ function goToChampionOrPro(item: any) {
       justify="center"
       align="center"
       :class="mobile
-        ? 'mb-2 mt-1'
+        ? 'mb-1'
         : ''"
     >
-      <v-img
-        :src="logo"
-        draggable="false"
-        :max-width="mobile
-          ? 200
-          : 400"
-        rounded="pill"
-      />
+      <v-col
+        cols="6"
+        sm="5"
+        md="4"
+      >
+        <v-img
+          :src="logo"
+          draggable="false"
+          rounded="pill"
+        />
+      </v-col>
     </v-row>
 
     <v-spacer />
