@@ -41,7 +41,7 @@ def rune_description() -> None:
             response = requests.get(base_url)
             rune_data = response.json()
         except Exception as e:
-            pass
+            continue
 
         short_language = language.split("_")[0]
         rune_data_per_language[short_language] = rune_data
@@ -158,6 +158,7 @@ def _update_player_names_for_team(documents, region, team):
             documents[puuid] = {
                 "player": player["player"],
                 "team": team,
+                "region": region,
             }
 
 

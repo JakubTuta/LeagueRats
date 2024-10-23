@@ -12,6 +12,7 @@ interface IProAccountNames {
   [puuid: string]: {
     player: string
     team: string
+    region: string
   }
 }
 

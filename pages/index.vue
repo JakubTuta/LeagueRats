@@ -125,6 +125,7 @@ const searchItems = computed(() => {
       isChampion: false,
       team: player.team,
       player: player.player,
+      region: player.region,
     }
   })
 
@@ -135,9 +136,17 @@ const filteredSearchItems = computed(() => {
   if (!search.value)
     return []
 
-  return searchItems.value
+  const filteredItems = searchItems.value
     .filter(item => item.value.toLowerCase().includes(search.value.toLowerCase())
     || item.title.toLowerCase().includes(search.value.toLowerCase()))
+
+  filteredItems.forEach((item) => {
+    if (!item.isChampion)
+    // @ts-expect-error correct fields
+      storageStore.getTeamImages(item.region, item.team)
+  })
+
+  return filteredItems
 })
 
 watch(gameName, (newGameName, oldGameName) => {
@@ -278,18 +287,6 @@ function getPlayerStream(player: IProPlayer) {
     ? stream.twitch
     : null
 }
-
-function goToChampionOrPro(item: any) {
-  if (!item)
-    return
-
-  if (item.isChampion) {
-    router.push(`/champion/${item.id}`)
-  }
-  else {
-    router.push(`/player/${item.team}/${item.player}`)
-  }
-}
 </script>
 
 <template>
@@ -429,7 +426,7 @@ function goToChampionOrPro(item: any) {
               menu-icon=""
               :label="$t('index.searchProOrChampion')"
               :items="filteredSearchItems"
-              @keydown.enter="goToChampionOrPro"
+              hide-no-data
               @update:search="(searchValue: string) => search = searchValue"
             >
               <template #item="{item}">
@@ -441,7 +438,7 @@ function goToChampionOrPro(item: any) {
                     : `/player/${item.raw.team}/${item.raw.player}`"
                   :prepend-avatar="item.raw.isChampion
                     ? championIcons[item.raw.id]
-                    : null"
+                    : teamImages[item.raw.team]?.[item.raw.player.toLowerCase()]"
                 >
                   {{ item.raw.title }}
                 </v-list-item>
