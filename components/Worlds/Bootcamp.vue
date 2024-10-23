@@ -153,7 +153,6 @@ function customFilter(_value: string, query: string, item: any) {
       <v-data-table
         :headers="headers"
         :items="bootcampAccounts"
-        :items-per-page="10"
         :custom-filter="customFilter"
         :search="search"
         must-sort
@@ -162,10 +161,6 @@ function customFilter(_value: string, query: string, item: any) {
             'key': 'rank',
             'order': 'desc',
           },
-        ]"
-        :items-per-page-options="[
-          {'title': '10',
-           'value': 10},
         ]"
       >
         <template #item.team="{item}">

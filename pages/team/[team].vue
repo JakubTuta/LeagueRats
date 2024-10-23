@@ -14,7 +14,7 @@ import { teamFullName, teamPerRegion } from '~/helpers/regions'
 import type { IProPlayer } from '~/models/proPlayer'
 
 const route = useRoute()
-const { mobile } = useDisplay()
+const { mobile, height } = useDisplay()
 
 const storageStore = useStorageStore()
 const { teamImages } = storeToRefs(storageStore)
@@ -112,7 +112,10 @@ function getPlayerRoleIcon(player: { role: string }) {
       <v-card v-else-if="!loading && teamName">
         <v-card-title align="center">
           <p class="my-4">
-            <v-avatar size="150">
+            <v-avatar
+              size="130"
+              class="pa-3"
+            >
               <v-img
                 :src="teamImages[teamName]?.team"
                 lazy-src="~/assets/default.png"
@@ -123,11 +126,7 @@ function getPlayerRoleIcon(player: { role: string }) {
           {{ teamFullName[teamName] }}
         </v-card-title>
 
-        <v-card-text class="mt-4">
-          <span class="text-h5 ml-5">
-            {{ $t('proPlayers.players') }}
-          </span>
-
+        <v-card-text class="mt-2">
           <p
             v-if="!players.length"
             class="text-subtitle-1 ma-4"
@@ -138,6 +137,7 @@ function getPlayerRoleIcon(player: { role: string }) {
           <v-list
             v-else
             lines="three"
+            :style="`max-height: ${height - 400}px; overflow-y: auto;`"
           >
             <v-list-item
               v-for="player in players"

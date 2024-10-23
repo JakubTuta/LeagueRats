@@ -16,7 +16,7 @@ const tagLine = ref<string | null>(null)
 const region = ref('EUW')
 const gameNameError = ref('')
 const tagLineError = ref('')
-const isShowSettings = ref(false)
+// const isShowSettings = ref(false)
 const selectedTab = ref<string | null>(null)
 
 const themeStore = useThemeStore()
@@ -111,9 +111,9 @@ const isExtension = computed(() => (mdAndDown.value
   ? true
   : route.path !== '/'))
 
-function toggleSettings() {
-  isShowSettings.value = !isShowSettings.value
-}
+// function toggleSettings() {
+//   isShowSettings.value = !isShowSettings.value
+// }
 </script>
 
 <template>
@@ -264,17 +264,19 @@ function toggleSettings() {
       </v-tab>
     </v-tabs>
 
-    <template #append>
+    <!--
+      <template #append>
       <v-btn
-        icon
-        class="mr-2"
-        @click="toggleSettings"
+      icon
+      class="mr-2"
+      @click="toggleSettings"
       >
-        <v-icon
-          icon="mdi-cog-outline"
-        />
+      <v-icon
+      icon="mdi-cog-outline"
+      />
       </v-btn>
-    </template>
+      </template>
+    -->
   </v-app-bar>
 
   <!--

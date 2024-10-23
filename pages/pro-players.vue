@@ -276,7 +276,7 @@ function getPlayerRoleIcon(player: { role: string }) {
               cols="6"
               sm="4"
               md="3"
-              class="mb-8"
+              class="mb-2"
             >
               <v-card
                 elevation="0"
@@ -284,7 +284,7 @@ function getPlayerRoleIcon(player: { role: string }) {
                 align="center"
               >
                 <v-avatar
-                  size="130"
+                  size="100"
                   rounded="0"
                   class="pa-2"
                 >

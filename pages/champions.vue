@@ -76,7 +76,7 @@ const filteredChampions = computed(() => {
       <v-divider />
 
       <v-card-text>
-        <v-row :style="`overflow-y: auto; height: ${height - 220}px`">
+        <v-row :style="`overflow-y: auto; height: ${height - 300}px`">
           <v-col
             v-for="champion in filteredChampions"
             :key="champion.id"
