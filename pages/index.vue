@@ -321,7 +321,9 @@ function getPlayerStream(player: IProPlayer) {
     <v-spacer />
 
     <v-card
-      color="rgba(50, 50, 50, 0.9)"
+      :class="isDark
+        ? 'card-dark'
+        : 'card-light'"
       min-height="150px"
     >
       <v-card-text
@@ -457,7 +459,9 @@ function getPlayerStream(player: IProPlayer) {
 
     <v-card
       v-if="!mobile"
-      color="rgba(50, 50, 50, 0.9)"
+      :class="isDark
+        ? 'card-dark'
+        : 'card-light'"
       height="300px"
     >
       <v-card-text
@@ -500,7 +504,9 @@ function getPlayerStream(player: IProPlayer) {
                   style="height: 250px"
                   :ripple="false"
                   :to="goToPlayerAccount(game)"
-                  color="rgba(50, 50, 50, 0.9)"
+                  :class="isDark
+                    ? 'card-dark'
+                    : 'card-light'"
                 >
                   <v-card-text style="height: 100%; display: flex; flex-direction: column; justify-content: space-between">
                     <NuxtLink

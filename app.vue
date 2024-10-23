@@ -30,16 +30,14 @@ onMounted(() => {
   </NuxtLayout>
 </template>
 
-<style scoped>
+<style>
 .bg-image {
   background-image: url('~/assets/background.jpg');
   background-size: cover;
   background-position: top;
   background-repeat: no-repeat;
 }
-</style>
 
-<style>
 .card-dark {
   background-color: rgba(50, 50, 50, 0.9);
 }
