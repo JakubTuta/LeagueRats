@@ -277,8 +277,10 @@ function toggleSettings() {
     </template>
   </v-app-bar>
 
-  <SettingsDialog
+  <!--
+    <SettingsDialog
     :is-show="isShowSettings"
     @close="toggleSettings"
-  />
+    />
+  -->
 </template>

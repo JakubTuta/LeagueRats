@@ -24,7 +24,7 @@ onMounted(() => {
 
         <NuxtPage />
 
-        <Cookies />
+        <!-- <Cookies /> -->
       </v-main>
     </v-app>
   </NuxtLayout>
