@@ -209,9 +209,9 @@ function findChampionFromId(championId: number) {
 <!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
   <v-card
-    :class="isWin
-      ? 'fading-background-win'
-      : 'fading-background-lose'"
+    :style="isWin
+      ? 'background: linear-gradient(to right, rgba(35, 167, 250, 0.75), rgba(35, 167, 250, 0.25));'
+      : 'background: linear-gradient(to right, rgba(252, 38, 38, 0.75), rgba(252, 38, 38, 0.25))'"
     class="pa-1"
     min-height="120px"
   >
