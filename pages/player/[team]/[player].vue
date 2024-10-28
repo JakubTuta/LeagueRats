@@ -23,6 +23,7 @@ import type { IProPlayer } from '~/models/proPlayer'
 
 interface IChampionHistory {
   championId: number
+  championName: string
   games: number
   wins: number
   loses: number
@@ -78,9 +79,6 @@ onMounted(async () => {
 
     proAccounts.value = accounts.map((account) => {
       const leagueEntry = leagueEntries.flat().find(e => e.queueType === 'RANKED_SOLO_5x5' && e.summonerId === account.id) || null
-
-      if (leagueEntry)
-        storageStore.getRankIcon(leagueEntry.tier.toLowerCase())
 
       return { account, leagueEntry }
     }).sort((a, b) => calculateTotalLP(b.leagueEntry) - calculateTotalLP(a.leagueEntry))
@@ -182,6 +180,7 @@ const mapChampionHistory = computed(() => {
       if (!champion) {
         champion = {
           championId: participant.championId,
+          championName: findChampionNameFromId(participant.championId),
           games: 0,
           wins: 0,
           loses: 0,
@@ -208,6 +207,10 @@ const mapChampionHistory = computed(() => {
     }, [] as IChampionHistory[])
     .sort((a, b) => b.games - a.games)
 })
+
+function findChampionNameFromId(championId: number) {
+  return champions.value[championId]?.value || ''
+}
 
 function getKDA(champion: IChampionHistory) {
   const kda = (champion.kills + champion.assists) / champion.deaths
@@ -445,6 +448,7 @@ function getWinRatio(champion: IChampionHistory) {
                 <v-list-item
                   v-for="champion in mapChampionHistory"
                   :key="champion.championId"
+                  :to="`/champion/${champion.championName}`"
                 >
                   <template #prepend>
                     <v-avatar

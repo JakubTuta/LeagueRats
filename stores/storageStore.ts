@@ -55,6 +55,19 @@ export const useStorageStore = defineStore('storage', () => {
     await Promise.all(promises)
   }
 
+  const asyncGetAllChampionIcons = async () => {
+    if (!Object.keys(champions.value).length) {
+      await championStore.getChampions()
+
+      if (!Object.keys(champions.value).length)
+        return
+    }
+
+    for (const championId in champions.value) {
+      getChampionIcon(Number(championId))
+    }
+  }
+
   const getSummonerSpellIcon = async (summonerSpellId: number) => {
     if (summonerSpellIcons.value[summonerSpellId]) {
       return
@@ -79,6 +92,25 @@ export const useStorageStore = defineStore('storage', () => {
     const url = await getDownloadURL(rankRef)
 
     rankIcons.value[rank] = url
+  }
+
+  const asyncGetAllRankIcons = () => {
+    const ranks = [
+      'IRON',
+      'BRONZE',
+      'SILVER',
+      'GOLD',
+      'PLATINUM',
+      'EMERALD',
+      'DIAMOND',
+      'MASTER',
+      'GRANDMASTER',
+      'CHALLENGER',
+    ]
+
+    for (const rank of ranks) {
+      getRankIcon(rank.toLowerCase())
+    }
   }
 
   const getRegionIcon = async (region: string) => {
@@ -157,6 +189,9 @@ export const useStorageStore = defineStore('storage', () => {
 
     teamImages.value[team] = images
   }
+
+  asyncGetAllChampionIcons()
+  asyncGetAllRankIcons()
 
   return {
     championIcons,

@@ -22,7 +22,10 @@ const { player, match } = toRefs(props)
 const { t, locale } = useI18n()
 
 const storageStore = useStorageStore()
-const { championIcons, teamImages, summonerSpellIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
+const { championIcons, teamImages, runeIcons, itemIcons } = storeToRefs(storageStore)
+
+const summonerSpellStore = useSummonerSpellsStore()
+const { summonerSpellIcons } = storeToRefs(summonerSpellStore)
 
 const runeStore = useRuneStore()
 const { runeInfo } = storeToRefs(runeStore)
@@ -55,9 +58,6 @@ const mappedChampions = computed(() => {
 watch(gamer, async (newGamer) => {
   if (!newGamer)
     return
-
-  storageStore.getSummonerSpellIcon(gamer.value.summoner1Id)
-  storageStore.getSummonerSpellIcon(gamer.value.summoner2Id)
 
   storageStore.getItemIcons(items.value)
 

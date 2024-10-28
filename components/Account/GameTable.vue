@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // @ts-expect-error correct path
-import bannedDefault from '~/assets/banned_default.png'
-import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
-import type { IAccount } from '~/models/account'
-import type { IActiveGame, IParticipant } from '~/models/activeGame'
+import bannedDefault from '~/assets/banned_default.png';
+import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions';
+import type { IAccount } from '~/models/account';
+import type { IActiveGame, IParticipant } from '~/models/activeGame';
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -15,7 +15,10 @@ const props = withDefaults(defineProps<{
 const { game, account } = toRefs(props)
 
 const storageStore = useStorageStore()
-const { championIcons, summonerSpellIcons, runeIcons } = storeToRefs(storageStore)
+const { championIcons, runeIcons } = storeToRefs(storageStore)
+
+const summonerSpellStore = useSummonerSpellsStore()
+const { summonerSpellIcons } = storeToRefs(summonerSpellStore)
 
 const restStore = useRestStore()
 const runeStore = useRuneStore()
@@ -90,8 +93,6 @@ watch(game, (newGame) => {
 
   newGame.participants.forEach((participant) => {
     storageStore.getChampionIcon(participant.championId)
-    storageStore.getSummonerSpellIcon(participant.spell1Id)
-    storageStore.getSummonerSpellIcon(participant.spell2Id)
     runeStore.getRuneIcons(participant.perks)
   })
 

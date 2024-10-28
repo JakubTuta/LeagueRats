@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ILeagueEntry } from '~/models/leagueEntry'
+import type { ILeagueEntry } from '~/models/leagueEntry';
 
 const props = defineProps<{
   leagueEntries: ILeagueEntry[]
@@ -47,13 +47,6 @@ const soloQueue = computed(() => {
   }
 })
 
-watch(soloQueue, (value) => {
-  if (!value)
-    return
-
-  storageStore.getRankIcon(value.tier.toLowerCase())
-})
-
 const flexQueue = computed(() => {
   const object = leagueEntries.value.find(entry => entry.queueType === 'RANKED_FLEX_SR') || null
 
@@ -72,14 +65,6 @@ const flexQueue = computed(() => {
   }
 })
 
-watch(flexQueue, (value) => {
-  if (!value)
-    return
-
-  if (!rankIcons.value[value.tier.toLowerCase()])
-    storageStore.getRankIcon(value.tier.toLowerCase())
-})
-
 const items = computed(() => [
   soloQueue.value,
   flexQueue.value,
@@ -87,8 +72,16 @@ const items = computed(() => [
 </script>
 
 <template>
+  <v-card v-if="loading">
+    <v-skeleton-loader
+      type="card"
+      width="80%"
+      class="mx-auto my-8"
+    />
+  </v-card>
+
   <v-row
-    v-if="!loading && !items.length"
+    v-else-if="!loading && !items.length"
     class="text-h5 mx-2 my-8"
     justify="center"
   >

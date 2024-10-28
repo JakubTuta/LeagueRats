@@ -22,7 +22,10 @@ const storageStore = useStorageStore()
 const { teamImages } = storeToRefs(storageStore)
 
 const loading = ref(false)
-const tabLoading = ref(false)
+const rankLoading = ref(false)
+const gamesLoading = ref(false)
+const liveGameLoading = ref(false)
+const championsLoading = ref(false)
 const selectedTab = ref(0)
 const region = ref('')
 const account = ref<IAccount | null>(null)
@@ -93,12 +96,17 @@ onMounted(async () => {
 
   account.value = response
 
+  loadTabs()
+
   loading.value = false
 })
 
 onUnmounted(() => {
   loading.value = false
-  tabLoading.value = false
+  rankLoading.value = false
+  gamesLoading.value = false
+  liveGameLoading.value = false
+  championsLoading.value = false
   account.value = null
   leagueEntry.value = []
   matchHistory.value = []
@@ -119,6 +127,12 @@ watch(isShowTeamDialog, (value) => {
   if (!value)
     selectedTeam.value = ''
 })
+
+function loadTabs() {
+  findLeagueEntry()
+  findCurrentGame()
+  findChampions()
+}
 
 function handleTabData() {
   switch (selectedTab.value) {
@@ -193,28 +207,28 @@ async function findLeagueEntry() {
   if (!account.value || leagueEntry.value.length)
     return
 
-  tabLoading.value = true
+  rankLoading.value = true
   leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id, region.value)
-  tabLoading.value = false
+  rankLoading.value = false
 }
 
 async function findCurrentGame() {
   if (!account.value || currentGame.value)
     return
 
-  tabLoading.value = true
+  liveGameLoading.value = true
   const response = await restStore.getCurrentGameByPuuid(account.value.puuid, region.value)
   currentGame.value = response
-  tabLoading.value = false
+  liveGameLoading.value = false
 }
 
 async function findChampions() {
   if (!account.value || championMasteries.value.length)
     return
 
-  tabLoading.value = true
+  championsLoading.value = true
   championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid, region.value)
-  tabLoading.value = false
+  championsLoading.value = false
 }
 </script>
 
@@ -288,18 +302,10 @@ async function findChampions() {
       </v-tabs>
 
       <v-card-text v-if="!loading">
-        <v-card v-if="tabLoading">
-          <v-skeleton-loader
-            type="card"
-            width="80%"
-            class="mx-auto my-8"
-          />
-        </v-card>
-
         <AccountRank
           v-if="selectedTab === 0"
           :league-entries="leagueEntry"
-          :loading="tabLoading"
+          :loading="rankLoading"
         />
 
         <AccountMatchHistory
@@ -311,14 +317,14 @@ async function findChampions() {
           v-if="selectedTab === 2"
           :current-game="currentGame"
           :account="account"
-          :loading="tabLoading"
+          :loading="liveGameLoading"
         />
 
         <AccountChampions
           v-if="selectedTab === 3"
           :account="account"
           :champions="championMasteries"
-          :loading="tabLoading"
+          :loading="championsLoading"
         />
       </v-card-text>
     </v-card>

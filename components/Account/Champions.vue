@@ -112,8 +112,16 @@ function findChampionFromId(championId: number) {
 </script>
 
 <template>
+  <v-card v-if="loading">
+    <v-skeleton-loader
+      type="card"
+      width="80%"
+      class="mx-auto my-8"
+    />
+  </v-card>
+
   <v-row
-    v-if="!champions.length && !loading"
+    v-else-if="!champions.length && !loading"
     class="text-h5 my-4"
     justify="center"
   >

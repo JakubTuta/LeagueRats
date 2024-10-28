@@ -24,6 +24,8 @@ const { championIcons, teamImages } = storeToRefs(storageStore)
 const championStore = useChampionStore()
 const { champions } = storeToRefs(championStore)
 
+useSummonerSpellsStore()
+
 const gameName = ref<string | null>(null)
 const tagLine = ref<string | null>(null)
 const gameNameError = ref('')

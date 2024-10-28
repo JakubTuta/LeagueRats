@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import type { IAccount } from '~/models/account'
-import type { IActiveGame } from '~/models/activeGame'
+import { useDisplay } from 'vuetify';
+import type { IAccount } from '~/models/account';
+import type { IActiveGame } from '~/models/activeGame';
 
 const props = defineProps<{
   currentGame: IActiveGame | null
@@ -33,8 +33,16 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <v-card v-if="loading">
+    <v-skeleton-loader
+      type="card"
+      width="80%"
+      class="mx-auto my-8"
+    />
+  </v-card>
+
   <v-row
-    v-if="account && !currentGame && !loading"
+    v-else-if="account && !currentGame && !loading"
     class="text-h5 my-4"
     justify="center"
   >

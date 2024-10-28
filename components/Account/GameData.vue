@@ -20,10 +20,13 @@ const router = useRouter()
 const { xs } = useDisplay()
 
 const storageStore = useStorageStore()
-const { championIcons, summonerSpellIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
+const { championIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
 
 const runeStore = useRuneStore()
 const { runeInfo } = storeToRefs(runeStore)
+
+const summonerSpellStore = useSummonerSpellsStore()
+const { summonerSpellIcons } = storeToRefs(summonerSpellStore)
 
 const accountStore = useAccountStore()
 
@@ -83,9 +86,6 @@ watch(game, async (newGame) => {
   game.value.info.participants.forEach((participant) => {
     storageStore.getChampionIcon(participant.championId)
   })
-
-  storageStore.getSummonerSpellIcon(gamer.value.summoner1Id)
-  storageStore.getSummonerSpellIcon(gamer.value.summoner2Id)
 
   storageStore.getItemIcons(items.value)
 
