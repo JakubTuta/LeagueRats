@@ -146,7 +146,8 @@ watch(champion, async (newChampion) => {
     ]
     await Promise.all(promises)
 
-    loadedGames.value = championMatches.value[newChampion.id].slice(0, 5)
+    if (championMatches.value[newChampion.id]?.length)
+      loadedGames.value = championMatches.value[newChampion.id].slice(0, 5)
 
     secondaryLoading.value = false
   }
@@ -213,7 +214,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
           </v-col>
 
           <v-col
-            v-if="!secondaryLoading && championMatches[champion.id].length"
+            v-if="!secondaryLoading && championMatches[champion.id]?.length"
             cols="12"
             sm="4"
             style="display: flex; align-items: center; justify-content: center"
@@ -259,7 +260,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
       </v-card-text>
 
       <v-card-text
-        v-else-if="!secondaryLoading && !championMatches[champion.id].length"
+        v-else-if="!secondaryLoading && !championMatches[champion.id]?.length"
         align="center"
       >
         <span class="text-h6">
@@ -267,7 +268,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
         </span>
       </v-card-text>
 
-      <v-card-text v-else-if="!secondaryLoading && championMatches[champion.id].length">
+      <v-card-text v-else-if="!secondaryLoading && championMatches[champion.id]?.length">
         <v-row class="mx-2 mt-4">
           <v-col cols="6">
             <v-select
