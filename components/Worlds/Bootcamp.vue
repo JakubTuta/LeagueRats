@@ -7,7 +7,7 @@ const { t } = useI18n()
 const proStore = useProPlayerStore()
 const { bootcampAccounts } = storeToRefs(proStore)
 
-const nextUpdateTime = ref('00:00')
+// const nextUpdateTime = ref('00:00')
 const search = ref('')
 const loading = ref(false)
 
@@ -87,21 +87,21 @@ const headers = computed(() => [
   },
 ])
 
-setInterval(getNextUpdateTime, 1000)
+// setInterval(getNextUpdateTime, 1000)
 
-function getNextUpdateTime() {
-  const now = new Date()
-  const nextHour = new Date(now)
+// function getNextUpdateTime() {
+//   const now = new Date()
+//   const nextHour = new Date(now)
 
-  nextHour.setHours(nextHour.getHours() + 1)
-  nextHour.setMinutes(0)
-  nextHour.setSeconds(0)
+//   nextHour.setHours(nextHour.getHours() + 1)
+//   nextHour.setMinutes(0)
+//   nextHour.setSeconds(0)
 
-  const minutes = String(Math.floor((nextHour.getTime() - now.getTime()) / 60000)).padStart(2, '0')
-  const seconds = String(Math.floor((nextHour.getTime() - now.getTime()) / 1000) % 60).padStart(2, '0')
+//   const minutes = String(Math.floor((nextHour.getTime() - now.getTime()) / 60000)).padStart(2, '0')
+//   const seconds = String(Math.floor((nextHour.getTime() - now.getTime()) / 1000) % 60).padStart(2, '0')
 
-  nextUpdateTime.value = `${minutes}:${seconds}`
-}
+//   nextUpdateTime.value = `${minutes}:${seconds}`
+// }
 
 function customFilter(_value: string, query: string, item: any) {
   const player = item.raw.player.toLowerCase()
@@ -131,11 +131,10 @@ function customFilter(_value: string, query: string, item: any) {
       {{ t('bootcamp.title') }}
     </v-card-title>
 
-    <v-card-subtitle>
-      {{ $t('bootcamp.nextUpdate', {"time": nextUpdateTime}) }}
-    </v-card-subtitle>
-
-    <v-row class="mx-4 mt-4">
+    <v-row
+      class="mx-2"
+      justify="end"
+    >
       <v-col
         cols="12"
         sm="6"
@@ -149,79 +148,83 @@ function customFilter(_value: string, query: string, item: any) {
       </v-col>
     </v-row>
 
-    <v-card-text>
-      <v-data-table
-        :headers="headers"
-        :items="bootcampAccounts"
-        :custom-filter="customFilter"
-        :search="search"
-        must-sort
-        :sort-by="[
-          {
-            'key': 'rank',
-            'order': 'desc',
-          },
-        ]"
-      >
-        <template #item.team="{item}">
-          <NuxtLink
-            class="pa-1"
-            style="cursor: pointer; text-decoration: none; color: inherit;"
-            :to="`/team/${item.team}`"
+    <v-data-table
+      :headers="headers"
+      :items="bootcampAccounts"
+      :custom-filter="customFilter"
+      :search="search"
+      must-sort
+      :sort-by="[
+        {
+          'key': 'rank',
+          'order': 'desc',
+        },
+      ]"
+    >
+      <template #item.team="{item}">
+        <NuxtLink
+          class="pa-1"
+          style="cursor: pointer; text-decoration: none; color: inherit;"
+          :to="`/team/${item.team}`"
+        >
+          <v-chip
+            width="100px"
+            :color="colorForTeam[item.team]"
           >
-            <v-chip
-              width="100px"
-              :color="colorForTeam[item.team]"
-            >
-              {{ item.team }}
-            </v-chip>
-          </NuxtLink>
-        </template>
+            {{ item.team }}
+          </v-chip>
+        </NuxtLink>
+      </template>
 
-        <template #item.player="{item}">
-          <NuxtLink
-            class="pa-1"
-            style="cursor: pointer; text-decoration: none; color: inherit;"
-            :to="`/player/${item.team}/${item.player}`"
-          >
-            {{ item.player }}
-          </NuxtLink>
-        </template>
+      <template #item.player="{item}">
+        <NuxtLink
+          class="pa-1"
+          style="cursor: pointer; text-decoration: none; color: inherit;"
+          :to="`/player/${item.team}/${item.player}`"
+        >
+          {{ item.player }}
+        </NuxtLink>
+      </template>
 
-        <template #item.account="{item}">
-          <NuxtLink
-            class="pa-1"
-            style="cursor: pointer; text-decoration: none; color: inherit;"
-            :to="`/account/EUW/${item.gameName}-${item.tagLine}`"
-          >
-            {{ item.gameName }} #{{ item.tagLine }}
-          </NuxtLink>
-        </template>
-
-        <template #item.rank="{item}">
-          <span
-            v-if="[
-              'CHALLANGER',
-              'GRANDMASTER',
-              'MASTER',
-            ].includes(item.tier)"
-          >
-            {{ `${$t(`ranks.${item.tier}`)} ${item.leaguePoints}LP` }}
+      <template #item.account="{item}">
+        <NuxtLink
+          class="pa-1"
+          style="cursor: pointer; text-decoration: none; color: inherit;"
+          :to="`/account/EUW/${item.gameName}-${item.tagLine}`"
+        >
+          <span class="text-subtitle-1">
+            {{ item.gameName }}
           </span>
 
-          <span v-else>
-            {{ `${$t(`ranks.${item.tier}`)} ${romanToNumber[item.rank]} ${item.leaguePoints}LP` }}
+          <span class="text-caption ml-2">
+            {{ `#${item.tagLine}` }}
           </span>
-        </template>
+        </NuxtLink>
+      </template>
 
-        <template #item.totalGames="{item}">
-          {{ item.wins + item.losses }}
-        </template>
+      <template #item.rank="{item}">
+        <span
+          v-if="[
+            'CHALLANGER',
+            'GRANDMASTER',
+            'MASTER',
+          ].includes(item.tier)"
+        >
+          {{ `${$t(`ranks.${item.tier}`)} ${item.leaguePoints}LP` }}
+        </span>
 
-        <template #item.winRate="{item}">
-          {{ (item.wins / (item.wins + item.losses) * 100).toFixed(2) }}%
-        </template>
-      </v-data-table>
-    </v-card-text>
+        <span v-else>
+          {{ `${$t(`ranks.${item.tier}`)} ${romanToNumber[item.rank]} ${item.leaguePoints}LP` }}
+        </span>
+      </template>
+
+      <template #item.totalGames="{item}">
+        {{ item.wins + item.losses }}
+      </template>
+
+      <template #item.winRate="{item}">
+        {{ (item.wins / (item.wins + item.losses) * 100).toFixed(2) }}%
+      </template>
+    </v-data-table>
   </v-card>
 </template>

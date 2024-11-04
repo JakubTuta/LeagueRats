@@ -58,7 +58,6 @@ export default defineNuxtPlugin((app) => {
       },
       VTab: {
         rounded: 'xl',
-        size: 'large',
       },
       VListItem: {
         rounded: 'lg',

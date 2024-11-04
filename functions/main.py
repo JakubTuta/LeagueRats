@@ -1,7 +1,4 @@
-import http
 import json
-import random
-import sched
 
 import requests
 import scheduled_functions
@@ -22,15 +19,6 @@ cors_get_options = options.CorsOptions(
 )
 
 firebase_init.initialize_app()
-
-
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def test_connection(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    # url: /test_connection
-
-    return https_fn.Response(json.dumps("Hello world"), status=200)
 
 
 @https_fn.on_request(region="europe-central2", cors=cors_get_options)
@@ -160,7 +148,9 @@ def league_entry(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+@https_fn.on_request(
+    region="europe-central2", cors=cors_get_options, memory=options.MemoryOption.MB_128
+)
 def active_game(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -205,7 +195,9 @@ def active_game(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+@https_fn.on_request(
+    region="europe-central2", cors=cors_get_options, memory=options.MemoryOption.MB_128
+)
 def champion_positions(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -250,38 +242,9 @@ def champion_positions(
     return https_fn.Response(json.dumps(champion_positions), status=200)
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def featured_games(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    # url: /featured_games
-
-    regions_to_feature = ["euw1", "na1"]
-    base_url = f"https://{random.choice(regions_to_feature)}.api.riotgames.com/lol/spectator/v5/featured-games"
-
-    try:
-        response = requests.get(
-            base_url,
-            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
-        )
-
-        if response.status_code != 200:
-            return https_fn.Response(
-                json.dumps(response.json()), status=response.status_code
-            )
-
-        response_data = response.json()
-        game_list = list(response_data["gameList"])
-
-        return https_fn.Response(json.dumps(game_list), status=200)
-
-    except Exception as e:
-        return https_fn.Response(
-            json.dumps({"Riot API error": f"Error occurred: {str(e)}"}), status=500
-        )
-
-
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+@https_fn.on_request(
+    region="europe-central2", cors=cors_get_options, memory=options.MemoryOption.MB_128
+)
 def champion_mastery(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -330,7 +293,9 @@ def champion_mastery(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+@https_fn.on_request(
+    region="europe-central2", cors=cors_get_options, memory=options.MemoryOption.MB_128
+)
 def match_history(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -440,7 +405,9 @@ def match_data(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+@https_fn.on_request(
+    region="europe-central2", cors=cors_get_options, memory=options.MemoryOption.MB_128
+)
 def accounts_in_all_regions(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -498,7 +465,7 @@ def get_account(
         if account := firestore_functions.get_account_from_firestore(
             region=region, puuid=puuid, game_name=game_name, tag_line=tag_line
         ):
-            return https_fn.Response(json.dumps(account), status=200)
+            return https_fn.Response(json.dumps(account), status=200)  # type: ignore
 
         if api_account := firestore_functions.get_api_account(
             region, puuid=puuid, game_name=game_name, tag_line=tag_line
@@ -513,7 +480,9 @@ def get_account(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
+@https_fn.on_request(
+    region="europe-central2", cors=cors_get_options, memory=options.MemoryOption.MB_128
+)
 def add_account(
     req: https_fn.Request,
 ) -> https_fn.Response:
@@ -574,97 +543,76 @@ def add_account(
         )
 
 
-@https_fn.on_request(region="europe-central2", cors=cors_get_options)
-def player_live(
-    req: https_fn.Request,
-) -> https_fn.Response:
-    # url: /player_live/{region}/{team}/{player}
-
-    try:
-        url_params = req.path.split("/")
-
-        region = url_params[1]
-        team = url_params[2]
-        player = url_params[3]
-
-        if not region or not team or not player:
-            raise Exception("Missing region, team or player")
-    except:
-        return https_fn.Response(
-            json.dumps({"error": "Invalid request data"}), status=400
-        )
-
-    if region not in regions.pro_regions:
-        return https_fn.Response(json.dumps({"error": "Invalid region"}), status=400)
-
-    player_doc = firestore_functions.get_pro_player_document(region, team, player)
-
-    if not player_doc:
-        return https_fn.Response(json.dumps({"error": "Player not found"}), status=404)
-
-    player_data = player_doc.to_dict()
-    player_stream = player_data.get("socialMedia", {}).get("twitch", None)
-
-    if not player_stream:
-        return https_fn.Response(json.dumps({"isLive": 0}), status=200)
-
-    if help_functions.check_if_channel_is_live(player_stream):
-        return https_fn.Response(json.dumps({"isLive": 1}), status=200)
-    else:
-        return https_fn.Response(json.dumps({"isLive": 0}), status=200)
-
-
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:00")
+@scheduler_fn.on_schedule(
+    region="europe-central2",
+    schedule="every day 02:00",
+    memory=options.MemoryOption.MB_128,
+)
 def current_version(
     event: scheduler_fn.ScheduledEvent,
 ) -> None:
     scheduled_functions.current_version()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:01")
+@scheduler_fn.on_schedule(
+    region="europe-central2",
+    schedule="every day 02:01",
+    memory=options.MemoryOption.MB_128,
+)
 def rune_description(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.rune_description()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:01")
+@scheduler_fn.on_schedule(
+    region="europe-central2",
+    schedule="every day 02:01",
+    memory=options.MemoryOption.MB_128,
+)
 def champion_list(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.champion_list()
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:02")
-def update_LEC_accounts(event: scheduler_fn.ScheduledEvent) -> None:
-    scheduled_functions.update_pro_accounts("LEC")
+@scheduler_fn.on_schedule(
+    region="europe-central2",
+    schedule="every day 02:02",
+    memory=options.MemoryOption.MB_128,
+)
+def update_pro_accounts(event: scheduler_fn.ScheduledEvent) -> None:
+    for region in regions.pro_regions:
+        scheduled_functions.update_pro_accounts(region)
 
 
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:03")
-def update_LCS_accounts(event: scheduler_fn.ScheduledEvent) -> None:
-    scheduled_functions.update_pro_accounts("LCS")
-
-
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:04")
-def update_LCK_accounts(event: scheduler_fn.ScheduledEvent) -> None:
-    scheduled_functions.update_pro_accounts("LCK")
-
-
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:05")
-def update_LPL_accounts(event: scheduler_fn.ScheduledEvent) -> None:
-    scheduled_functions.update_pro_accounts("LPL")
-
-
-@scheduler_fn.on_schedule(region="europe-central2", schedule="every day 02:06")
+@scheduler_fn.on_schedule(
+    region="europe-central2",
+    schedule="every day 02:04",
+    memory=options.MemoryOption.MB_128,
+)
 def update_player_game_names(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_player_game_names()
 
 
 @scheduler_fn.on_schedule(
-    region="europe-central2", schedule=scheduled_functions.hours_1
+    region="europe-central2",
+    schedule="every day 02:06",
+    memory=options.MemoryOption.MB_256,
 )
-def update_bootcamp_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
-    scheduled_functions.update_bootcamp_leaderboard()
+def update_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
+    scheduled_functions.update_leaderboard()
+
+
+# @scheduler_fn.on_schedule(
+#     region="europe-central2",
+#     schedule=scheduled_functions.hours_1,
+#     memory=options.MemoryOption.MB_128,
+# )
+# def update_bootcamp_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
+#     scheduled_functions.update_bootcamp_leaderboard()
 
 
 @scheduler_fn.on_schedule(
-    region="europe-central2", schedule=scheduled_functions.minutes_10
+    region="europe-central2",
+    schedule=scheduled_functions.minutes_10,
+    memory=options.MemoryOption.MB_128,
 )
 def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.check_for_live_streams()
@@ -693,7 +641,9 @@ def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
 
 
 @scheduler_fn.on_schedule(
-    region="europe-central2", schedule=scheduled_functions.hours_1
+    region="europe-central2",
+    schedule=scheduled_functions.hours_1,
+    memory=options.MemoryOption.MB_128,
 )
 def update_champion_history(event: scheduler_fn.ScheduledEvent) -> None:
     scheduled_functions.update_champion_history()

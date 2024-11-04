@@ -1,6 +1,7 @@
 import threading
 
 import requests
+import src.firebase_init as firebase_init
 import src.firestore_functions as firestore_functions
 import src.help_functions as help_functions
 import src.regions as regions
@@ -14,15 +15,14 @@ hours_1 = "0 * * * *"
 def current_version() -> None:
     base_url = "https://ddragon.leagueoflegends.com/api/versions.json"
 
-    try:
-        response = requests.get(base_url)
+    response = requests.get(base_url)
 
-        current_version = response.json()[0]
+    if not response.status_code == 200:
+        return
 
-        firestore_functions.save_current_version(current_version)
+    current_version = response.json()[0]
 
-    except Exception as e:
-        pass
+    firestore_functions.save_current_version(current_version)
 
 
 def rune_description() -> None:
@@ -388,3 +388,62 @@ def update_champion_history():
 
     for thread in threads:
         thread.join()
+
+
+def update_leaderboard():
+    request_regions = list(regions.important_api_region_2_to_select_region.keys())
+
+    for region in request_regions:
+        select_region = regions.api_region_2_to_select_region[region]
+
+        request_url = base_url = (
+            f"https://{region}.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5"
+        )
+
+        response = requests.get(
+            request_url,
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+        )
+
+        if not response.status_code == 200:
+            continue
+
+        entries = response.json()["entries"]
+        leaderboard_accounts = []
+
+        for index, entry in enumerate(entries, start=1):
+            summoner_id = entry["summonerId"]
+
+            if not (
+                account := firestore_functions.get_account_from_firestore(
+                    summoner_id=summoner_id
+                )
+            ):
+                if not (
+                    account := firestore_functions.get_api_account_from_summoner_id(
+                        select_region, summoner_id=summoner_id
+                    )
+                ):
+                    continue
+                firestore_functions.save_accounts([account])
+
+            leaderboard_account = {
+                "gameName": account["gameName"],
+                "tagLine": account["tagLine"],
+                "puuid": account["puuid"],
+                "rank": index,
+                "wins": entry["wins"],
+                "losses": entry["losses"],
+                "leaguePoints": entry["leaguePoints"],
+                "league": "CHALLENGER",
+            }
+
+            leaderboard_accounts.append(leaderboard_account)
+
+        if len(leaderboard_accounts) > 0:
+            firestore_functions.clear_collection(
+                f"leaderboard/{select_region}/CHALLENGER"
+            )
+            firestore_functions.save_leaderboard_accounts(
+                select_region, "CHALLENGER", leaderboard_accounts
+            )

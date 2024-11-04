@@ -64,6 +64,10 @@ def initialize_app():
         "eu_bootcamp_leaderboard",
         "live_streams",
         "champion_history",
+        "leaderboard/EUW/CHALLENGER",
+        "leaderboard/EUNE/CHALLENGER",
+        "leaderboard/NA/CHALLENGER",
+        "leaderboard/KR/CHALLENGER",
     ]
 
     for collection_name in collection_names:

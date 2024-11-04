@@ -9,18 +9,9 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 from src.models.match_history import MatchData
 
 
-def get_league_entry(region, summoner_id):
-    request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
-
-    response = requests.get(
-        request_url,
-        headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
-    )
-
-    return response.json()
-
-
-def get_account_from_firestore(puuid=None, region=None, game_name=None, tag_line=None):
+def get_account_from_firestore(
+    puuid=None, region=None, game_name=None, tag_line=None, summoner_id=None
+):
     if puuid:
         doc_ref = firebase_init.collections["accounts"].document(puuid)
         doc = doc_ref.get()
@@ -42,7 +33,85 @@ def get_account_from_firestore(puuid=None, region=None, game_name=None, tag_line
 
         return doc.to_dict() if doc else None
 
+    elif summoner_id:
+        query = firebase_init.collections["accounts"].where(
+            filter=FieldFilter("id", "==", summoner_id),
+        )
+
+        docs = query.stream()
+        doc = next(docs, None)
+
+        return doc.to_dict() if doc else None
+
     return None
+
+
+def get_api_account(region, puuid=None, game_name=None, tag_line=None):
+    if not (
+        account_details := _get_account_from_region(
+            region, puuid=puuid, game_name=game_name, tag_line=tag_line
+        )
+    ):
+        return None
+
+    if not (
+        summoner_details := _get_summoner_from_region(
+            region, account_details.get("puuid")
+        )
+    ):
+        return None
+
+    account_model = {
+        "gameName": account_details.get("gameName"),
+        "tagLine": account_details.get("tagLine"),
+        "puuid": account_details.get("puuid"),
+        "region": region,
+        "accountId": summoner_details.get("accountId"),
+        "id": summoner_details.get("id"),
+        "profileIconId": summoner_details.get("profileIconId"),
+        "summonerLevel": summoner_details.get("summonerLevel"),
+    }
+
+    return account_model
+
+
+def get_api_account_from_summoner_id(region, summoner_id):
+    if account := get_account_from_firestore(summoner_id=summoner_id):
+        return account
+
+    if not (summoner_details := _get_summoner_with_summoner_id(region, summoner_id)):
+        return None
+
+    if not (
+        account_details := _get_account_from_region(
+            region, puuid=summoner_details.get("puuid")
+        )
+    ):
+        return None
+
+    account_model = {
+        "gameName": account_details.get("gameName"),
+        "tagLine": account_details.get("tagLine"),
+        "puuid": account_details.get("puuid"),
+        "region": region,
+        "accountId": summoner_details.get("accountId"),
+        "id": summoner_details.get("id"),
+        "profileIconId": summoner_details.get("profileIconId"),
+        "summonerLevel": summoner_details.get("summonerLevel"),
+    }
+
+    return account_model
+
+
+def get_league_entry(region, summoner_id):
+    request_url = f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
+
+    response = requests.get(
+        request_url,
+        headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
+    )
+
+    return response.json()
 
 
 def _get_account_from_region(region, puuid=None, game_name=None, tag_line=None):
@@ -81,7 +150,7 @@ def _get_summoner_from_region(region, puuid):
             headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
 
-        if response.status_code == 404:
+        if response.status_code != 200:
             return None
 
         return response.json()
@@ -90,33 +159,23 @@ def _get_summoner_from_region(region, puuid):
         return None
 
 
-def get_api_account(region, puuid=None, game_name=None, tag_line=None):
-    if not (
-        account_details := _get_account_from_region(
-            region, puuid=puuid, game_name=game_name, tag_line=tag_line
+def _get_summoner_with_summoner_id(region, summoner_id):
+    request_region = regions.api_regions_2[region].lower()
+    request_url = f"https://{request_region}.api.riotgames.com/lol/summoner/v4/summoners/{summoner_id}"
+
+    try:
+        response = requests.get(
+            request_url,
+            headers={"X-Riot-Token": firebase_init.app.options.get("riot_api_key")},
         )
-    ):
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()
+
+    except:
         return None
-
-    if not (
-        summoner_details := _get_summoner_from_region(
-            region, account_details.get("puuid")
-        )
-    ):
-        return None
-
-    account_model = {
-        "gameName": account_details.get("gameName"),
-        "tagLine": account_details.get("tagLine"),
-        "puuid": account_details.get("puuid"),
-        "region": region,
-        "accountId": summoner_details.get("accountId"),
-        "id": summoner_details.get("id"),
-        "profileIconId": summoner_details.get("profileIconId"),
-        "summonerLevel": summoner_details.get("summonerLevel"),
-    }
-
-    return account_model
 
 
 def _save_account_from_region(regions, my_region, game_name, tag):
@@ -500,3 +559,13 @@ def add_document_to_champion_history(champion_id, champion_stats, match_data):
     champion_matches_reference.document(match_data["match"]["metadata"]["matchId"]).set(
         match_data
     )
+
+
+def save_leaderboard_accounts(region, rank, accounts):
+    collection_ref = firebase_init.firestore_client.collection(
+        f"leaderboard/{region}/{rank}"
+    )
+
+    for account in accounts:
+        if account["puuid"]:
+            collection_ref.document(account["puuid"]).set(account)

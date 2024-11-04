@@ -21,7 +21,8 @@
     "settings": "Settings",
     "proPlayers": "Pro players",
     "streams": "Streams",
-    "champions": "Champions"
+    "champions": "Champions",
+    "leaderboard": "Leaderboard"
   },
   "settings": {
     "title": "Settings",
@@ -199,5 +200,10 @@
     "MIDDLE": "Mid",
     "BOTTOM": "Bot",
     "UTILITY": "Support"
+  },
+  "leaderboard": {
+    "title": "Player leaderboard",
+    "noPlayers": "No players found",
+    "rank": "Rank"
   }
 }

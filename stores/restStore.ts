@@ -41,13 +41,6 @@ export const useRestStore = defineStore('rest', () => {
     return response
   }
 
-  const testConnection = async (): Promise<void> => {
-    const response = await getFirebaseFunction('test_connection')
-
-    // eslint-disable-next-line no-console
-    console.log(response)
-  }
-
   function getAccountDetails(puuid: string): Promise<IAccountDetails | null>
   function getAccountDetails(username: string, tag: string): Promise<IAccountDetails | null>
   async function getAccountDetails(...args: any[]): Promise<IAccountDetails | null> {
@@ -242,7 +235,6 @@ export const useRestStore = defineStore('rest', () => {
   }
 
   return {
-    testConnection,
     getAccountDetails,
     getSummonerDetailsByPuuid,
     getCurrentGameByPuuid,

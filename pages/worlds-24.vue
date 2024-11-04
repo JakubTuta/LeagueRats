@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
+import { useDisplay } from 'vuetify';
 
 const { t } = useI18n()
 const { mobile } = useDisplay()
@@ -37,18 +37,20 @@ const tabs = computed(() => [
             color="primary"
             grow
             :show-arrows="false"
+            density="comfortable"
           >
             <v-tab
               v-for="tab in tabs"
               :key="tab.title"
               :value="tab.value"
+              size="default"
             >
               {{ tab.title }}
             </v-tab>
           </v-tabs>
         </v-card-title>
 
-        <v-card-text class="mt-4">
+        <v-card-text>
           <WorldsTeams v-if="selectedTab === 'teams'" />
 
           <WorldsBootcamp v-if="selectedTab === 'bootcamp'" />

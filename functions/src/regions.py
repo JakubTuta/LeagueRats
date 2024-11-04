@@ -55,6 +55,12 @@ api_regions_2 = {
     "VN": "VN2",
     "ME": "ME1",
 }
+important_api_regions_2 = {
+    "EUW": "EUW1",
+    "EUNE": "EUN1",
+    "NA": "NA1",
+    "KR": "KR",
+}
 api_region_2_to_select_region = {
     "EUW1": "EUW",
     "EUN1": "EUNE",
@@ -73,6 +79,12 @@ api_region_2_to_select_region = {
     "TW2": "TW",
     "VN2": "VN",
     "ME1": "ME",
+}
+important_api_region_2_to_select_region = {
+    "EUW1": "EUW",
+    "EUN1": "EUNE",
+    "NA1": "NA",
+    "KR": "KR",
 }
 api_region_2_to_server_region = {
     "NA1": "AMERICAS",

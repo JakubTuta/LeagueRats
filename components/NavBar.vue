@@ -39,6 +39,10 @@ const tabs = computed(() => [
     title: t('navbar.champions'),
     to: '/champions',
   },
+  {
+    title: t('navbar.leaderboard'),
+    to: '/leaderboard',
+  },
 ])
 
 const errorMessage = t('rules.requiredField')
