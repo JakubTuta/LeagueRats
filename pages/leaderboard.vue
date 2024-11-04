@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { importantSelectRegions } from '~/helpers/regions';
-import type { ILeaderboard } from '~/models/leaderboard';
+import { importantSelectRegions } from '~/helpers/regions'
+import type { ILeaderboard } from '~/models/leaderboard'
 
 const soloqStore = useSoloqStore()
 const { leaderboardPerRegion } = storeToRefs(soloqStore)
@@ -40,6 +40,12 @@ const headers = computed(() => [
     key: 'player',
     value: 'player',
     sortable: false,
+  },
+  {
+    title: 'LP',
+    key: 'leaguePoints',
+    value: 'leaguePoints',
+    align: 'center',
   },
   {
     title: t('bootcamp.totalGames'),
