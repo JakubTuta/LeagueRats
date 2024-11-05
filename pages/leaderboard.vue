@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { importantSelectRegions } from '~/helpers/regions'
-import type { ILeaderboard } from '~/models/leaderboard'
+import { importantSelectRegions } from '~/helpers/regions';
+import type { ILeaderboard } from '~/models/leaderboard';
 
 const soloqStore = useSoloqStore()
 const { leaderboardPerRegion } = storeToRefs(soloqStore)
@@ -14,6 +14,7 @@ const loading = ref(false)
 const search = ref('')
 const region = ref('EUW')
 const league = ref('CHALLENGER')
+const isOnlyPros = ref(false)
 
 const playersPerPage = 25
 
@@ -21,6 +22,29 @@ onMounted(() => {
   if (!proAccountNames.value) {
     proStore.getProAccountNames()
   }
+})
+
+const accounts = computed(() => {
+  if (!leaderboardPerRegion.value[region.value]) {
+    return []
+  }
+
+  const tmp = leaderboardPerRegion.value[region.value].map((account) => {
+    return {
+      ...account,
+      player: getProPlayer(account),
+    }
+  })
+
+  return tmp
+})
+
+const filteredAccounts = computed(() => {
+  if (!isOnlyPros.value) {
+    return accounts.value
+  }
+
+  return accounts.value.filter(account => account.player)
 })
 
 const headers = computed(() => [
@@ -153,11 +177,21 @@ function getProPlayer(item: ILeaderboard) {
             label="Region"
           />
         </v-col>
+
+        <v-col
+          cols="12"
+          sm="4"
+        >
+          <v-checkbox
+            v-model="isOnlyPros"
+            :label="$t('leaderboard.onlyPros')"
+          />
+        </v-col>
       </v-row>
 
-      <v-card-text v-if="leaderboardPerRegion[region].length">
+      <v-card-text v-if="filteredAccounts.length">
         <v-data-table
-          :items="leaderboardPerRegion[region]"
+          :items="filteredAccounts"
           :headers="headers"
           :items-per-page="playersPerPage"
           :custom-filter="customFilter"
@@ -188,11 +222,11 @@ function getProPlayer(item: ILeaderboard) {
             #item.player="{item}"
           >
             <NuxtLink
-              v-if="getProPlayer(item)"
+              v-if="item.player"
               style="cursor: pointer; text-decoration: none; color: inherit;"
-              :to="`/player/${getProPlayer(item)!.team}/${getProPlayer(item)!.player}`"
+              :to="`/player/${item.player.team}/${item.player.player}`"
             >
-              {{ `${getProPlayer(item)!.team} ${getProPlayer(item)!.player}` }}
+              {{ `${item.player.team} ${item.player.player}` }}
             </NuxtLink>
           </template>
 
@@ -204,22 +238,6 @@ function getProPlayer(item: ILeaderboard) {
             {{ (item.wins / (item.wins + item.losses) * 100).toFixed(2) }}%
           </template>
         </v-data-table>
-        <!--
-          <v-list>
-          <v-list-item
-          v-for="player in leaderboardPerRegion[region]"
-          :key="player.puuid"
-          lines="two"
-          :to="`/account/${region}/${player.gameName}-${player.tagLine}`"
-          >
-          <template #prepend>
-          {{ player.rank }}
-          </template>
-
-          {{ player.gameName }}
-          </v-list-item>
-          </v-list>
-        -->
       </v-card-text>
 
       <v-card-text

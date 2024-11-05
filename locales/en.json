@@ -204,6 +204,7 @@
   "leaderboard": {
     "title": "Player leaderboard",
     "noPlayers": "No players found",
-    "rank": "Rank"
+    "rank": "Rank",
+    "onlyPros": "Only pros"
   }
 }

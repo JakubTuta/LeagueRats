@@ -204,6 +204,7 @@
   "leaderboard": {
     "title": "Ranking graczy",
     "noPlayers": "Nie znaleziono żadnych graczy",
-    "rank": "Ranga"
+    "rank": "Ranga",
+    "onlyPros": "Tylko prosi"
   }
 }
