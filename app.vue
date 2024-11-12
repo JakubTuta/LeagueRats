@@ -2,14 +2,17 @@
 import 'twitch-stream-embed';
 import { useDisplay } from 'vuetify';
 
-const languageStore = useLanguageStore()
-const themeStore = useThemeStore()
+// const languageStore = useLanguageStore()
+// const themeStore = useThemeStore()
+
+const storageStore = useStorageStore()
 
 const { height, width } = useDisplay()
 
 onMounted(() => {
-  languageStore.setDefaultLanguage()
-  themeStore.setDefaultTheme()
+  storageStore.getInitialData()
+  // languageStore.setDefaultLanguage()
+  // themeStore.setDefaultTheme()
 })
 </script>
 

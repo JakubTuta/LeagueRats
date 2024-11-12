@@ -13,7 +13,7 @@ import { type IProActiveGame, mapProActiveGame } from '~/models/proActiveGame'
 export const useRestStore = defineStore('rest', () => {
   const baseURL = 'https://europe-central2-league-rats.cloudfunctions.net'
   const HEADERS_FIREBASE = {
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Origin': '*',
   }
 

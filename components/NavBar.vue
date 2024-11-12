@@ -27,10 +27,10 @@ const tabs = computed(() => [
     title: t('navbar.proPlayers'),
     to: '/pro-players',
   },
-  {
-    title: 'Worlds 24',
-    to: '/worlds-24',
-  },
+  // {
+  //   title: 'Worlds 24',
+  //   to: '/worlds-24',
+  // },
   {
     title: t('navbar.streams'),
     to: '/streams',

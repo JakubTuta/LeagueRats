@@ -205,6 +205,7 @@
     "title": "Player leaderboard",
     "noPlayers": "No players found",
     "rank": "Rank",
-    "onlyPros": "Only pros"
+    "onlyPros": "Only pros",
+    "region": "Region"
   }
 }

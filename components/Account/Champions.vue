@@ -107,7 +107,7 @@ function loadChampions({ done }: { done: (status: string) => void }) {
 }
 
 function findChampionFromId(championId: number) {
-  return mappedChampions.value.find(champion => champion.id === championId)?.value || ''
+  return mappedChampions.value.find(champion => champion.id === championId)?.value.toLowerCase() || ''
 }
 </script>
 

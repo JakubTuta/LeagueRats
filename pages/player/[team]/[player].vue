@@ -448,7 +448,7 @@ function getWinRatio(champion: IChampionHistory) {
                 <v-list-item
                   v-for="champion in mapChampionHistory"
                   :key="champion.championId"
-                  :to="`/champion/${champion.championName}`"
+                  :to="`/champion/${champion.championName.toLowerCase()}`"
                 >
                   <template #prepend>
                     <v-avatar

@@ -15,8 +15,8 @@ const { mobile } = useDisplay()
 const proStore = useProPlayerStore()
 const { activeGames, liveStreams, proAccountNames } = storeToRefs(proStore)
 
-const themeStore = useThemeStore()
-const { isDark } = storeToRefs(themeStore)
+// const themeStore = useThemeStore()
+// const { isDark } = storeToRefs(themeStore)
 
 const storageStore = useStorageStore()
 const { championIcons, teamImages } = storeToRefs(storageStore)
@@ -436,7 +436,7 @@ function getPlayerStream(player: IProPlayer) {
                   lines="two"
                   class="mb-2"
                   :to="item.raw.isChampion
-                    ? `/champion/${item.raw.value}`
+                    ? `/champion/${item.raw.value.toLowerCase()}`
                     : `/player/${item.raw.team}/${item.raw.player}`"
                   :prepend-avatar="item.raw.isChampion
                     ? championIcons[item.raw.id]

@@ -611,7 +611,7 @@ def update_leaderboard(event: scheduler_fn.ScheduledEvent) -> None:
 
 @scheduler_fn.on_schedule(
     region="europe-central2",
-    schedule=scheduled_functions.minutes_10,
+    schedule=scheduled_functions.minutes_15,
     memory=options.MemoryOption.MB_128,
 )
 def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
@@ -619,25 +619,27 @@ def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
 
 
 @scheduler_fn.on_schedule(
-    region="europe-central2", schedule=scheduled_functions.minutes_10
+    region="europe-central2",
+    schedule=scheduled_functions.minutes_10,
+    memory=options.MemoryOption.MB_128,
 )
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
-    tier_1_teams = ["G2", "T1", "GENG", "BLG"]
-    tier_2_teams = ["FNC", "LNG", "HLE"]
-    tier_3_teams = ["FLY", "MAD", "TES"]
+    tier_1_teams = ["G2", "T1", "GENG"]
+    tier_2_teams = ["DK", "FNC", "HLE"]
 
     active_pro_games = []
 
-    for teams_in_tier in [tier_1_teams, tier_2_teams, tier_3_teams]:
+    for teams_in_tier in [tier_1_teams, tier_2_teams]:
         tier_games = firestore_functions.get_active_games_per_team(teams_in_tier)
 
         active_pro_games.extend(tier_games)
 
     firestore_functions.clear_collection("active_pro_games")
-    firestore_functions.save_documents_to_collection(
-        "active_pro_games",
-        active_pro_games,
-    )
+    if len(active_pro_games):
+        firestore_functions.save_documents_to_collection(
+            "active_pro_games",
+            active_pro_games,
+        )
 
 
 @scheduler_fn.on_schedule(

@@ -163,7 +163,7 @@ function getProPlayer(item: ILeaderboard) {
           <v-select
             v-model="league"
             :items="['CHALLENGER']"
-            label="Region"
+            :label="$t('leaderboard.rank')"
           />
         </v-col>
 
@@ -174,7 +174,7 @@ function getProPlayer(item: ILeaderboard) {
           <v-select
             v-model="region"
             :items="importantSelectRegions"
-            label="Region"
+            :label="$t('leaderboard.region')"
           />
         </v-col>
 

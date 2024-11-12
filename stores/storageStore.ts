@@ -1,4 +1,5 @@
 import { getDownloadURL, listAll, ref as storageRef } from 'firebase/storage'
+import { proRegions, teamPerRegion } from '~/helpers/regions'
 import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
 import { useFirebase } from '~/helpers/useFirebase'
 
@@ -190,8 +191,19 @@ export const useStorageStore = defineStore('storage', () => {
     teamImages.value[team] = images
   }
 
-  asyncGetAllChampionIcons()
-  asyncGetAllRankIcons()
+  const asyncGetAllPlayerImages = () => {
+    proRegions.forEach((region) => {
+      teamPerRegion[region].forEach((team) => {
+        getTeamImages(region, team)
+      })
+    })
+  }
+
+  const getInitialData = () => {
+    asyncGetAllChampionIcons()
+    asyncGetAllRankIcons()
+    asyncGetAllPlayerImages()
+  }
 
   return {
     championIcons,
@@ -211,5 +223,6 @@ export const useStorageStore = defineStore('storage', () => {
     getItemIcons,
     getTeamLogo,
     getTeamImages,
+    getInitialData,
   }
 })

@@ -60,10 +60,10 @@ const filteredChampions = computed(() => {
           cols="12"
           sm="6"
           md="4"
-          class="mr-4"
         >
           <v-text-field
             v-model="search"
+            class="mx-4"
             :label="$t('universal.search')"
             outlined
             dense
@@ -88,13 +88,17 @@ const filteredChampions = computed(() => {
           >
             <v-card
               variant="flat"
-              :to="`/champion/${champion.value}`"
+              :to="`/champion/${champion.value.toLowerCase()}`"
             >
               <v-card-text class="my-1">
                 <v-avatar
                   size="80"
-                  :image="championIcons[Number(champion.id)]"
-                />
+                >
+                  <v-img
+                    :src="championIcons[Number(champion.id)]"
+                    lazy-src="~/assets/default.png"
+                  />
+                </v-avatar>
 
                 <p class="text-h6 mt-1">
                   {{ champion.title }}

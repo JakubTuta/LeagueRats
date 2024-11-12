@@ -205,6 +205,7 @@
     "title": "Ranking graczy",
     "noPlayers": "Nie znaleziono żadnych graczy",
     "rank": "Ranga",
-    "onlyPros": "Tylko prosi"
+    "onlyPros": "Tylko prosi",
+    "region": "Region"
   }
 }
