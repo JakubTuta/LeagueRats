@@ -165,6 +165,15 @@ async function loadGames({ done }: { done: (status: string) => void }) {
 
   done('done')
 }
+
+function againstAutocompleteFocusChange(value: boolean) {
+  if (value && selectedEnemy.value === 'ALL') {
+    selectedEnemy.value = ''
+  }
+  else if (!value && !selectedEnemy.value) {
+    selectedEnemy.value = 'ALL'
+  }
+}
 </script>
 
 <template>
@@ -190,7 +199,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
       <v-card-title>
         <v-row
           style="display: flex; justify-content: space-between; align-items: start"
-          class="mt-2"
+          class="mt-0"
         >
           <v-col
             cols="0"
@@ -269,7 +278,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
       </v-card-text>
 
       <v-card-text v-else-if="!secondaryLoading && championMatches[champion.id]?.length">
-        <v-row class="mx-2 mt-4">
+        <v-row class="mx-2 mt-0">
           <v-col cols="6">
             <v-select
               v-model="selectedPosition"
@@ -286,6 +295,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
               :items="enemyItems"
               :label="$t('champion.enemy')"
               @click:clear="selectedEnemy = 'ALL'"
+              @update:focused="againstAutocompleteFocusChange"
             />
           </v-col>
         </v-row>
@@ -293,7 +303,7 @@ async function loadGames({ done }: { done: (status: string) => void }) {
         <v-divider />
 
         <v-infinite-scroll
-          :height="`${height - 455}px`"
+          :height="`${height - 435}px`"
           empty-text=""
           @load="loadGames"
         >
