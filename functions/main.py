@@ -625,7 +625,7 @@ def check_for_live_streams(event: scheduler_fn.ScheduledEvent) -> None:
 )
 def check_for_active_pro_games(event: scheduler_fn.ScheduledEvent) -> None:
     tier_1_teams = ["G2", "T1", "GENG"]
-    tier_2_teams = ["DK", "FNC", "HLE"]
+    tier_2_teams = ["FNC", "HLE"]
 
     active_pro_games = []
 

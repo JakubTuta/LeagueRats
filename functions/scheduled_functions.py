@@ -375,12 +375,24 @@ def _update_champion_history_for_team(region, team):
 
 
 def update_champion_history():
+    teams = (
+        ("LEC", "G2"),
+        ("LEC", "FNC"),
+        ("LCK", "HLE"),
+        ("LCK", "GENG"),
+        ("LCK", "T1"),
+        ("LPL", "BLG"),
+        ("LPL", "TES"),
+        ("LPL", "LNG"),
+        ("LPL", "WBG"),
+    )
+
     threads = [
         threading.Thread(
             target=_update_champion_history_for_team,
-            args=("LEC", team),
+            args=(region, team),
         )
-        for team in regions.teams_per_region["LEC"]
+        for region, team in teams
     ]
 
     for thread in threads:
