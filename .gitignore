@@ -23,6 +23,8 @@ logs
 .env.*
 !.env.example
 
-venv
-__pycache__
+venv/
+__pycache__/
 pnpm-lock.yaml
+
+.vscode/

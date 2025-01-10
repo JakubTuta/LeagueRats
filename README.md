@@ -1,10 +1,17 @@
-# Nuxt 3 Minimal Starter
+# LeagueRats
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+LeagueRats is a frontend application that allows users to follow League of Legends pro players, their accounts, and games.
 
-## Setup
+## Features
 
-Make sure to install the dependencies:
+- Track pro players and their game statistics
+- View detailed match history
+- Follow multiple accounts
+- Real-time updates on games and player performance
+
+## Installation
+
+To get started with LeagueRats, install the dependencies using your preferred package manager:
 
 ```bash
 # npm
@@ -37,39 +44,3 @@ yarn dev
 # bun
 bun run dev
 ```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
