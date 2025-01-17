@@ -1,0 +1,60 @@
+import contextlib
+
+import dotenv
+import fastapi
+import firebase_admin
+import httpx
+from account.routes import router as account_router
+from database.database import initialize_app
+from fastapi.middleware.cors import CORSMiddleware
+
+dotenv.load_dotenv()
+
+
+def init_app():
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    routers = [
+        account_router,
+    ]
+
+    for router in routers:
+        app.include_router(router)
+
+
+def initialize_httpx_client():
+    client = httpx.AsyncClient()
+
+    return client
+
+
+@contextlib.asynccontextmanager
+async def lifespan(app: fastapi.FastAPI):
+    try:
+        firebase_app, firestore_client = initialize_app()
+        app.firebase_app = firebase_app  # type: ignore
+        app.firestore_client = firestore_client  # type: ignore
+
+        httpx_client = initialize_httpx_client()
+        app.httpx_client = httpx_client  # type: ignore
+    except Exception as e:
+        raise e
+
+    yield
+
+    firebase_admin.delete_app(firebase_app)
+    await httpx_client.aclose()
+
+
+app = fastapi.FastAPI(
+    lifespan=lifespan,  # type: ignore
+)
+
+
+init_app()
