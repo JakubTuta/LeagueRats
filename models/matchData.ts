@@ -123,7 +123,7 @@ export function mapMatchData(data: any): IMatchData {
     info: {
       gameDuration: data.info?.gameDuration || 0,
       gameMode: data.info?.gameMode || '',
-      gameStartTimestamp: new Timestamp(data.info?.gameStartTimestamp / 1000 || 0, 0),
+      gameStartTimestamp: mapTimestamp(data.info?.gameStartTimestamp || 0),
       gameType: data.info?.gameType || '',
       gameVersion: data.info?.gameVersion || '',
       mapId: data.info?.mapId || 0,
@@ -201,4 +201,20 @@ export function mapMatchData(data: any): IMatchData {
       })) || [],
     },
   }
+}
+
+function mapTimestamp(value: number | string | Timestamp | Date): Timestamp {
+  if (value instanceof Timestamp) {
+    return value
+  }
+
+  if (value instanceof Date) {
+    return Timestamp.fromDate(value)
+  }
+
+  if (typeof value === 'string') {
+    return Timestamp.fromDate(new Date(value))
+  }
+
+  return new Timestamp(value / 1000, 0)
 }

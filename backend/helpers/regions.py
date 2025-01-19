@@ -23,5 +23,10 @@ regions = [
 
 def get_region(region: str) -> typing.Optional[typing.Tuple[str, str, str]]:
     for region_row in regions:
-        if region in region_row:
-            return region_row
+        for region_col in region_row:
+            if region_col.lower() == region.lower():
+                return region_row
+
+
+def get_region_column(index: int) -> typing.List[str]:
+    return [region[index] for region in regions]

@@ -5,8 +5,11 @@ import fastapi
 import firebase_admin
 import httpx
 from account.routes import router as account_router
+from champion.routes import router as champion_router
 from database.database import initialize_app
 from fastapi.middleware.cors import CORSMiddleware
+from league.routes import router as league_router
+from match.routes import router as match_router
 
 dotenv.load_dotenv()
 
@@ -22,13 +25,16 @@ def init_app():
 
     routers = [
         account_router,
+        match_router,
+        champion_router,
+        league_router,
     ]
 
     for router in routers:
         app.include_router(router)
 
 
-def initialize_httpx_client():
+def initialize_httpx_client() -> httpx.AsyncClient:
     client = httpx.AsyncClient()
 
     return client
