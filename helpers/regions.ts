@@ -1,5 +1,5 @@
 export const selectRegions = ['EUW', 'EUNE', 'NA', 'KR', 'BR', 'JP', 'LAN', 'LAS', 'OCE', 'PH', 'RU', 'SG', 'TH', 'TR', 'TW', 'VN', 'ME']
-export const importantSelectRegions = ['EUW', 'EUNE', 'NA', 'KR']
+export const importantSelectRegions = ['EUW', 'NA', 'KR']
 export type TSelectRegions = 'EUW' | 'EUNE' | 'NA' | 'KR' | 'BR' | 'JP' | 'LAN' | 'LAS' | 'OCE' | 'PH' | 'RU' | 'SG' | 'TH' | 'TR' | 'TW' | 'VN' | 'ME'
 export type TApiRegions1 = 'AMERICAS' | 'ASIA' | 'EUROPE' | 'ESPORTS'
 export type TApiRegions2 = 'EUW1' | 'EUN1' | 'NA1' | 'KR' | 'BR1' | 'JP1' | 'LA1' | 'LA2' | 'ME1' | 'OC1' | 'PH2' | 'RU' | 'SG2' | 'TH2' | 'TR1' | 'TW2' | 'VN2' | 'ME1'
