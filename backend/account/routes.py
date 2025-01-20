@@ -29,6 +29,7 @@ async def get_account(
             username=username,
             tag=tag,
             puuid=puuid,
+            save_account=True,
         )
     ) is not None:
         return account

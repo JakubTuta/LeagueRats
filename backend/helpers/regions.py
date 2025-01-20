@@ -20,6 +20,35 @@ regions = [
     ("ME", "ME1", "EUROPE"),
 ]
 
+pro_regions = ["LCK", "LPL", "LEC", "LCS"]
+
+teams_per_region = {
+    "LCK": ["T1", "GENG", "DK", "DRX", "HLE", "KDF", "KT", "FOX", "BRO", "NS"],
+    "LPL": [
+        "AL",
+        "BLG",
+        "EDG",
+        "FPX",
+        "IG",
+        "JDG",
+        "LGD",
+        "LNG",
+        "NIP",
+        "OMG",
+        "RA",
+        "RNG",
+        "WE",
+        "TES",
+        "TT",
+        "UP",
+        "WBG",
+    ],
+    "LCS": ["TL", "C9", "FLY", "DIG", "100", "NRG", "SR", "IMT"],
+    "LEC": ["FNC", "G2", "GX", "KC", "MAD", "RGE", "SK", "BDS", "TH", "VIT"],
+}
+
+important_regions = ["EUW", "NA", "KR"]
+
 
 def get_region(region: str) -> typing.Optional[typing.Tuple[str, str, str]]:
     for region_row in regions:

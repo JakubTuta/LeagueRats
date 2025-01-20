@@ -369,7 +369,7 @@ def _update_champion_history_for_team(region, team):
                     "match": match,
                 }
 
-                firestore_functions.add_document_to_champion_history(
+                firestore_functions.add_or_update_document_to_champion_history(
                     player_champion, champion_stats, match_data
                 )
 

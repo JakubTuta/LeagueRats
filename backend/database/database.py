@@ -1,8 +1,11 @@
 import os
+import typing
 
 import dotenv
 import firebase_admin
-from firebase_admin import firestore
+from firebase_admin import App, firestore
+from google.cloud.firestore_v1.client import Client
+from google.cloud.firestore_v1.collection import CollectionReference
 
 dotenv.load_dotenv()
 
@@ -32,12 +35,12 @@ config = {
 }
 
 
-collections = {}
-firebase_app = None
-firestore_client = None
+collections: typing.Dict[str, CollectionReference] = {}
+firebase_app: typing.Optional[App] = None
+firestore_client: typing.Optional[Client] = None
 
 
-def add_collection(collection_name):
+def add_collection(collection_name: str):
     if firestore_client is None:
         return
 
@@ -46,14 +49,18 @@ def add_collection(collection_name):
     collections[collection_name] = firestore_client.collection(collection_name)
 
 
-def get_collection(collection_name):
+def get_collection(collection_name: str) -> CollectionReference:
     if collection_name not in collections:
         add_collection(collection_name)
 
     return collections[collection_name]
 
 
-def initialize_app():
+def get_firestore_client() -> None | Client:
+    return firestore_client
+
+
+def initialize_app() -> tuple[App, Client]:
     global firebase_app
     global firestore_client
 

@@ -48,7 +48,9 @@ async def get_match_history(
     httpx_client = request.app.httpx_client
 
     if (
-        account := await account_functions.get_account(httpx_client, puuid=puuid)
+        account := await account_functions.get_account(
+            httpx_client, puuid=puuid, save_account=True
+        )
     ) is None:
         raise fastapi.HTTPException(status_code=404, detail="Account not found")
 

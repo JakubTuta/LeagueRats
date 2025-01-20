@@ -17,6 +17,7 @@ async def get_account(
     tag: typing.Optional[str] = None,
     summoner_id: typing.Optional[str] = None,
     puuid: typing.Optional[str] = None,
+    save_account: bool = False,
 ) -> typing.Optional[models.Account]:
     if account := get_account_from_database(
         region=region,
@@ -27,12 +28,16 @@ async def get_account(
     ):
         return account
 
+    if region is None:
+        return None
+
     if account := await get_account_from_api(
         client,
-        region=region,
+        region,
         username=username,
         tag=tag,
         puuid=puuid,
+        save_account=save_account,
     ):
         return account
 
@@ -132,14 +137,12 @@ async def _get_summoner_details(
 
 async def get_account_from_api(
     client: httpx.AsyncClient,
-    region: typing.Optional[str] = None,
+    region: str,
     username: typing.Optional[str] = None,
     tag: typing.Optional[str] = None,
     puuid: typing.Optional[str] = None,
+    save_account: bool = False,
 ) -> typing.Optional[models.Account]:
-    if region is None:
-        return None
-
     if (
         account_details := await _get_account_details(
             client, region, username=username, tag=tag, puuid=puuid
@@ -149,7 +152,7 @@ async def get_account_from_api(
 
     if (
         summoner_details := await _get_summoner_details(
-            client, region, account_details["puuid"]
+            client, region, account_details.get("puuid", "")
         )
     ) is None:
         return None
@@ -167,7 +170,8 @@ async def get_account_from_api(
 
     model = models.Account(**model_data)
 
-    db_functions.add_document("accounts", model.model_dump())
+    if save_account:
+        db_functions.add_or_update_document("accounts", model.model_dump())
 
     return model
 
@@ -180,7 +184,7 @@ async def get_accounts_in_all_regions(
     request_regions = regions.get_region_column(0)
 
     tasks = [
-        get_account(client, region, username=username, tag=tag)
+        get_account(client, region, username=username, tag=tag, save_account=True)
         for region in request_regions
     ]
 

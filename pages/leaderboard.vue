@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { importantSelectRegions } from '~/helpers/regions';
-import type { ILeaderboard } from '~/models/leaderboard';
+import { importantSelectRegions } from '~/helpers/regions'
+import type { ILeaderboard } from '~/models/leaderboard'
 
 const soloqStore = useSoloqStore()
 const { leaderboardPerRegion } = storeToRefs(soloqStore)
@@ -206,7 +206,7 @@ function getProPlayer(item: ILeaderboard) {
           <template #item.account="{item}">
             <NuxtLink
               style="cursor: pointer; text-decoration: none; color: inherit;"
-              :to="`/account/EUW/${item.gameName}-${item.tagLine}`"
+              :to="`/account/${region}/${item.gameName}-${item.tagLine}`"
             >
               <span class="text-subtitle-1">
                 {{ item.gameName }}

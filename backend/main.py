@@ -10,6 +10,8 @@ from database.database import initialize_app
 from fastapi.middleware.cors import CORSMiddleware
 from league.routes import router as league_router
 from match.routes import router as match_router
+from scheduler.schedules import router as scheduler_router
+from scheduler.schedules import scheduler
 
 dotenv.load_dotenv()
 
@@ -28,6 +30,7 @@ def init_app():
         match_router,
         champion_router,
         league_router,
+        scheduler_router,
     ]
 
     for router in routers:
@@ -52,15 +55,17 @@ async def lifespan(app: fastapi.FastAPI):
     except Exception as e:
         raise e
 
+    scheduler.start()
+
     yield
 
     firebase_admin.delete_app(firebase_app)
     await httpx_client.aclose()
+    scheduler.shutdown()
 
 
 app = fastapi.FastAPI(
     lifespan=lifespan,  # type: ignore
 )
-
 
 init_app()

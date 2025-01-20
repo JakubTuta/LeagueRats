@@ -524,7 +524,7 @@ def get_not_live_streams():
     return doc if doc.exists else None
 
 
-def add_document_to_champion_history(champion_id, champion_stats, match_data):
+def add_or_update_document_to_champion_history(champion_id, champion_stats, match_data):
     champion_reference = firebase_init.collections["champion_history"].document(
         str(champion_id)
     )
