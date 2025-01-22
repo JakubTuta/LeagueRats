@@ -87,6 +87,9 @@ async def call_update_player_game_names():
     return {"message": "Player game names updated"}
 
 
+# LEADERBOARD
+
+
 @scheduler.scheduled_job("cron", hour=2, minute=7)
 async def update_leaderboard():
     await functions.update_leaderboard()
@@ -96,3 +99,45 @@ async def update_leaderboard():
 async def call_update_leaderboard():
     await functions.update_leaderboard()
     return {"message": "Leaderboard updated"}
+
+
+# LIVE STREAMS
+
+
+@scheduler.scheduled_job("interval", minutes=15)
+async def update_live_streams():
+    await functions.update_live_streams()
+
+
+@router.get("/live-streams")
+async def call_update_live_streams():
+    await functions.update_live_streams()
+    return {"message": "Live streams updated"}
+
+
+# ACTIVE GAMES
+
+
+@scheduler.scheduled_job("interval", minutes=15)
+async def update_active_games():
+    await functions.update_active_games()
+
+
+@router.get("/active-games")
+async def call_update_active_games():
+    await functions.update_active_games()
+    return {"message": "Active games updated"}
+
+
+# CHAMPION HISTORY
+
+
+@scheduler.scheduled_job("interval", hours=1)
+async def update_champion_history():
+    await functions.update_champion_history()
+
+
+@router.get("/champion-history")
+async def call_update_champion_history():
+    await functions.update_champion_history()
+    return {"message": "Champion history updated"}

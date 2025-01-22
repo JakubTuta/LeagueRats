@@ -1,8 +1,13 @@
+import asyncio
+import datetime
 import typing
 
+import account.models as account_models
+import database.functions as db_functions
 import helpers.regions as regions
 import helpers.riot_api as riot_api
 import httpx
+import match.models as match_models
 
 from . import models
 
@@ -21,7 +26,6 @@ async def get_active_match(
 
         if response.status_code == 200:
             model = models.ActiveMatch(**response.json())
-            print(model)
 
             return model
 
@@ -76,7 +80,40 @@ async def get_match_data(
         if response.status_code == 200:
             model = models.MatchHistory(**response.json())
 
+            db_functions.add_or_update_document(
+                "match_history",
+                model.model_dump(),
+                document_id=model.metadata.matchId,
+            )
+
             return model
 
-    except Exception as e:
+    except:
         pass
+
+
+async def get_ranked_matches_from_period(
+    client: httpx.AsyncClient, account: account_models.Account, hours: int
+) -> typing.List[match_models.MatchHistory]:
+    now = datetime.datetime.now()
+    past = now - datetime.timedelta(hours=hours)
+
+    match_ids_query_params = {
+        "count": 100,
+        "queue": 420,
+        "type": "ranked",
+        "startTime": int(past.timestamp()),
+        "endTime": int(now.timestamp()),
+    }
+
+    match_ids = await get_match_history(
+        client, account.region, account.puuid, match_ids_query_params
+    )
+
+    jobs = [get_match_data(client, match_id) for match_id in match_ids]
+
+    responses = await asyncio.gather(*jobs)
+
+    matches = list(filter(None, responses))
+
+    return matches

@@ -1,6 +1,7 @@
 import typing
 
 import account.models as account_models
+from google.cloud import firestore
 
 from . import database
 
@@ -79,3 +80,40 @@ def save_leaderboard_accounts(
     for account in accounts:
         if account.puuid:
             collection_ref.document(account.puuid).set(account.model_dump())
+
+
+def update_champion_history(all_champions_data: dict):
+    firestore_client = database.get_firestore_client()
+
+    if firestore_client is None:
+        return
+
+    for champion_id, champion_data in all_champions_data.items():
+        champion_reference = database.get_collection("champion_history_1").document(
+            str(champion_id)
+        )
+        champion_document = champion_reference.get()
+
+        if (
+            champion_document.exists
+            and (document_data := champion_document.to_dict()) is not None
+        ):
+            document_data.update(
+                {
+                    "games": firestore.Increment(champion_data["stats"]["games"]),
+                    "wins": firestore.Increment(champion_data["stats"]["wins"]),
+                    "losses": firestore.Increment(champion_data["stats"]["losses"]),
+                }
+            )
+
+        else:
+            champion_reference.set(champion_data["stats"])
+
+        champion_matches_reference = firestore_client.collection(
+            f"champion_history_1/{str(champion_id)}/matches"
+        )
+
+        for match in champion_data["matches"]:
+            champion_matches_reference.document(
+                match["match"]["metadata"]["matchId"]
+            ).set(match)
