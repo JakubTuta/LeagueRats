@@ -1,38 +1,28 @@
-import { doc, getDoc } from 'firebase/firestore'
-import { useFirebase } from '~/helpers/useFirebase'
 import type { IPerks } from '~/models/activeGame'
-import type { IRuneInfo } from '~/models/runeInfo'
+import type { IRuneTree } from '~/models/runeInfo'
 
 export const useRuneStore = defineStore('rune', () => {
-  const { firestore } = useFirebase()
-  const { locale } = useI18n()
-
   const storageStore = useStorageStore()
+  const apiStore = useApiStore()
 
-  const runeInfo = ref<IRuneInfo | null>(null)
+  const runeInfo = ref<IRuneTree[]>([])
 
   const getRuneInfo = async () => {
-    try {
-      const runeDoc = await getDoc(doc(firestore, 'help', 'runes'))
+    const url = '/v2/runes'
 
-      const runeData = runeDoc.data() as IRuneInfo
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
 
-      runeInfo.value = runeData
-    }
-    catch (error) {
-      console.error(error)
+    if (apiStore.isResponseOk(response)) {
+      runeInfo.value = response!.data
     }
   }
 
   const getRuneIcons = async (runes: IPerks) => {
-    if (!runeInfo.value)
+    if (!runeInfo.value.length)
       await getRuneInfo()
 
-    if (!runeInfo.value)
-      return
-
-    const primaryRuneTree = runeInfo.value[locale.value].find(rune => rune.id === runes.perkStyle) || null
-    const secondaryRuneTree = runeInfo.value[locale.value].find(rune => rune.id === runes.perkSubStyle) || null
+    const primaryRuneTree = runeInfo.value.find(rune => rune.id === runes.perkStyle) || null
+    const secondaryRuneTree = runeInfo.value.find(rune => rune.id === runes.perkSubStyle) || null
 
     let primaryRunes = primaryRuneTree?.slots.flatMap(slot => slot.runes).filter(rune => runes.perkIds.includes(rune.id)) || []
     const secondaryRunes = secondaryRuneTree?.slots.flatMap(slot => slot.runes).filter(rune => runes.perkIds.includes(rune.id)) || []

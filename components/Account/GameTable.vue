@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // @ts-expect-error correct path
-import bannedDefault from '~/assets/banned_default.png';
-import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions';
-import type { IAccount } from '~/models/account';
-import type { IActiveGame, IParticipant } from '~/models/activeGame';
+import bannedDefault from '~/assets/banned_default.png'
+import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
+import type { IAccount } from '~/models/account'
+import type { IActiveGame, IParticipant } from '~/models/activeGame'
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -20,8 +20,8 @@ const { championIcons, runeIcons } = storeToRefs(storageStore)
 const summonerSpellStore = useSummonerSpellsStore()
 const { summonerSpellIcons } = storeToRefs(summonerSpellStore)
 
-const restStore = useRestStore()
 const runeStore = useRuneStore()
+const championStore = useChampionStore()
 
 const team1 = ref<IParticipant[]>([])
 const team2 = ref<IParticipant[]>([])
@@ -51,8 +51,8 @@ const region = computed(() => {
 })
 
 async function sortTeam(participants: IParticipant[]) {
-  const participantIds = participants.map(participant => participant.championId)
-  const teamLanes = await restStore.findChampionsPositions(participantIds)
+  const championIds = participants.map(participant => participant.championId)
+  const teamLanes = await championStore.getChampionsPositions(championIds)
 
   if (!teamLanes)
     return participants

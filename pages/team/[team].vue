@@ -19,7 +19,7 @@ const { mobile, height } = useDisplay()
 const storageStore = useStorageStore()
 const { teamImages } = storeToRefs(storageStore)
 
-const proStore = useProPlayerStore()
+const proPlayerStore = useProPlayerStore()
 
 const loading = ref(false)
 const teamName = ref('')
@@ -54,7 +54,7 @@ onMounted(async () => {
 
   teamName.value = team
 
-  players.value = (await proStore.returnProPlayersFromTeam(proRegion, team))
+  players.value = (await proPlayerStore.getProPlayersFromTeam(proRegion, team))
     .sort((a, b) => mapRole[a.role] - mapRole[b.role])
 
   if (proRegion)

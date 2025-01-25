@@ -28,3 +28,4 @@ __pycache__/
 pnpm-lock.yaml
 
 .vscode/
+serviceAccount.json

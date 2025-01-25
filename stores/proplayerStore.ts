@@ -1,12 +1,12 @@
 import type { DocumentData, QuerySnapshot, Unsubscribe } from 'firebase/firestore'
-import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore'
-import { proRegions, teamPerRegion } from '~/helpers/regions'
+import { collection, doc, onSnapshot, query } from 'firebase/firestore'
 import { useFirebase } from '~/helpers/useFirebase'
 import type { IActiveGame } from '~/models/activeGame'
 import type { IBootcampAccount } from '~/models/bootcampAccount'
 import type { IProActiveGame } from '~/models/proActiveGame'
 import { mapProActiveGame } from '~/models/proActiveGame'
-import { type IProPlayer, mapIProPlayer } from '~/models/proPlayer'
+import type { IProPlayer } from '~/models/proPlayer'
+import { mapIProPlayer } from '~/models/proPlayer'
 
 interface IProAccountNames {
   [puuid: string]: {
@@ -25,10 +25,7 @@ export interface IStream {
 }
 
 export const useProPlayerStore = defineStore('proPlayer', () => {
-  let playersPerRegion: Record<string, IProPlayer[]> = {}
-  let playersPerTeam: Record<string, IProPlayer[]> = {}
-  let playerPerName: Record<string, IProPlayer> = {}
-
+  const savedPlayers = ref<Record<string, Record<string, IProPlayer[]>>>({})
   const players = ref<IProPlayer[]>([])
   const activeGames = ref<IProActiveGame[]>([])
   const proAccountNames = ref<IProAccountNames | null>(null)
@@ -42,12 +39,10 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   const notLiveStreamsUnsubscribe = ref<Unsubscribe | null>(null)
 
   const { firestore } = useFirebase()
+  const apiStore = useApiStore()
 
   const resetState = () => {
-    playersPerRegion = {}
-    playersPerTeam = {}
-    playerPerName = {}
-
+    savedPlayers.value = {}
     players.value = []
     activeGames.value = []
     proAccountNames.value = null
@@ -76,147 +71,69 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     players.value = []
   }
 
-  const getProPlayersForRegion = async (region: string): Promise<void> => {
-    region = region.toUpperCase()
+  const getProPlayersForRegion = async (region: string): Promise<IProPlayer[]> => {
+    if (savedPlayers.value[region]) {
+      const data = Object.values(savedPlayers.value[region]).flat()
+      players.value = data
 
-    if (playersPerRegion[region]) {
-      players.value = playersPerRegion[region]
-
-      return
+      return data
     }
 
-    const tmpPlayers = [] as IProPlayer[]
+    const url = `/v2/pro-players/accounts/${region}`
 
-    try {
-      const promises = teamPerRegion[region].map(async (team) => {
-        const q = query(collection(firestore, `pro_players/${region}/${team}`))
-        const querySnapshot = await getDocs(q)
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
 
-        querySnapshot.forEach((doc) => {
-          tmpPlayers.push(doc.data() as IProPlayer)
-        })
-      })
+    if (apiStore.isResponseOk(response)) {
+      const data = response!.data as Record<string, IProPlayer[]>
 
-      await Promise.all(promises)
-      players.value = tmpPlayers
-      playersPerRegion[region] = tmpPlayers
-    }
-    catch (error) {
-      console.error(error)
-    }
-  }
+      const mappedData = Object.fromEntries(
+        Object.entries(data).map(([key, value]) => [key, value.map(mapIProPlayer)]),
+      )
 
-  const getProPlayersFromTeam = async (region: string, team: string) => {
-    if (playersPerTeam[team]) {
-      players.value.push(...playersPerTeam[team])
+      savedPlayers.value[region] = mappedData
+      players.value = Object.values(mappedData).flat()
 
-      return
-    }
-
-    try {
-      const q = query(collection(firestore, `pro_players/${region}/${team}`))
-      const querySnapshot = await getDocs(q)
-
-      const playerData = querySnapshot.docs.map(docData => mapIProPlayer(docData.data()))
-      playersPerTeam[team] = playerData
-
-      players.value.push(...playerData)
-    }
-    catch (error) {
-      console.error(error)
+      return Object.values(mappedData).flat()
     }
 
     return []
   }
 
-  const returnProPlayersFromTeam = async (region: string, team: string) => {
-    if (playersPerTeam[team]) {
-      return playersPerTeam[team]
+  const getProPlayersFromTeam = async (region: string, team: string): Promise<IProPlayer[]> => {
+    if (savedPlayers.value[region] && savedPlayers.value[region][team]) {
+      const data = savedPlayers.value[region][team]
+      players.value = Object.values(savedPlayers.value[region]).flat()
+
+      return data
     }
 
-    try {
-      const q = query(collection(firestore, `pro_players/${region}/${team}`))
-      const querySnapshot = await getDocs(q)
+    const url = `/v2/pro-players/accounts/${region}/${team}`
 
-      const playerData = querySnapshot.docs.map(docData => mapIProPlayer(docData.data()))
-      playersPerTeam[team] = playerData
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
 
-      return playerData
-    }
-    catch (error) {
-      console.error(error)
-    }
+    if (apiStore.isResponseOk(response)) {
+      const data = response!.data.map(mapIProPlayer)
 
-    return []
-  }
-
-  const returnPlayersFromTeam = async (region: string, team: string) => {
-    if (playersPerTeam[team]) {
-      return playersPerTeam[team]
-    }
-
-    try {
-      const q = query(collection(firestore, `pro_players/${region}/${team}`))
-      const querySnapshot = await getDocs(q)
-
-      const playerData = querySnapshot.docs.map(docData => mapIProPlayer(docData.data()))
-      playersPerTeam[team] = playerData
-
-      return playerData
-    }
-    catch (error) {
-      console.error(error)
-    }
-
-    return []
-  }
-
-  const getPlayerFromTeam = async (team: string, name: string) => {
-    const playerName = name.toLowerCase()
-
-    if (playersPerTeam[team]) {
-      return playersPerTeam[team].find(player => player.player.toLowerCase() === playerName) || null
-    }
-
-    const region = proRegions.find(region => teamPerRegion[region].includes(team))
-
-    if (!region)
-      return null
-
-    try {
-      const q = query(collection(firestore, `pro_players/${region}/${team}`))
-      const querySnapshot = await getDocs(q)
-
-      const playerData = querySnapshot.docs.map(docData => mapIProPlayer(docData.data()))
-      playersPerTeam[team] = playerData
-
-      return playerData.find(player => player.player.toLowerCase() === playerName) || null
-    }
-    catch (error) {
-      console.error(error)
-    }
-
-    return null
-  }
-
-  const getPlayerFromName = async (name: string): Promise<IProPlayer | null> => {
-    if (playerPerName[name]) {
-      return playerPerName[name]
-    }
-
-    for (const region of proRegions) {
-      for (const team of teamPerRegion[region]) {
-        const docRef = doc(firestore, `pro_players/${region}/${team}`, name)
-        // eslint-disable-next-line no-await-in-loop
-        const docSnap = await getDoc(docRef)
-
-        if (docSnap.exists()) {
-          const player = mapIProPlayer(docSnap.data())
-          playerPerName[name] = player
-
-          return player
-        }
+      if (!savedPlayers.value[region]) {
+        savedPlayers.value[region] = {}
       }
+
+      savedPlayers.value[region][team] = data
+      players.value = Object.values(savedPlayers.value[region]).flat()
+
+      return data
+    }
+
+    return []
+  }
+
+  const getPlayer = async (region: string, team: string, name: string): Promise<IProPlayer | null> => {
+    const url = `/v2/pro-players/accounts/${region}/${team}/${name}`
+
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
+
+    if (apiStore.isResponseOk(response)) {
+      return mapIProPlayer(response!.data)
     }
 
     return null
@@ -243,30 +160,28 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     activeGamesUnsubscribe.value = onSnapshot(q, onSuccess, onError)
   }
 
-  const getProAccountNames = async () => {
-    try {
-      const document = doc(firestore, 'pro_players', 'account_names')
-      const docSnap = await getDoc(document)
+  const getProAccountNames = async (): Promise<IProAccountNames> => {
+    const url = '/v2/pro-players/account-names'
 
-      if (docSnap.exists()) {
-        proAccountNames.value = docSnap.data() as IProAccountNames
-      }
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
+
+    if (apiStore.isResponseOk(response)) {
+      proAccountNames.value = response!.data as IProAccountNames
     }
-    catch (error) {
-      console.error(error)
-    }
+
+    return {}
   }
 
-  const getBootcampAccounts = async () => {
-    try {
-      const docs = await getDocs(collection(firestore, 'eu_bootcamp_leaderboard'))
+  const getBootcampAccounts = async (): Promise<IBootcampAccount[]> => {
+    const url = '/v2/pro-players/bootcamp/leaderboard'
 
-      bootcampAccounts.value = docs.docs.map(doc => doc.data() as IBootcampAccount)
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
+
+    if (apiStore.isResponseOk(response)) {
+      bootcampAccounts.value = response!.data as IBootcampAccount[]
     }
-    catch (error) {
-      bootcampAccounts.value = []
-      console.error(error)
-    }
+
+    return []
   }
 
   const getLiveStreams = () => {
@@ -317,6 +232,26 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     )
   }
 
+  const createProPlayer = async (player: IProPlayer, account: { username: string, tag: string, region: string }): Promise<boolean> => {
+    const baseUrl = '/v2/pro-players/accounts'
+
+    const queryParams = new URLSearchParams()
+
+    queryParams.append('username', account.username)
+    queryParams.append('tag', account.tag)
+    queryParams.append('region', account.region)
+
+    const url = `${baseUrl}?${queryParams.toString()}`
+
+    const response = await apiStore.sendRequest({ url, method: 'POST', data: player })
+
+    if (apiStore.isResponseOk(response)) {
+      return true
+    }
+
+    return false
+  }
+
   return {
     players,
     activeGames,
@@ -328,14 +263,12 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     resetPlayers,
     getProPlayersForRegion,
     getProPlayersFromTeam,
-    returnPlayersFromTeam,
-    getPlayerFromTeam,
-    returnProPlayersFromTeam,
-    getPlayerFromName,
+    getPlayer,
     getActiveProGamesFromDatabase,
     getProAccountNames,
     getBootcampAccounts,
     getLiveStreams,
     getNotLiveStreams,
+    createProPlayer,
   }
 })

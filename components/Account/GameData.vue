@@ -71,7 +71,7 @@ const mapPositions: { [key: string]: number } = {
   UTILITY: 5,
 }
 
-watch(game, async (newGame) => {
+watch(game, (newGame) => {
   if (!newGame)
     return
 
@@ -89,13 +89,7 @@ watch(game, async (newGame) => {
 
   storageStore.getItemIcons(items.value)
 
-  if (!runeInfo.value)
-    await runeStore.getRuneInfo()
-
-  if (!runeInfo.value)
-    return
-
-  const keyRunePath = runeInfo.value[locale.value]?.flatMap(rune => rune.slots.flatMap(slot => slot.runes)).find(rune => rune.id === keyRuneId.value)?.icon || null
+  const keyRunePath = runeInfo.value.flatMap(rune => rune.slots.flatMap(slot => slot.runes)).find(rune => rune.id === keyRuneId.value)?.icon || null
 
   if (keyRunePath)
     storageStore.getRuneIcons({ [keyRuneId.value]: keyRunePath })
@@ -199,7 +193,7 @@ async function sendToProfile(participant: IParticipantStats, event: MouseEvent) 
   let tagLine = participant.riotIdTagline
 
   if (!tagLine || !summonerName) {
-    const account = await accountStore.getAccount(participant.puuid, region, false)
+    const account = await accountStore.getAccount({ puuid: participant.puuid })
 
     if (!account)
       return
@@ -248,12 +242,12 @@ function chipColor() {
 }
 
 function findSecondaryRuneTree() {
-  if (!runeInfo.value)
+  if (!runeInfo.value.length)
     return
 
   const subStylePerks = gamer.value.perks.styles.find(e => e.description === 'subStyle')?.style || 0
 
-  const secondaryRuneTree = runeInfo.value[locale.value]?.find(rune => rune.id === subStylePerks) || null
+  const secondaryRuneTree = runeInfo.value.find(rune => rune.id === subStylePerks) || null
   const secondaryRuneTreeImagePath = secondaryRuneTree?.icon || null
   secondaryRuneTreeId.value = secondaryRuneTree?.id || 0
 
@@ -438,7 +432,7 @@ function findSecondaryRuneTree() {
           KDA:
           <span
             v-if="gamer.deaths === 0 && gamer.kills + gamer.assists !== 0"
-            class="font-weight-bold text-yellow-accent-4 text-subtitle-1"
+            class="font-weight-bold text-subtitle-1 text-yellow-accent-4"
           >
             {{ $t('gameHistory.perfect') }}
           </span>

@@ -5,7 +5,8 @@ import type { IAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
 import type { IChampionMastery } from '~/models/championMastery'
 import type { ILeagueEntry } from '~/models/leagueEntry'
-import { useAccountStore } from '~/stores/accountStore'
+import { useLeagueStore } from '~/stores/leagueStore'
+import { useMatchStore } from '~/stores/matchStore'
 
 const route = useRoute()
 const router = useRouter()
@@ -13,7 +14,9 @@ const { mobile } = useDisplay()
 const { t } = useI18n()
 
 const accountStore = useAccountStore()
-const restStore = useRestStore()
+const leagueStore = useLeagueStore()
+const matchStore = useMatchStore()
+const championStore = useChampionStore()
 
 const proStore = useProPlayerStore()
 const { proAccountNames } = storeToRefs(proStore)
@@ -45,20 +48,6 @@ const tabs = computed(() => [
   { text: t('profile.champions.title'), value: 3 },
 ])
 
-// const tabNumberToName: Record<number, string> = {
-//   0: 'rank',
-//   1: 'matchHistory',
-//   2: 'currentGame',
-//   3: 'champions',
-// }
-
-// const tabNameToNumber: Record<string, number> = {
-//   rank: 0,
-//   matchHistory: 1,
-//   currentGame: 2,
-//   champions: 3,
-// }
-
 onMounted(async () => {
   let gameName = ''
   let tagLine = ''
@@ -86,7 +75,7 @@ onMounted(async () => {
 
   loading.value = true
 
-  const response = await accountStore.getAccount(gameName, tagLine, region.value, true)
+  const response = await accountStore.getAccount({ username: gameName, tag: tagLine, region: region.value })
 
   if (!response) {
     router.push(`/search-account/${gameName}-${tagLine}`)
@@ -154,25 +143,6 @@ function handleTabData() {
   }
 }
 
-// function replaceUrl(index: number) {
-//   const fullPath = router.currentRoute.value.fullPath.split('/')
-
-//   const accountIndex = fullPath.findIndex(value => value === 'account')
-//   const subPageIndex = accountIndex + 3
-
-//   if (accountIndex === -1 || fullPath.length > subPageIndex)
-//     return
-
-//   if (!fullPath[subPageIndex]) {
-//     fullPath[subPageIndex] = tabNumberToName[index]
-//   }
-//   else {
-//     fullPath.push(tabNumberToName[index])
-//   }
-
-//   router.replace(fullPath.join('/'))
-// }
-
 function findRegionForTeam(team: string) {
   for (const [region, teams] of Object.entries(teamPerRegion)) {
     if (teams.includes(team))
@@ -208,7 +178,7 @@ async function findLeagueEntry() {
     return
 
   rankLoading.value = true
-  leagueEntry.value = await restStore.getLeagueEntryBySummonerId(account.value.id, region.value)
+  leagueEntry.value = await leagueStore.getLeagueEntry(account.value.puuid)
   rankLoading.value = false
 }
 
@@ -217,8 +187,7 @@ async function findCurrentGame() {
     return
 
   liveGameLoading.value = true
-  const response = await restStore.getCurrentGameByPuuid(account.value.puuid, region.value)
-  currentGame.value = response
+  currentGame.value = await matchStore.getActiveMatch(account.value.puuid)
   liveGameLoading.value = false
 }
 
@@ -227,7 +196,7 @@ async function findChampions() {
     return
 
   championsLoading.value = true
-  championMasteries.value = await restStore.getChampionMasteryByPuuid(account.value.puuid, region.value)
+  championMasteries.value = await championStore.getChampionMastery(account.value.puuid)
   championsLoading.value = false
 }
 </script>

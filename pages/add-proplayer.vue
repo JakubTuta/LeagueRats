@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { proRegions, teamPerRegion } from '~/helpers/regions'
-import { useFirebase } from '~/helpers/useFirebase'
-import type { IAccount } from '~/models/account'
+import type { IProPlayer } from '~/models/proPlayer'
 
-const { firestore } = useFirebase()
-
-const restStore = useRestStore()
+const proPlayerStore = useProPlayerStore()
 
 const correctPassword = 'password123'
 const isCorrectPassword = ref(false)
@@ -32,35 +28,23 @@ async function add() {
   if (!region.value || !team.value || !role.value || !name.value)
     return
 
-  const collectionRef = collection(firestore, `pro_players/${region.value}/${team.value}`)
-  const docRef = doc(collectionRef, name.value.toLowerCase())
-
-  const docData = await getDoc(docRef)
-
-  let account: IAccount | null = null
-  if (accountRegion.value && accountName.value && accountTag.value)
-    account = await restStore.saveAccount(accountRegion.value, null, accountName.value, accountTag.value)
-
-  if (docData.exists() && account) {
-    const newPuuids = [...docData.data().puuid]
-    if (!newPuuids.includes(account.puuid))
-      newPuuids.push(account.puuid)
-
-    updateDoc(docRef, { puuid: newPuuids })
+  const playerData: IProPlayer = {
+    player: name.value,
+    puuid: [],
+    // @ts-expect-error xdd
+    region: region.value,
+    // @ts-expect-error xdd
+    role: role.value,
+    team: team.value,
   }
-  else if (!docData.exists()) {
-    const puuid = account
-      ? [account.puuid]
-      : []
 
-    setDoc(docRef, {
-      player: name.value,
-      region: region.value,
-      role: role.value,
-      team: team.value,
-      puuid,
-    }).catch(error => console.error(error))
+  const accountData = {
+    username: accountName.value || '',
+    tag: accountTag.value || '',
+    region: accountRegion.value || '',
   }
+
+  await proPlayerStore.createProPlayer(playerData, accountData)
 
   // region.value = null
   // team.value = null

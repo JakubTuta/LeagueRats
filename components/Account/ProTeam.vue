@@ -53,7 +53,7 @@ async function findTeamMembers() {
   if (!region)
     return
 
-  players.value = await proStore.returnPlayersFromTeam(region, team.value)
+  players.value = await proStore.getProPlayersFromTeam(region, team.value)
   players.value = players.value.sort((a, b) => mapLane[a.role] - mapLane[b.role])
   storageStore.getTeamImages(region, team.value)
 }

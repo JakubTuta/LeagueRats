@@ -1,6 +1,8 @@
 import { Timestamp } from 'firebase/firestore'
 import { queueIdToType } from '~/helpers/queueTypes'
 
+type TGameConfig = 'NORMAL' | 'SOLOQ' | 'FLEXQ'
+
 export interface IPerks {
   perkIds: number[]
   perkStyle: number
@@ -36,17 +38,27 @@ export interface IActiveGame {
   bannedChampions: IBannedChampion[]
   participants: IParticipant[]
   platformId: string
-  gameQueueConfigId: 'NORMAL' | 'SOLOQ' | 'FLEXQ'
+  gameQueueConfigId: TGameConfig
 }
 
 export function mapActiveGame(data: IActiveGame): IActiveGame {
-  // @ts-expect-error gameStartTime is a number
-  data.gameStartTime = new Timestamp(data.gameStartTime / 1000, 0)
-  data.participants = data.participants.map(mapParticipant)
-  // @ts-expect-error gameQueueConfigId is a number
+  data.gameStartTime = mapGameStartTime(data.gameStartTime)
   data.gameQueueConfigId = mapGameConfig(data.gameQueueConfigId)
+  data.participants = data.participants.map(mapParticipant)
 
   return data
+}
+
+function mapGameStartTime(gameStartTime: number | Timestamp | string): Timestamp {
+  if (gameStartTime instanceof Timestamp) {
+    return gameStartTime
+  }
+
+  if (typeof gameStartTime === 'string') {
+    return Timestamp.fromDate(new Date(gameStartTime))
+  }
+
+  return new Timestamp(gameStartTime / 1000, 0)
 }
 
 function mapParticipant(participant: IParticipant): IParticipant {
@@ -57,9 +69,13 @@ function mapParticipant(participant: IParticipant): IParticipant {
   } as IParticipant
 }
 
-function mapGameConfig(gameQueueConfigId: number): 'NORMAL' | 'SOLOQ' | 'FLEXQ' {
+function mapGameConfig(gameQueueConfigId: string | number): TGameConfig {
+  if (typeof gameQueueConfigId === 'string') {
+    return gameQueueConfigId as TGameConfig
+  }
+
   try {
-    return queueIdToType[gameQueueConfigId] as 'NORMAL' | 'SOLOQ' | 'FLEXQ'
+    return queueIdToType[gameQueueConfigId] as TGameConfig
   }
   // eslint-disable-next-line unused-imports/no-unused-vars
   catch (error: any) {

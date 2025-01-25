@@ -1,8 +1,11 @@
 import os
+import typing
 
 import dotenv
 import firebase_admin
-from firebase_admin import firestore
+from firebase_admin import App, firestore
+from google.cloud.firestore_v1.client import Client
+from google.cloud.firestore_v1.collection import CollectionReference
 
 dotenv.load_dotenv()
 
@@ -32,28 +35,41 @@ config = {
 }
 
 
-collections = {}
-app = None
-firestore_client = None
+collections: typing.Dict[str, CollectionReference] = {}
+firebase_app: typing.Optional[App] = None
+firestore_client: typing.Optional[Client] = None
 
 
-def add_collection(collection_name):
-    global collections
-
-    if not firestore_client:
+def add_collection(collection_name: str):
+    if firestore_client is None:
         return
+
+    global collections
 
     collections[collection_name] = firestore_client.collection(collection_name)
 
 
-def initialize_app():
-    global app
+def get_collection(collection_name: str) -> typing.Optional[CollectionReference]:
+    if firestore_client is None:
+        return None
+
+    collection = firestore_client.collection(collection_name)
+
+    return collection
+
+
+def get_firestore_client() -> None | Client:
+    return firestore_client
+
+
+def initialize_app() -> tuple[App, Client]:
+    global firebase_app
     global firestore_client
 
     credentials = firebase_admin.credentials.Certificate(service_account)
-    app = firebase_admin.initialize_app(credentials, config, "League Rats")
+    firebase_app = firebase_admin.initialize_app(credentials, config, "League Rats")
 
-    firestore_client = firestore.client(app)
+    firestore_client = firestore.client(firebase_app)
 
     collection_names = [
         "accounts",
@@ -72,3 +88,5 @@ def initialize_app():
 
     for collection_name in collection_names:
         add_collection(collection_name)
+
+    return firebase_app, firestore_client
