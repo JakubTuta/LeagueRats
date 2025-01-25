@@ -9,20 +9,19 @@ router = fastapi.APIRouter(prefix="/v2/match")
 
 
 @router.get(
-    "/active/{region}/{puuid}",
+    "/active/{puuid}",
     response_model=typing.Optional[models.ActiveMatch],
     status_code=200,
 )
 async def get_active_game(
     request: fastapi.Request,
-    region: str,
     puuid: str,
 ) -> typing.Optional[models.ActiveMatch]:
 
     httpx_client = request.app.httpx_client
 
     if (
-        active_match := await functions.get_active_match(httpx_client, region, puuid)
+        active_match := await functions.get_active_match(httpx_client, puuid)
     ) is not None:
         return active_match
 
@@ -62,6 +61,8 @@ async def get_match_history(
         "start": start,
         "count": count,
     }
+
+    print(query_params)
 
     match_history = await functions.get_match_history(
         httpx_client,

@@ -36,6 +36,8 @@ const filterTeams = ref<string[]>([])
 const savedTeams = ref<string[]>([])
 const selectedTab = ref('teams')
 
+let has2SecondsPassed: any = false
+
 const tabs = computed(() => [
   { title: t('proPlayers.teams'), value: 'teams' },
   { title: t('proPlayers.players'), value: 'players' },
@@ -98,6 +100,8 @@ function getPlayers(region: string) {
     proStore.getProPlayersFromTeam(region, team)
     storageStore.getTeamImages(region, team)
   })
+
+  has2SecondsPassed = useTimeout(2000)
 }
 
 watch(selectedRegion, (region) => {
@@ -127,6 +131,12 @@ watch(filterRoles, () => {
 })
 
 async function loadPlayers({ done }: { done: (status: string) => void }) {
+  if (!has2SecondsPassed?.value) {
+    done('done')
+
+    return
+  }
+
   const notSavedTeams = filterTeams.value.filter(team => !savedTeams.value.includes(team))
 
   if (!notSavedTeams.length) {

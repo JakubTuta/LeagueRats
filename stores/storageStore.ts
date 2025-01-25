@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import { getDownloadURL, listAll, ref as storageRef } from 'firebase/storage'
 import { proRegions, teamPerRegion } from '~/helpers/regions'
 import { summonerSpellsIds } from '~/helpers/summonerSpellsIds'
@@ -8,6 +9,9 @@ export const useStorageStore = defineStore('storage', () => {
 
   const championStore = useChampionStore()
   const { champions } = storeToRefs(championStore)
+
+  const summonersSpellStore = useSummonerSpellsStore()
+  const runeStore = useRuneStore()
 
   const championIcons = ref<Record<number, string>>({})
   const summonerSpellIcons = ref<Record<number, string>>({})
@@ -32,11 +36,14 @@ export const useStorageStore = defineStore('storage', () => {
 
     const championName = champions.value[championId].value
 
-    const championsRef = storageRef(storage, `champions/icons/${championName}.png`)
+    try {
+      const championsRef = storageRef(storage, `champions/icons/${championName}.png`)
 
-    const url = await getDownloadURL(championsRef)
+      const url = await getDownloadURL(championsRef)
 
-    championIcons.value[championId] = url
+      championIcons.value[championId] = url
+    }
+    catch (error) {}
   }
 
   const getAllChampionIcons = async () => {
@@ -76,11 +83,14 @@ export const useStorageStore = defineStore('storage', () => {
 
     const summonerSpellName = summonerSpellsIds[summonerSpellId]
 
-    const summonerSpellRef = storageRef(storage, `summonerSpells/icons/${summonerSpellName}.png`)
+    try {
+      const summonerSpellRef = storageRef(storage, `summonerSpells/icons/${summonerSpellName}.png`)
 
-    const url = await getDownloadURL(summonerSpellRef)
+      const url = await getDownloadURL(summonerSpellRef)
 
-    summonerSpellIcons.value[summonerSpellId] = url
+      summonerSpellIcons.value[summonerSpellId] = url
+    }
+    catch (error) {}
   }
 
   const getRankIcon = async (rank: string) => {
@@ -88,11 +98,14 @@ export const useStorageStore = defineStore('storage', () => {
       return
     }
 
-    const rankRef = storageRef(storage, `ranks/icons/${rank}.png`)
+    try {
+      const rankRef = storageRef(storage, `ranks/icons/${rank}.png`)
 
-    const url = await getDownloadURL(rankRef)
+      const url = await getDownloadURL(rankRef)
 
-    rankIcons.value[rank] = url
+      rankIcons.value[rank] = url
+    }
+    catch (error) {}
   }
 
   const asyncGetAllRankIcons = () => {
@@ -119,11 +132,14 @@ export const useStorageStore = defineStore('storage', () => {
       return
     }
 
-    const regionRef = storageRef(storage, `regions/icons/${region.toLowerCase()}.png`)
+    try {
+      const regionRef = storageRef(storage, `regions/icons/${region.toLowerCase()}.png`)
 
-    const url = await getDownloadURL(regionRef)
+      const url = await getDownloadURL(regionRef)
 
-    regionIcons.value[region] = url
+      regionIcons.value[region] = url
+    }
+    catch (error) {}
   }
 
   const getRuneIcons = async (runePathPerId: Record<number, string>) => {
@@ -133,12 +149,15 @@ export const useStorageStore = defineStore('storage', () => {
       }
 
       const runePath = runePathPerId[id]
-      const runeRef = storageRef(storage, runePath)
+      try {
+        const runeRef = storageRef(storage, runePath)
 
-      // eslint-disable-next-line no-await-in-loop
-      const url = await getDownloadURL(runeRef)
+        // eslint-disable-next-line no-await-in-loop
+        const url = await getDownloadURL(runeRef)
 
-      runeIcons.value[id] = url
+        runeIcons.value[id] = url
+      }
+      catch (error) {}
     }
   }
 
@@ -148,12 +167,15 @@ export const useStorageStore = defineStore('storage', () => {
         continue
       }
 
-      const itemRef = storageRef(storage, `items/${id}.png`)
+      try {
+        const itemRef = storageRef(storage, `items/${id}.png`)
 
-      // eslint-disable-next-line no-await-in-loop
-      const url = await getDownloadURL(itemRef)
+        // eslint-disable-next-line no-await-in-loop
+        const url = await getDownloadURL(itemRef)
 
-      itemIcons.value[id] = url
+        itemIcons.value[id] = url
+      }
+      catch (error) {}
     }
   }
 
@@ -162,11 +184,14 @@ export const useStorageStore = defineStore('storage', () => {
       return
     }
 
-    const teamRef = storageRef(storage, `players/${region}/${team}/team.png`)
+    try {
+      const teamRef = storageRef(storage, `players/${region}/${team}/team.png`)
 
-    const url = await getDownloadURL(teamRef)
+      const url = await getDownloadURL(teamRef)
 
-    teamLogos.value[team] = url
+      teamLogos.value[team] = url
+    }
+    catch (error) {}
   }
 
   const getTeamImages = async (region: string, team: string) => {
@@ -174,21 +199,24 @@ export const useStorageStore = defineStore('storage', () => {
       return
     }
 
-    const teamRef = storageRef(storage, `players/${region}/${team}`)
+    try {
+      const teamRef = storageRef(storage, `players/${region}/${team}`)
 
-    const files = await listAll(teamRef)
+      const files = await listAll(teamRef)
 
-    const images: Record<string, string> = {}
+      const images: Record<string, string> = {}
 
-    for (const file of files.items) {
+      for (const file of files.items) {
       // eslint-disable-next-line no-await-in-loop
-      const url = await getDownloadURL(file)
+        const url = await getDownloadURL(file)
 
-      const name = file.name.split('.')[0].toLowerCase()
-      images[name] = url
+        const name = file.name.split('.')[0].toLowerCase()
+        images[name] = url
+      }
+
+      teamImages.value[team] = images
     }
-
-    teamImages.value[team] = images
+    catch (error) {}
   }
 
   const asyncGetAllPlayerImages = () => {
@@ -197,12 +225,6 @@ export const useStorageStore = defineStore('storage', () => {
         getTeamImages(region, team)
       })
     })
-  }
-
-  const getInitialData = () => {
-    asyncGetAllChampionIcons()
-    asyncGetAllRankIcons()
-    asyncGetAllPlayerImages()
   }
 
   return {
@@ -223,6 +245,8 @@ export const useStorageStore = defineStore('storage', () => {
     getItemIcons,
     getTeamLogo,
     getTeamImages,
-    getInitialData,
+    asyncGetAllChampionIcons,
+    asyncGetAllRankIcons,
+    asyncGetAllPlayerImages,
   }
 })

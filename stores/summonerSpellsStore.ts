@@ -67,9 +67,8 @@ export const useSummonerSpellsStore = defineStore('summonerSpellsStore', () => {
     }
   }
 
-  getAllSummonerSpellIcons()
-
   return {
     summonerSpellIcons,
+    getAllSummonerSpellIcons,
   }
 })

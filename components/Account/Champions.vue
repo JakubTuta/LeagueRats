@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import type { IAccount } from '~/models/account';
-import type { IChampionMastery } from '~/models/championMastery';
-import { useChampionStore } from '~/stores/championStore';
+import { useDisplay } from 'vuetify'
+import type { IAccount } from '~/models/account'
+import type { IChampionMastery } from '~/models/championMastery'
+import { useChampionStore } from '~/stores/championStore'
 
 const props = defineProps<{
   account: IAccount | null

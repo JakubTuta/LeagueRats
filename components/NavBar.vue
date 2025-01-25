@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import { selectRegions } from '~/helpers/regions';
-import { lengthRule } from '~/helpers/rules';
+import { useDisplay } from 'vuetify'
+import { selectRegions } from '~/helpers/regions'
+import { lengthRule } from '~/helpers/rules'
 
 const router = useRouter()
 const route = useRoute()
@@ -99,7 +99,11 @@ async function sendToUserView() {
 
   loading.value = true
 
-  const response = await accountStore.getAccount(gameName.value, tagLine.value, region.value, false)
+  const response = await accountStore.getAccount({
+    username: gameName.value,
+    tag: tagLine.value,
+    region: region.value,
+  })
 
   if (!response) {
     router.push(`/search-account/${gameName.value}-${tagLine.value}`)

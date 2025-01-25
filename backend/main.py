@@ -5,11 +5,13 @@ import fastapi
 import firebase_admin
 import httpx
 from account.routes import router as account_router
-from champion.routes import router as champion_router
+from champions.routes import router as champion_router
 from database.database import initialize_app
 from fastapi.middleware.cors import CORSMiddleware
 from league.routes import router as league_router
 from match.routes import router as match_router
+from pro_players.routes import router as pro_players_router
+from runes.routes import router as runes_router
 from scheduler.schedules import router as scheduler_router
 from scheduler.schedules import scheduler
 
@@ -31,6 +33,9 @@ def init_app():
         champion_router,
         league_router,
         scheduler_router,
+        champion_router,
+        runes_router,
+        pro_players_router,
     ]
 
     for router in routers:
@@ -55,13 +60,13 @@ async def lifespan(app: fastapi.FastAPI):
     except Exception as e:
         raise e
 
-    scheduler.start()
+    # scheduler.start()
 
     yield
 
     firebase_admin.delete_app(firebase_app)
     await httpx_client.aclose()
-    scheduler.shutdown()
+    # scheduler.shutdown()
 
 
 app = fastapi.FastAPI(

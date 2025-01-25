@@ -4,6 +4,7 @@ import { mapKDAToColor } from '~/helpers/kdaColors'
 import { queueTypes } from '~/helpers/queueTypes'
 import type { IAccount } from '~/models/account'
 import type { IMatchData } from '~/models/matchData'
+import { useMatchStore } from '~/stores/matchStore'
 
 interface IChampionHistory {
   championId: number
@@ -27,7 +28,7 @@ const { mobile } = useDisplay()
 const storageStore = useStorageStore()
 const { championIcons } = storeToRefs(storageStore)
 
-const restStore = useRestStore()
+const matchStore = useMatchStore()
 
 const selectedTab = ref('SOLOQ')
 const loading = ref(false)
@@ -64,19 +65,13 @@ async function getMatchIds(count: number) {
     count,
     queue: requestQueueType.id,
     type: requestQueueType.name,
-    startTime: Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000),
+    startTime: Math.floor(new Date('2021-06-16').getTime() / 1000),
     endTime: Math.floor(lastLoadedMatchDate / 1000),
   }
 
-  const matchIds = await restStore.getAccountMatchHistory(account.value, optionalKeys)
+  const matchIds = await matchStore.getMatchHistory(account.value.puuid, optionalKeys)
 
   return matchIds
-}
-
-async function getMatchData(matchId: string) {
-  const matchData = await restStore.getMatchData(matchId)
-
-  return matchData
 }
 
 async function loadMatches(count: number = 20) {
@@ -89,7 +84,7 @@ async function loadMatches(count: number = 20) {
     return []
   }
 
-  const promises = matchIds.map(async matchId => await getMatchData(matchId))
+  const promises = matchIds.map(async matchId => await matchStore.getMatchData(matchId))
   const matchData = await Promise.all(promises)
 
   return matchData

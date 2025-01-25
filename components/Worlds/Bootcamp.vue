@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { colorForTeam } from '~/helpers/teamUniqueColors';
-import { calculateTotalLP } from '~/helpers/totalLP';
+import { colorForTeam } from '~/helpers/teamUniqueColors'
+import { calculateTotalLP } from '~/helpers/totalLP'
 
 const { t } = useI18n()
 

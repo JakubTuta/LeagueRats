@@ -1,5 +1,6 @@
 import typing
 
+import database.database as db
 import helpers.regions as regions
 import helpers.riot_api as riot_api
 import httpx
@@ -28,3 +29,20 @@ async def get_league_entries(
         pass
 
     return []
+
+
+def get_leaderboard(
+    region: str, limit: int = 100, page: int = 1
+) -> typing.Optional[typing.List[models.LeaderboardEntry]]:
+    collection = db.get_collection(f"leaderboard/{region}/CHALLENGER")
+
+    if collection is None:
+        return None
+
+    query = (
+        collection.order_by("rank", direction="ASCENDING")
+        .limit(limit)
+        .offset((page - 1) * limit)
+    )
+
+    return [models.LeaderboardEntry(**doc.to_dict()) for doc in query.stream()]

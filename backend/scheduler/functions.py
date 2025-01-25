@@ -8,6 +8,7 @@ import database.functions as db_functions
 import helpers.regions as regions
 import helpers.riot_api as riot_api
 import httpx
+import league.models as league_models
 import match.functions as match_functions
 
 
@@ -28,30 +29,24 @@ async def update_current_version():
 async def update_rune_description() -> typing.Optional[dict]:
     current_version_doc = db_functions.get_document("help", "version")
 
-    if current_version_doc is None:
+    if not isinstance(current_version_doc, dict):
         return
 
     current_version = current_version_doc["version"]
-    languages = ["en_US"]
-    rune_data_per_language = {}
 
     async with httpx.AsyncClient() as client:
-        for language in languages:
-            request_url = f"https://ddragon.leagueoflegends.com/cdn/{current_version}/data/{language}/runesReforged.json"
+        request_url = f"https://ddragon.leagueoflegends.com/cdn/{current_version}/data/en_US/runesReforged.json"
 
-            response = await client.get(request_url)
+        response = await client.get(request_url)
 
-            if response.status_code == 200:
-                language_key = language.split("_")[0]
-                rune_data_per_language[language_key] = response.json()
-
-    _save_rune_data(rune_data_per_language)
+        if response.status_code == 200:
+            _save_rune_data(response.json())
 
 
 async def update_champion_data():
     current_version_doc = db_functions.get_document("help", "version")
 
-    if current_version_doc is None:
+    if not isinstance(current_version_doc, dict):
         return
 
     current_version = current_version_doc["version"]
@@ -221,16 +216,15 @@ def _clear_text(text):
     return clean_text
 
 
-def _save_rune_data(rune_data_per_language):
-    for rune_data in rune_data_per_language.values():
-        for rune_data_item in rune_data:
-            for slot in rune_data_item["slots"]:
-                for rune in slot["runes"]:
-                    rune["shortDesc"] = _clear_text(rune["shortDesc"])
-                    rune["longDesc"] = _clear_text(rune["longDesc"])
+def _save_rune_data(rune_data):
+    for rune_data_item in rune_data:
+        for slot in rune_data_item["slots"]:
+            for rune in slot["runes"]:
+                rune["shortDesc"] = _clear_text(rune["shortDesc"])
+                rune["longDesc"] = _clear_text(rune["longDesc"])
 
     db_functions.add_or_update_document(
-        "help", rune_data_per_language, document_id="runes"
+        "help", {"data": rune_data}, document_id="runes1"
     )
 
 
@@ -253,12 +247,12 @@ async def _get_player_names_for_team(region, team):
 
     documents = {
         puuid: {
-            "player": player["player"],
+            "player": player.player,
             "team": team,
             "region": region,
         }
         for player in player_docs
-        for puuid in player["puuid"]
+        for puuid in player.puuid
     }
     return documents
 
@@ -271,7 +265,7 @@ async def _update_pro_accounts_for_team(region, team):
     client = httpx.AsyncClient()
 
     for player in player_documents:
-        for puuid in player["puuid"]:
+        for puuid in player.puuid:
             if (
                 database_account := account_functions.get_account_from_database(
                     puuid=puuid
@@ -324,7 +318,7 @@ async def _update_leaderboard_for_region(region):
         ) is None:
             return
 
-        model = account_models.LeaderboardAccount(
+        model = league_models.LeaderboardEntry(
             **account.model_dump(),
             rank=index,
             league="CHALLENGER",
@@ -343,23 +337,24 @@ async def _get_live_streams_for_team(client: httpx.AsyncClient, region, team):
     not_live_streams = {}
 
     for player in player_docs:
-        player_name = player["player"]
+        player_name = player.player
 
         if (
-            twitch_name := player.get("socialMedia", {}).get("twitch", None)
-        ) is not None:
+            player.socialMedia
+            and (twitch_name := player.socialMedia.get("twitch", None)) is not None
+        ):
             if await _check_if_channel_is_live(client, twitch_name):
                 live_streams[player_name] = {
                     "player": player_name,
                     "team": team,
-                    "region": player["region"],
+                    "region": player.region,
                     "twitch": twitch_name,
                 }
             else:
                 not_live_streams[player_name] = {
                     "player": player_name,
                     "team": team,
-                    "region": player["region"],
+                    "region": player.region,
                     "twitch": twitch_name,
                 }
 
@@ -381,16 +376,14 @@ async def _get_active_games_for_team(client, team, region):
     player_docs = db_functions.get_pro_team_documents(region, team)
 
     for player in player_docs:
-        for puuid in player["puuid"]:
+        for puuid in player.puuid:
             if (
                 account := account_functions.get_account_from_database(puuid=puuid)
             ) is None:
                 continue
 
             if (
-                active_match := await match_functions.get_active_match(
-                    client, account.region, puuid
-                )
+                active_match := await match_functions.get_active_match(client, puuid)
             ) is None:
                 continue
 
@@ -404,7 +397,7 @@ async def _update_champion_history_for_team(client, region, team):
     champion_history = {}
 
     for player in player_docs:
-        for puuid in player["puuid"]:
+        for puuid in player.puuid:
             if (
                 account := account_functions.get_account_from_database(puuid=puuid)
             ) is None:
@@ -430,7 +423,7 @@ async def _update_champion_history_for_team(client, region, team):
                 player_champion = player_participant.championId
 
                 match_data = {
-                    "player": player,
+                    "player": player.model_dump(),
                     "match": match.model_dump(),
                 }
 

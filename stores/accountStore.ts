@@ -1,64 +1,74 @@
-import { collection, getDocs, query, updateDoc, where } from 'firebase/firestore'
-import { useFirebase } from '~/helpers/useFirebase'
-import type { IAccount, IAccountDetails } from '~/models/account'
+import { type IAccount, mapAccount } from '~/models/account'
 
 export const useAccountStore = defineStore('account', () => {
-  const { firestore } = useFirebase()
+  const apiStore = useApiStore()
 
-  const restStore = useRestStore()
+  const getAccount = async (
+    { puuid, username, tag, region }:
+    { puuid?: string, username?: string, tag?: string, region?: string },
+  ): Promise<IAccount | null> => {
+    const baseUrl = '/v2/account'
+    const method = 'GET'
 
-  const collectionAccounts = collection(firestore, 'accounts')
+    const queryParams = new URLSearchParams()
 
-  function getAccount(puuid: string, region: string, isSaveAccount: boolean): Promise<IAccount | null>
-  function getAccount(gameName: string, tagLine: string, region: string, isSaveAccount: boolean): Promise<IAccount | null>
-  async function getAccount(...args: any[]): Promise<IAccount | null> {
-    const isSaveAccount = args.pop() as boolean
-    const region = args.pop() as string
+    if (puuid)
+      queryParams.append('puuid', puuid)
+    if (username)
+      queryParams.append('username', username)
+    if (tag)
+      queryParams.append('tag', tag)
+    if (region)
+      queryParams.append('region', region)
 
-    if (args.length === 1) {
-      const puuid = args[0] as string
+    const fullUrl = `${baseUrl}?${queryParams.toString()}`
 
-      const account = await restStore.getAccountWithPuuid(region, puuid)
+    const response = await apiStore.sendRequest({ url: fullUrl, method })
 
-      if (isSaveAccount && account)
-        restStore.saveAccount(region, puuid)
-
-      return account
-    }
-    else if (args.length === 2) {
-      const gameName = args[0] as string
-      const tagLine = args[1] as string
-
-      const account = await restStore.getAccountWithGameName(region, gameName, tagLine)
-
-      if (isSaveAccount && account)
-        restStore.saveAccount(region, null, gameName, tagLine)
-
-      return account
-    }
+    if (apiStore.isResponseOk(response))
+      return mapAccount(response!.data)
 
     return null
   }
 
-  const updateAccount = async (account: IAccount, newAccount: IAccountDetails) => {
-    const q = query(collectionAccounts, where('puuid', '==', account.puuid))
+  const createAccount = async (
+    { username, tag, region, puuid }:
+    { username?: string, tag?: string, region?: string, puuid?: string },
+  ): Promise<IAccount | null> => {
+    const url = '/v2/account'
+    const method = 'POST'
 
-    const querySnapshot = await getDocs(q)
-    if (querySnapshot.empty)
-      return
-
-    const doc = querySnapshot.docs[0]
-
-    try {
-      await updateDoc(doc.ref, { ...newAccount })
+    const requestData = {
+      username: username || '',
+      tag: tag || '',
+      region: region || '',
+      puuid: puuid || '',
     }
-    catch (error) {
-      console.error(error)
-    }
+
+    const response = await apiStore.sendRequest(
+      { url, method, data: requestData },
+    )
+
+    if (apiStore.isResponseOk(response))
+      return mapAccount(response!.data)
+
+    return null
+  }
+
+  const getAccountsInAllRegions = async (username: string, tag: string): Promise<Record<string, IAccount | null>> => {
+    const url = `/v2/account/all-regions/${username}/${tag}`
+
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
+
+    if (apiStore.isResponseOk(response))
+      return response!.data as Record<string, IAccount | null>
+
+    return {}
   }
 
   return {
     getAccount,
-    updateAccount,
+    createAccount,
+    getAccountsInAllRegions,
   }
 })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
+import { useDisplay } from 'vuetify'
 
 const { height } = useDisplay()
 
@@ -65,8 +65,9 @@ const filteredChampions = computed(() => {
             v-model="search"
             class="mx-4"
             :label="$t('universal.search')"
-            outlined
+
             dense
+            outlined
             clearable
             prepend-inner-icon="mdi-magnify"
           />

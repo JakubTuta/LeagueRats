@@ -1,44 +1,27 @@
-import type { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore'
-import { collection, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore'
-import { useFirebase } from '~/helpers/useFirebase'
 import type { ILeaderboard } from '~/models/leaderboard'
 
 export const useSoloqStore = defineStore('soloq', () => {
   const leaderboardPerRegion = ref<Record<string, ILeaderboard[]>>({})
 
-  const lastLoadedPlayerPerRegion: Record<string, QueryDocumentSnapshot<DocumentData, DocumentData>> = {}
+  const apiStore = useApiStore()
 
-  const { firestore } = useFirebase()
+  const getLeaderboardForRegion = async (region: string, limit: number, page: number) => {
+    const url = `/v2/league/leaderboard/${region}?limit=${limit}&page=${page}`
 
-  const getFirstLeaderboardForRegion = async (region: string, league: string, limitPlayers: number) => {
-    if (lastLoadedPlayerPerRegion[region]) {
-      return
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
+
+    if (apiStore.isResponseOk(response)) {
+      if (leaderboardPerRegion.value[region]) {
+        leaderboardPerRegion.value[region].push(...response!.data)
+      }
+      else {
+        leaderboardPerRegion.value[region] = response!.data
+      }
     }
-
-    const collectionRef = collection(firestore, 'leaderboard', region, league)
-    const q = query(collectionRef, orderBy('rank'), limit(limitPlayers))
-
-    const querySnapshot = await getDocs(q)
-    const leaderboard = querySnapshot.docs.map(doc => doc.data() as ILeaderboard)
-
-    leaderboardPerRegion.value[region] = leaderboard
-    lastLoadedPlayerPerRegion[region] = querySnapshot.docs[querySnapshot.docs.length - 1]
-  }
-
-  const getOtherLeaderboardForRegion = async (region: string, league: string) => {
-    const collectionRef = collection(firestore, 'leaderboard', region, league)
-    const q = query(collectionRef, orderBy('rank'), startAfter(lastLoadedPlayerPerRegion[region]))
-
-    const querySnapshot = await getDocs(q)
-    const leaderboard = querySnapshot.docs.map(doc => doc.data() as ILeaderboard)
-
-    leaderboardPerRegion.value[region].push(...leaderboard)
-    lastLoadedPlayerPerRegion[region] = querySnapshot.docs[querySnapshot.docs.length - 1]
   }
 
   return {
     leaderboardPerRegion,
-    getFirstLeaderboardForRegion,
-    getOtherLeaderboardForRegion,
+    getLeaderboardForRegion,
   }
 })

@@ -14,3 +14,14 @@ class LeagueEntry(pydantic.BaseModel):
     veteran: bool
     freshBlood: bool
     inactive: bool
+
+
+class LeaderboardEntry(pydantic.BaseModel):
+    gameName: str
+    tagLine: str
+    puuid: str
+    rank: int
+    leaguePoints: int
+    wins: int
+    losses: int
+    league: str

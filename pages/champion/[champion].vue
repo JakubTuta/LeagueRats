@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import type { IMatchData } from '~/models/matchData';
-import type { IProPlayer } from '~/models/proPlayer';
+import { useDisplay } from 'vuetify'
+import type { IMatchData } from '~/models/matchData'
+import type { IProPlayer } from '~/models/proPlayer'
 
 const route = useRoute()
 const { height } = useDisplay()
@@ -19,6 +19,9 @@ const secondaryLoading = ref(false)
 const loadedGames = ref<{ player: IProPlayer, match: IMatchData }[]>([])
 const selectedPosition = ref('ALL')
 const selectedEnemy = ref('ALL')
+
+const gamesAmount = 10
+const has2SecondsPassed = useTimeout(2000)
 
 onMounted(async () => {
   loading.value = true
@@ -136,25 +139,31 @@ watch(champions, (newChampions) => {
 }, { immediate: true })
 
 watch(champion, async (newChampion) => {
-  if (newChampion) {
-    secondaryLoading.value = true
+  if (!newChampion?.id || secondaryLoading.value)
+    return
 
-    const promises = [
-      storageStore.getChampionIcon(newChampion.id),
-      championStore.getChampionStats(newChampion.id),
-      championStore.getChampionMatches(newChampion.id, 5),
-    ]
-    await Promise.all(promises)
+  secondaryLoading.value = true
 
-    if (championMatches.value[newChampion.id]?.length)
-      loadedGames.value = championMatches.value[newChampion.id].slice(0, 5)
+  const promises = [
+    championStore.getChampionStats(newChampion.id),
+    championStore.getChampionMatches(newChampion.id, gamesAmount),
+  ]
+  await Promise.all(promises)
 
-    secondaryLoading.value = false
-  }
+  if (championMatches.value[newChampion.id]?.length)
+    loadedGames.value = championMatches.value[newChampion.id].slice(0, gamesAmount)
+
+  secondaryLoading.value = false
 }, { immediate: true })
 
 async function loadGames({ done }: { done: (status: string) => void }) {
-  await championStore.getChampionMatches(champion.value!.id, 5)
+  if (!has2SecondsPassed.value) {
+    done('done')
+
+    return
+  }
+
+  await championStore.getChampionMatches(champion.value!.id, gamesAmount)
   loadedGames.value = championMatches.value[champion.value!.id]
 
   if (loadedGames.value.length >= championStats.value[champion.value!.id].games) {
@@ -214,8 +223,12 @@ function againstAutocompleteFocusChange(value: boolean) {
             <v-avatar
               align="center"
               size="100"
-              :image="championIcons[champion.id]"
-            />
+            >
+              <v-img
+                :src="championIcons[champion.id]"
+                lazy-src="~assets/default.png"
+              />
+            </v-avatar>
 
             <p class="text-h5 mt-2">
               {{ champion.title }}
@@ -290,8 +303,9 @@ function againstAutocompleteFocusChange(value: boolean) {
           <v-col cols="6">
             <v-autocomplete
               v-model="selectedEnemy"
-              auto-select-first
+
               clearable
+              auto-select-first
               :items="enemyItems"
               :label="$t('champion.enemy')"
               @click:clear="selectedEnemy = 'ALL'"

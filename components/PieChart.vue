@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ArcElement, Chart as ChartJS } from 'chart.js';
-import { Doughnut } from 'vue-chartjs';
+import { ArcElement, Chart as ChartJS } from 'chart.js'
+import { Doughnut } from 'vue-chartjs'
 
 const props = defineProps<{
   wins: number

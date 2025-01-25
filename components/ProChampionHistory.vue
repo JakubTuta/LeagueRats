@@ -55,19 +55,13 @@ const mappedChampions = computed(() => {
   }))
 })
 
-watch(gamer, async (newGamer) => {
+watch(gamer, (newGamer) => {
   if (!newGamer)
     return
 
   storageStore.getItemIcons(items.value)
 
-  if (!runeInfo.value)
-    await runeStore.getRuneInfo()
-
-  if (!runeInfo.value)
-    return
-
-  const keyRunePath = runeInfo.value[locale.value]?.flatMap(rune => rune.slots.flatMap(slot => slot.runes)).find(rune => rune.id === keyRuneId.value)?.icon || null
+  const keyRunePath = runeInfo.value.flatMap(rune => rune.slots.flatMap(slot => slot.runes)).find(rune => rune.id === keyRuneId.value)?.icon || null
 
   if (keyRunePath)
     storageStore.getRuneIcons({ [keyRuneId.value]: keyRunePath })
@@ -188,12 +182,12 @@ function getPlayerRoleIcon() {
 }
 
 function findSecondaryRuneTree() {
-  if (!runeInfo.value)
+  if (!runeInfo.value.length)
     return
 
   const subStylePerks = gamer.value.perks.styles.find(e => e.description === 'subStyle')?.style || 0
 
-  const secondaryRuneTree = runeInfo.value[locale.value]?.find(rune => rune.id === subStylePerks) || null
+  const secondaryRuneTree = runeInfo.value.find(rune => rune.id === subStylePerks) || null
   const secondaryRuneTreeImagePath = secondaryRuneTree?.icon || null
   secondaryRuneTreeId.value = secondaryRuneTree?.id || 0
 
@@ -259,7 +253,7 @@ function findChampionFromId(championId: number) {
             >
               <v-img
                 :src="teamImages[player.team]?.[player.player.toLowerCase()]"
-                lazy-src="~/assets/default.png"
+                lazy-src="~assets/default.png"
               />
             </v-avatar>
 
@@ -278,8 +272,12 @@ function findChampionFromId(championId: number) {
         <v-avatar
           size="30"
           rounded="0"
-          :image="getPlayerRoleIcon()"
-        />
+        >
+          <v-img
+            :src="getPlayerRoleIcon()"
+            lazy-src="~assets/default.png"
+          />
+        </v-avatar>
 
         <p class="mt-2">
           {{ $t(`positions.${gamer.teamPosition}`) }}
@@ -294,15 +292,23 @@ function findChampionFromId(championId: number) {
         <v-avatar
           size="30"
           rounded="0"
-          :image="summonerSpellIcons[gamer.summoner1Id]"
           class="mr-2"
-        />
+        >
+          <v-img
+            :src="summonerSpellIcons[gamer.summoner1Id]"
+            lazy-src="~assets/default.png"
+          />
+        </v-avatar>
 
         <v-avatar
           size="30"
           rounded="0"
-          :image="summonerSpellIcons[gamer.summoner2Id]"
-        />
+        >
+          <v-img
+            :src="summonerSpellIcons[gamer.summoner2Id]"
+            lazy-src="~assets/default.png"
+          />
+        </v-avatar>
       </v-col>
 
       <v-col
@@ -316,7 +322,7 @@ function findChampionFromId(championId: number) {
         >
           <v-img
             :src="runeIcons[keyRuneId]"
-            lazy-src="~/assets/default.png"
+            lazy-src="~assets/default.png"
           />
 
           <v-img
@@ -325,7 +331,7 @@ function findChampionFromId(championId: number) {
             :height="20"
             style="position: absolute; bottom: 10px; right: 5px;"
             :src="runeIcons[secondaryRuneTreeId]"
-            lazy-src="~/assets/default.png"
+            lazy-src="~assets/default.png"
           />
 
           <v-menu
@@ -357,6 +363,7 @@ function findChampionFromId(championId: number) {
         >
           <v-img
             :src="itemIcons[item]"
+            lazy-src="~assets/default.png"
           />
         </v-avatar>
       </v-col>
@@ -370,7 +377,7 @@ function findChampionFromId(championId: number) {
         <v-avatar size="50">
           <v-img
             :src="championIcons[gamer.championId]"
-            lazy-src="~/assets/default.png"
+            lazy-src="~assets/default.png"
           />
         </v-avatar>
 
@@ -386,7 +393,7 @@ function findChampionFromId(championId: number) {
           <v-avatar size="50">
             <v-img
               :src="championIcons[enemy.championId]"
-              lazy-src="~/assets/default.png"
+              lazy-src="~assets/default.png"
             />
           </v-avatar>
         </NuxtLink>

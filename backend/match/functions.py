@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import typing
 
+import account.functions as account_functions
 import account.models as account_models
 import database.functions as db_functions
 import helpers.regions as regions
@@ -13,9 +14,12 @@ from . import models
 
 
 async def get_active_match(
-    client: httpx.AsyncClient, region: str, puuid: str
+    client: httpx.AsyncClient, puuid: str
 ) -> typing.Optional[models.ActiveMatch]:
-    if (row_regions := regions.get_region(region)) is None:
+    if (account := await account_functions.get_account(client, puuid=puuid)) is None:
+        return None
+
+    if (row_regions := regions.get_region(account.region)) is None:
         return None
 
     request_region = row_regions[1].lower()
@@ -48,7 +52,7 @@ async def get_match_history(
         f"{key}={value}" for key, value in query_params.items() if value is not None
     )
     request_url = f"https://{request_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{string_params}"
-
+    print(request_url)
     try:
         response = await client.get(request_url, headers=riot_api.get_headers())
 

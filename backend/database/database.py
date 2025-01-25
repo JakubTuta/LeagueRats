@@ -49,11 +49,13 @@ def add_collection(collection_name: str):
     collections[collection_name] = firestore_client.collection(collection_name)
 
 
-def get_collection(collection_name: str) -> CollectionReference:
-    if collection_name not in collections:
-        add_collection(collection_name)
+def get_collection(collection_name: str) -> typing.Optional[CollectionReference]:
+    if firestore_client is None:
+        return None
 
-    return collections[collection_name]
+    collection = firestore_client.collection(collection_name)
+
+    return collection
 
 
 def get_firestore_client() -> None | Client:
@@ -73,7 +75,6 @@ def initialize_app() -> tuple[App, Client]:
         "accounts",
         "help",
         "match_history",
-        "match_history_1",
         "pro_players",
         "active_pro_games",
         "eu_bootcamp_leaderboard",

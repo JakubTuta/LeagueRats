@@ -17,6 +17,7 @@ const league = ref('CHALLENGER')
 const isOnlyPros = ref(false)
 
 const playersPerPage = 25
+const maxPlayers = 300
 
 onMounted(() => {
   if (!proAccountNames.value) {
@@ -105,10 +106,13 @@ const headers = computed(() => [
 
 watch(region, async () => {
   loading.value = true
-  await soloqStore.getFirstLeaderboardForRegion(region.value, league.value, playersPerPage)
+  await soloqStore.getLeaderboardForRegion(region.value, playersPerPage, 1)
   loading.value = false
 
-  soloqStore.getOtherLeaderboardForRegion(region.value, league.value)
+  const pages = Math.floor(maxPlayers / playersPerPage)
+  for (let i = 2; i <= pages; i++) {
+    soloqStore.getLeaderboardForRegion(region.value, playersPerPage, i)
+  }
 }, { immediate: true })
 
 function customFilter(_value: string, query: string, item: any) {

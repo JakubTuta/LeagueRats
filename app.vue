@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import 'twitch-stream-embed';
-import { useDisplay } from 'vuetify';
+import 'twitch-stream-embed'
+import { useDisplay } from 'vuetify'
 
 // const languageStore = useLanguageStore()
 // const themeStore = useThemeStore()
 
-const storageStore = useStorageStore()
+const appStore = useAppStore()
 
 const { height, width } = useDisplay()
 
 onMounted(() => {
-  storageStore.getInitialData()
+  appStore.getInitialData()
   // languageStore.setDefaultLanguage()
   // themeStore.setDefaultTheme()
 })

@@ -30,3 +30,15 @@ async def get_league_entries(
     )
 
     return league_entries
+
+
+@router.get(
+    "/leaderboard/{region}", response_model=typing.List[models.LeaderboardEntry]
+)
+async def get_leaderboard(
+    region: str, limit: int = 100, page: int = 1
+) -> typing.List[models.LeaderboardEntry]:
+    if (leaderboard := functions.get_leaderboard(region, limit, page)) is None:
+        raise fastapi.HTTPException(status_code=404, detail="Leaderboard not found")
+
+    return leaderboard

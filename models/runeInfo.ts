@@ -16,7 +16,3 @@ export interface IRuneTree {
     runes: IRuneData[]
   }[]
 }
-
-export interface IRuneInfo {
-  [language: string]: IRuneTree[]
-}

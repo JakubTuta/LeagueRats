@@ -1,19 +1,20 @@
 import typing
 
-import account.models as account_models
+import league.models as league_models
+import pro_players.models as pro_players_models
 from google.cloud import firestore
+from google.cloud.firestore_v1.types.write import WriteResult
 
 from . import database
 
 
 def clear_collection(collection_name: str):
-    firestore_client = database.get_firestore_client()
+    collection = database.get_collection(collection_name)
 
-    if firestore_client is None:
+    if collection is None:
         return
 
-    collection_ref = firestore_client.collection(collection_name)
-    docs = collection_ref.stream()
+    docs = collection.stream()
 
     for doc in docs:
         doc.reference.delete()
@@ -21,6 +22,10 @@ def clear_collection(collection_name: str):
 
 def is_document_in_collection(collection_name: str, document_id: str) -> bool:
     collection = database.get_collection(collection_name)
+
+    if collection is None:
+        return False
+
     document = collection.document(document_id)
 
     return document.get().exists
@@ -28,26 +33,37 @@ def is_document_in_collection(collection_name: str, document_id: str) -> bool:
 
 def add_or_update_document(
     collection_name: str, document_data: dict, document_id: typing.Optional[str] = None
-):
+) -> None | WriteResult | typing.Tuple[typing.Any, typing.Any]:
     collection = database.get_collection(collection_name)
+
+    if collection is None:
+        return
 
     if document_id is not None:
         document = collection.document(document_id)
-        document.set(document_data)
+        created_document = document.set(document_data)
 
-        return
+        return created_document
 
     if (puuid := document_data.get("puuid", None)) is not None:
         document = collection.document(puuid)
-        document.set(document_data)
+        created_document = document.set(document_data)
 
-        return
+        return created_document
 
-    collection.add(document_data)
+    created_document = collection.add(document_data)
+
+    return created_document
 
 
-def get_document(collection_name: str, document_id: str) -> typing.Optional[dict]:
+def get_document(
+    collection_name: str, document_id: str
+) -> typing.Optional[typing.Union[list, dict]]:
     collection = database.get_collection(collection_name)
+
+    if collection is None:
+        return None
+
     document_ref = collection.document(document_id)
     document = document_ref.get()
 
@@ -56,42 +72,38 @@ def get_document(collection_name: str, document_id: str) -> typing.Optional[dict
 
 def get_pro_team_documents(
     region: typing.Literal["LEC", "LCS", "LPL", "LCK"], team: str
-) -> typing.List[typing.Dict[str, typing.Any]]:
-    firestore_client = database.get_firestore_client()
+) -> typing.List[pro_players_models.ProPlayer]:
+    collection = database.get_collection(f"pro_players/{region}/{team}")
 
-    if firestore_client is None:
+    if collection is None:
         return []
 
-    player_docs = firestore_client.collection(f"pro_players/{region}/{team}").stream()
+    player_docs = collection.stream()
 
-    return [player.to_dict() for player in player_docs]
+    return [pro_players_models.ProPlayer(**player.to_dict()) for player in player_docs]
 
 
 def save_leaderboard_accounts(
-    region: str, rank: str, accounts: typing.List[account_models.LeaderboardAccount]
+    region: str, rank: str, accounts: typing.List[league_models.LeaderboardEntry]
 ):
-    firestore_client = database.get_firestore_client()
+    collection = database.get_collection(f"leaderboard/{region}/{rank}")
 
-    if firestore_client is None:
+    if collection is None:
         return
-
-    collection_ref = firestore_client.collection(f"leaderboard/{region}/{rank}")
 
     for account in accounts:
         if account.puuid:
-            collection_ref.document(account.puuid).set(account.model_dump())
+            collection.document(account.puuid).set(account.model_dump())
 
 
 def update_champion_history(all_champions_data: dict):
-    firestore_client = database.get_firestore_client()
+    collection = database.get_collection("champion_history")
 
-    if firestore_client is None:
+    if collection is None:
         return
 
     for champion_id, champion_data in all_champions_data.items():
-        champion_reference = database.get_collection("champion_history_1").document(
-            str(champion_id)
-        )
+        champion_reference = collection.document(str(champion_id))
         champion_document = champion_reference.get()
 
         if (
@@ -109,11 +121,12 @@ def update_champion_history(all_champions_data: dict):
         else:
             champion_reference.set(champion_data["stats"])
 
-        champion_matches_reference = firestore_client.collection(
-            f"champion_history_1/{str(champion_id)}/matches"
+        champion_matches_collection = database.get_collection(
+            f"champion_history/{str(champion_id)}/matches"
         )
 
-        for match in champion_data["matches"]:
-            champion_matches_reference.document(
-                match["match"]["metadata"]["matchId"]
-            ).set(match)
+        if champion_matches_collection is not None:
+            for match in champion_data["matches"]:
+                champion_matches_collection.document(
+                    match["match"]["metadata"]["matchId"]
+                ).set(match)

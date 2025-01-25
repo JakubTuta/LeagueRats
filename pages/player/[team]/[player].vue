@@ -13,13 +13,15 @@ import supIcon from '~/assets/roles/sup.png'
 import { mapKDAToColor } from '~/helpers/kdaColors'
 import { queueTypes } from '~/helpers/queueTypes'
 import { regionColors } from '~/helpers/regionColors'
-import { proRegionToSelectRegion } from '~/helpers/regions'
+import { teamPerRegion } from '~/helpers/regions'
 import { calculateTotalLP } from '~/helpers/totalLP'
 import { fullUrl } from '~/helpers/url'
 import type { IAccount } from '~/models/account'
 import type { ILeagueEntry } from '~/models/leagueEntry'
 import type { IMatchData } from '~/models/matchData'
 import type { IProPlayer } from '~/models/proPlayer'
+import { useLeagueStore } from '~/stores/leagueStore'
+import { useMatchStore } from '~/stores/matchStore'
 
 interface IChampionHistory {
   championId: number
@@ -45,7 +47,8 @@ const championStore = useChampionStore()
 const { champions } = storeToRefs(championStore)
 
 const accountStore = useAccountStore()
-const restStore = useRestStore()
+const leagueStore = useLeagueStore()
+const matchStore = useMatchStore()
 
 const player = ref<IProPlayer | null>(null)
 const loading = ref(false)
@@ -63,19 +66,24 @@ onMounted(async () => {
 
   const team = (route.params.team as string).toUpperCase()
   const playerName = route.params.player as string
+  const region = findRegionForTeam(team)
 
-  player.value = await proStore.getPlayerFromTeam(team, playerName)
+  if (!region) {
+    loading.value = false
+
+    return
+  }
+
+  player.value = await proStore.getPlayer(region, team, playerName)
 
   if (player.value) {
-    const region = proRegionToSelectRegion[player.value.region]
-
-    const promises = player.value.puuid.map(async puuid => await accountStore.getAccount(puuid, region, false))
+    const promises = player.value.puuid.map(async puuid => await accountStore.getAccount({ puuid }))
     const accounts = (await Promise.all(promises)).filter(account => account !== null) as IAccount[]
 
     accounts.forEach(account => getLastGames(account))
 
-    const leagueEntryPromises = accounts.map(async account => await restStore.getLeagueEntryBySummonerId(account.id, account.region))
-    const leagueEntries = await Promise.all(leagueEntryPromises)
+    const leagueEntryPromises = accounts.map(async account => await leagueStore.getLeagueEntry(account.puuid))
+    const leagueEntries = (await Promise.all(leagueEntryPromises)).filter(entry => entry !== null) as ILeagueEntry[]
 
     proAccounts.value = accounts.map((account) => {
       const leagueEntry = leagueEntries.flat().find(e => e.queueType === 'RANKED_SOLO_5x5' && e.summonerId === account.id) || null
@@ -116,12 +124,13 @@ async function getLastGames(account: IAccount) {
     count: 20,
     queue: requestQueueType.id,
     type: requestQueueType.name,
-    startTime: Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000),
+    startTime: Math.floor(new Date('2021-06-16').getTime() / 1000),
+    endTime: Math.floor(new Date().getTime() / 1000),
   }
 
-  const matchIds = await restStore.getAccountMatchHistory(account, optionalKeys)
+  const matchIds = await matchStore.getMatchHistory(account.puuid, optionalKeys)
 
-  const promises = matchIds.map(async matchId => await restStore.getMatchData(matchId))
+  const promises = matchIds.map(async matchId => await matchStore.getMatchData(matchId))
   const matchData = (await Promise.all(promises))
     .filter(item => item !== null)
     .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
@@ -222,6 +231,16 @@ function getWinRatio(champion: IChampionHistory) {
   const winRatio = champion.wins / champion.games
 
   return (winRatio * 100).toFixed(2)
+}
+
+function findRegionForTeam(team: string) {
+  if (!team)
+    return
+
+  for (const [region, teams] of Object.entries(teamPerRegion)) {
+    if (teams.includes(team))
+      return region
+  }
 }
 </script>
 

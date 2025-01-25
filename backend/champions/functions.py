@@ -1,5 +1,7 @@
 import typing
 
+import database.database as db
+import database.functions as db_functions
 import helpers.regions as regions
 import helpers.riot_api as riot_api
 import httpx
@@ -7,13 +9,59 @@ import httpx
 from . import models
 
 
-def find_highest_playrate_role(
-    champion_data: dict, champion_id: str
-) -> typing.Optional[str]:
+def get_champions() -> typing.Optional[typing.Dict[str, typing.Dict[str, str]]]:
+    response = db_functions.get_document("help", "champions")
+
+    if not isinstance(response, dict):
+        return None
+
+    return response
+
+
+def get_champion_stats(champion_id: str) -> typing.Optional[typing.Dict[str, int]]:
+    response = db_functions.get_document("champion_history", champion_id)
+
+    if not isinstance(response, dict):
+        return None
+
+    return {
+        "games": response.get("games", 0),
+        "wins": response.get("wins", 0),
+        "losses": response.get("losses", 0),
+    }
+
+
+def get_champion_matches(
+    champion_id: str, start_after: typing.Optional[str], limit: int
+) -> typing.Optional[typing.List[models.ChampionHistory]]:
+    collection = db.get_collection(f"champion_history/{champion_id}/matches")
+
+    if collection is None:
+        return None
+
+    if start_after is not None and (
+        (start_after_match := collection.document(start_after).get()).exists
+    ):
+        query = (
+            collection.order_by("match.info.gameStartTimestamp", direction="DESCENDING")
+            .start_after(start_after_match)
+            .limit(limit)
+        )
+    else:
+        query = collection.order_by(
+            "match.info.gameStartTimestamp", direction="DESCENDING"
+        ).limit(limit)
+
+    matches = [models.ChampionHistory(**match.to_dict()) for match in query.stream()]
+
+    return matches
+
+
+def find_highest_playrate_role(champion_data: dict, champion_id: str) -> str:
     roles = champion_data.get(champion_id, None)
 
     if not roles:
-        return None
+        return "TOP"
 
     highest_playrate_role = list(roles.keys())[0]
     highest_playrate = 0
@@ -29,7 +77,7 @@ def find_highest_playrate_role(
 
 async def get_champion_positions(
     client: httpx.AsyncClient, champion_ids: typing.List[str]
-) -> typing.Optional[typing.Dict[str, typing.Optional[str]]]:
+) -> typing.Optional[typing.Dict[str, str]]:
     champion_data_request_url = "https://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/championrates.json"
 
     try:

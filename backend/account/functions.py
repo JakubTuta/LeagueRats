@@ -6,6 +6,7 @@ import database.functions as db_functions
 import helpers.regions as regions
 import helpers.riot_api as riot_api
 import httpx
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from . import models
 
@@ -53,19 +54,24 @@ def get_account_from_database(
 ) -> typing.Optional[models.Account]:
     collection = database.get_collection("accounts")
 
+    if collection is None:
+        return None
+
     if puuid is not None:
         account_doc = collection.document(puuid).get()
 
     elif summoner_id is not None:
-        docs = collection.where("summoner_id", "==", summoner_id).get()
+        docs = collection.where(
+            filter=FieldFilter("summoner_id", "==", summoner_id)
+        ).get()
 
         account_doc = docs[0] if len(docs) else None
 
     elif username is not None and tag is not None and region is not None:
         docs = (
-            collection.where("username", "==", username)
-            .where("tag", "==", tag)
-            .where("region", "==", region)
+            collection.where(filter=FieldFilter("username", "==", username))
+            .where(filter=FieldFilter("tag", "==", tag))
+            .where(filter=FieldFilter("region", "==", region))
             .get()
         )
 
@@ -74,10 +80,24 @@ def get_account_from_database(
     else:
         return None
 
-    if account_doc is None or not account_doc.exists:
+    if (
+        account_doc is None
+        or not account_doc.exists
+        or (account_data := account_doc.to_dict()) is None
+    ):
         return None
 
-    model = models.Account(**account_doc.to_dict())
+    model_data = {
+        "gameName": account_data.get("gameName", ""),
+        "tagLine": account_data.get("tagLine", ""),
+        "puuid": account_data.get("puuid", ""),
+        "region": account_data.get("region", ""),
+        "accountId": account_data.get("accountId", ""),
+        "id": account_data.get("id", ""),
+        "profileIconId": account_data.get("profileIconId", ""),
+        "summonerLevel": account_data.get("summonerLevel", ""),
+    }
+    model = models.Account(**model_data)
 
     return model
 
@@ -137,12 +157,15 @@ async def _get_summoner_details(
 
 async def get_account_from_api(
     client: httpx.AsyncClient,
-    region: str,
+    region: typing.Optional[str],
     username: typing.Optional[str] = None,
     tag: typing.Optional[str] = None,
     puuid: typing.Optional[str] = None,
     save_account: bool = False,
 ) -> typing.Optional[models.Account]:
+    if region is None:
+        return None
+
     if (
         account_details := await _get_account_details(
             client, region, username=username, tag=tag, puuid=puuid
@@ -200,3 +223,23 @@ async def get_accounts_in_all_regions(
             found_accounts[region] = None
 
     return found_accounts
+
+
+async def create_account(
+    client: httpx.AsyncClient,
+    region: typing.Optional[str] = None,
+    username: typing.Optional[str] = None,
+    tag: typing.Optional[str] = None,
+    puuid: typing.Optional[str] = None,
+) -> typing.Optional[models.Account]:
+    if account := get_account_from_database(
+        region=region, username=username, tag=tag, puuid=puuid
+    ):
+        return account
+
+    if account := await get_account_from_api(
+        client, region, username=username, tag=tag, puuid=puuid, save_account=True
+    ):
+        return account
+
+    return None

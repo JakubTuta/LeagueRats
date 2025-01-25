@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { selectRegions } from '~/helpers/regions';
-import type { IAccount } from '~/models/account';
+import { selectRegions } from '~/helpers/regions'
+import type { IAccount } from '~/models/account'
 
 const route = useRoute()
 
-const restStore = useRestStore()
+const accountStore = useAccountStore()
 
 const storageStore = useStorageStore()
 const { regionIcons } = storeToRefs(storageStore)
@@ -29,7 +29,7 @@ onMounted(async () => {
   selectRegions.forEach(region => storageStore.getRegionIcon(region))
 
   try {
-    const response = await restStore.findAccountsInAllRegions(username.value, tag.value)
+    const response = await accountStore.getAccountsInAllRegions(username.value, tag.value)
 
     if (response) {
       accounts.value = Object.entries(response).reduce((acc, [region, account]) => {
