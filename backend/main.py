@@ -21,7 +21,10 @@ dotenv.load_dotenv()
 def init_app():
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[
+            "http://localhost:3000",
+            "https://leaguerats.net",
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -60,13 +63,13 @@ async def lifespan(app: fastapi.FastAPI):
     except Exception as e:
         raise e
 
-    # scheduler.start()
+    scheduler.start()
 
     yield
 
     firebase_admin.delete_app(firebase_app)
     await httpx_client.aclose()
-    # scheduler.shutdown()
+    scheduler.shutdown()
 
 
 app = fastapi.FastAPI(

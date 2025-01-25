@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose the port the application runs on
-EXPOSE 8000
+EXPOSE 8080
 
 # Specify the command to run the application
-CMD ["fastapi", "run", "main.py"]
+CMD ["fastapi", "run", "main.py", "--port", "8080"]
