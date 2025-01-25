@@ -2,7 +2,7 @@ import axios, { type AxiosResponse } from 'axios'
 
 export const useApiStore = defineStore('api', () => {
   // const baseUrl = 'http://localhost:8080'
-  const baseUrl = 'https://league-rats-server-268364642393.europe-central2.run.app:8080'
+  const baseUrl = 'https://league-rats-server-268364642393.europe-central2.run.app'
 
   function getAxios() {
     return axios.create({
