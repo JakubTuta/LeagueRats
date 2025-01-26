@@ -7,7 +7,7 @@ export const useAccountStore = defineStore('account', () => {
     { puuid, username, tag, region }:
     { puuid?: string, username?: string, tag?: string, region?: string },
   ): Promise<IAccount | null> => {
-    const baseUrl = '/v2/account'
+    const baseUrl = '/v2/account/'
     const method = 'GET'
 
     const queryParams = new URLSearchParams()
@@ -35,7 +35,7 @@ export const useAccountStore = defineStore('account', () => {
     { username, tag, region, puuid }:
     { username?: string, tag?: string, region?: string, puuid?: string },
   ): Promise<IAccount | null> => {
-    const url = '/v2/account'
+    const url = '/v2/account/'
     const method = 'POST'
 
     const requestData = {
