@@ -22,8 +22,9 @@ def init_app():
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
-            "http://localhost:3000",
-            "https://leaguerats.net",
+            # "http://localhost:3000",
+            # "https://leaguerats.net",
+            "*"
         ],
         allow_credentials=True,
         allow_methods=["*"],
@@ -72,8 +73,6 @@ async def lifespan(app: fastapi.FastAPI):
     scheduler.shutdown()
 
 
-app = fastapi.FastAPI(
-    lifespan=lifespan,  # type: ignore
-)
+app = fastapi.FastAPI(lifespan=lifespan)
 
 init_app()

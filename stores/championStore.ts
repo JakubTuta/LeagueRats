@@ -14,7 +14,7 @@ export const useChampionStore = defineStore('championStore', () => {
   const apiStore = useApiStore()
 
   const getChampions = async () => {
-    const url = '/v2/champions'
+    const url = '/v2/champions/'
 
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 

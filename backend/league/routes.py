@@ -33,7 +33,9 @@ async def get_league_entries(
 
 
 @router.get(
-    "/leaderboard/{region}", response_model=typing.List[models.LeaderboardEntry]
+    "/leaderboard/{region}",
+    response_model=typing.List[models.LeaderboardEntry],
+    status_code=200,
 )
 async def get_leaderboard(
     region: str, limit: int = 100, page: int = 1

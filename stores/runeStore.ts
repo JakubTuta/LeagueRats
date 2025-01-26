@@ -8,7 +8,7 @@ export const useRuneStore = defineStore('rune', () => {
   const runeInfo = ref<IRuneTree[]>([])
 
   const getRuneInfo = async () => {
-    const url = '/v2/runes'
+    const url = '/v2/runes/'
 
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 

@@ -2,8 +2,7 @@ import axios, { type AxiosResponse } from 'axios'
 
 export const useApiStore = defineStore('api', () => {
   // const baseUrl = 'http://localhost:8080'
-  // const baseUrl = 'https://league-rats-server-268364642393.europe-central2.run.app'
-  const baseUrl = 'https://league-rats-server-2qikqgs47q-lm.a.run.app'
+  const baseUrl = 'https://league-rats-server-268364642393.europe-central2.run.app'
 
   function getAxios() {
     return axios.create({
@@ -21,7 +20,7 @@ export const useApiStore = defineStore('api', () => {
 
   const sendRequest = async (
     { url, method, data }:
-    { url: string, method: string, data?: any },
+    { url: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', data?: any },
   ): Promise<AxiosResponse | null> => {
     let response: AxiosResponse | null = null
 
