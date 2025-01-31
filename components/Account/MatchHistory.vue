@@ -74,7 +74,7 @@ async function getMatchIds(count: number) {
   return matchIds
 }
 
-async function loadMatches(count: number = 20) {
+async function loadMatches(count: number = 10) {
   const matchIds = await getMatchIds(count)
 
   if (matchIds.length < count) {
@@ -112,12 +112,12 @@ async function getMatchHistory() {
 }
 
 // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-const last20Games = computed(() => matchHistoryPerRegion.value[selectedTab.value]
+const last10Games = computed(() => matchHistoryPerRegion.value[selectedTab.value]
   ?.sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
-  .slice(0, 20) || [])
+  .slice(0, 10) || [])
 
-const mapLast20Games = computed(() => {
-  return last20Games.value
+const mapLast10Games = computed(() => {
+  return last10Games.value
     .reduce((acc, game) => {
       const participant = game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))!
 
@@ -167,8 +167,8 @@ function getWinRatio(champion: IChampionHistory) {
   return (winRatio * 100).toFixed(0)
 }
 
-const last20GamesWins = computed(() => last20Games.value.filter(game => game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
-const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
+const last10GamesWins = computed(() => last10Games.value.filter(game => game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
+const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
 </script>
 
 <template>
@@ -191,7 +191,7 @@ const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.
   </v-tabs>
 
   <v-card
-    v-if="!loading && mapLast20Games.length"
+    v-if="!loading && mapLast10Games.length"
     class="my-2"
   >
     <v-card-title>
@@ -207,22 +207,22 @@ const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.
         >
           <div>
             <PieChart
-              :wins="last20GamesWins"
-              :losses="last20GamesLosses"
+              :wins="last10GamesWins"
+              :losses="last10GamesLosses"
               :size="100"
             />
           </div>
 
           <p class="text-subtitle-2 mt-2 text-light-blue">
-            {{ `${$t('profile.rank.wins')}: ${last20GamesWins}` }}
+            {{ `${$t('profile.rank.wins')}: ${last10GamesWins}` }}
           </p>
 
           <p class="text-subtitle-2 text-red">
-            {{ `${$t('profile.rank.losses')}: ${last20GamesLosses}` }}
+            {{ `${$t('profile.rank.losses')}: ${last10GamesLosses}` }}
           </p>
 
           <p class="text-subtitle-2 mt-1">
-            {{ `${$t('profile.rank.winRate')}: ${(last20GamesWins / 20 * 100).toFixed(0)}%` }}
+            {{ `${$t('profile.rank.winRate')}: ${(last10GamesWins / 10 * 100).toFixed(0)}%` }}
           </p>
         </v-col>
 
@@ -232,7 +232,7 @@ const last20GamesLosses = computed(() => last20Games.value.filter(game => !game.
         >
           <div style="display: flex; overflow-x: auto; width: 100%">
             <div
-              v-for="champion in mapLast20Games"
+              v-for="champion in mapLast10Games"
               :key="champion.championId"
               align="center"
               style="min-width: 80px"
