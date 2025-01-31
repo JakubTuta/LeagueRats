@@ -183,6 +183,7 @@ class MatchInfo(pydantic.BaseModel):
     mapId: int
     participants: typing.List[ParticipantStats]
     platformId: str
+    queueId: int
     teams: typing.List[Team]
 
     @pydantic.field_validator("gameStartTimestamp", mode="before")

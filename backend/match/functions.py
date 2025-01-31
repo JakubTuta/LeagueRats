@@ -52,7 +52,7 @@ async def get_match_history(
         f"{key}={value}" for key, value in query_params.items() if value is not None
     )
     request_url = f"https://{request_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{string_params}"
-    print(request_url)
+
     try:
         response = await client.get(request_url, headers=riot_api.get_headers())
 

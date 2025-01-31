@@ -40,8 +40,9 @@ export const useApiStore = defineStore('api', () => {
           break
       }
     }
+    // eslint-disable-next-line unused-imports/no-unused-vars
     catch (error: any) {
-      console.error(error)
+      // console.error(error)
     }
 
     return response
