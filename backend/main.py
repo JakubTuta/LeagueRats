@@ -12,7 +12,6 @@ from league.routes import router as league_router
 from match.routes import router as match_router
 from pro_players.routes import router as pro_players_router
 from runes.routes import router as runes_router
-from scheduler.schedules import router as scheduler_router
 from scheduler.schedules import scheduler
 
 dotenv.load_dotenv()
@@ -36,7 +35,6 @@ def init_app():
         match_router,
         champion_router,
         league_router,
-        scheduler_router,
         champion_router,
         runes_router,
         pro_players_router,
