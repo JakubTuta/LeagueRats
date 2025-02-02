@@ -130,10 +130,10 @@ export const selectRegionToProRegion: { [key: string]: string } = {
 }
 
 export const teamPerRegion: { [key: string]: string[] } = {
-  LCK: ['T1', 'GENG', 'DK', 'DRX', 'HLE', 'KDF', 'KT', 'FOX', 'BRO', 'NS'],
+  LCK: ['T1', 'GENG', 'DK', 'DRX', 'HLE', 'DNF', 'KT', 'FOX', 'BRO', 'NS'],
   LPL: ['AL', 'BLG', 'EDG', 'FPX', 'IG', 'JDG', 'LGD', 'LNG', 'NIP', 'OMG', 'RA', 'RNG', 'WE', 'TES', 'TT', 'UP', 'WBG'],
-  LCS: ['TL', 'C9', 'FLY', 'DIG', '100', 'NRG', 'SR', 'IMT'],
-  LEC: ['FNC', 'G2', 'GX', 'KC', 'MAD', 'RGE', 'SK', 'BDS', 'TH', 'VIT'],
+  LCS: ['TL', 'C9', 'FLY', 'DIG', '100', 'SR', 'DSG', 'LYN'],
+  LEC: ['FNC', 'G2', 'GX', 'KC', 'MKOI', 'RGE', 'SK', 'BDS', 'TH', 'VIT'],
 }
 
 export const teamFullName: { [key: string]: string } = {
@@ -142,7 +142,7 @@ export const teamFullName: { [key: string]: string } = {
   DK: 'Dplus KIA',
   DRX: 'DRX',
   HLE: 'Hanwha Life Esports',
-  KDF: 'Kwangdong Freecs',
+  DNF: 'DN Freecs',
   KT: 'kt Rolster',
   FOX: 'BNK FearX',
   BRO: 'OKSavingsBank BRION',
@@ -169,14 +169,14 @@ export const teamFullName: { [key: string]: string } = {
   FLY: 'FlyQuest',
   DIG: 'Dignitas',
   100: '100 Thieves',
-  NRG: 'NRG',
   SR: 'Evil Geniuses',
-  IMT: 'Immortals',
+  DSG: 'Disguised',
+  LYN: 'Lyon Gaming',
   FNC: 'Fnatic',
   G2: 'G2 Esports',
   GX: 'Excel Esports',
   KC: 'Karmine Corp',
-  MAD: 'MAD Lions',
+  MKOI: 'Movistar KOI',
   RGE: 'Rogue',
   SK: 'SK Gaming',
   BDS: 'Team BDS',

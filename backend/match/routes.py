@@ -62,13 +62,10 @@ async def get_match_history(
         "count": count,
     }
 
-    print(query_params)
-
     match_history = await functions.get_match_history(
         httpx_client,
-        account.region,
-        puuid,
-        query_params,
+        account=account,
+        query_params=query_params,
     )
 
     return match_history

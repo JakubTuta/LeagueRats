@@ -22,7 +22,7 @@ const { player, match } = toRefs(props)
 const { t, locale } = useI18n()
 
 const storageStore = useStorageStore()
-const { championIcons, teamImages, runeIcons, itemIcons } = storeToRefs(storageStore)
+const { runeIcons, itemIcons } = storeToRefs(storageStore)
 
 const summonerSpellStore = useSummonerSpellsStore()
 const { summonerSpellIcons } = storeToRefs(summonerSpellStore)
@@ -40,12 +40,6 @@ const isWin = computed(() => gamer.value.win)
 const keyRuneId = computed(() => (gamer.value.perks.styles.find(style => style.description === 'primaryStyle')!.selections[0].perk))
 const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5].filter(item => item !== 0))
 const enemy = computed(() => match.value.info.participants.find(participant => participant.teamPosition === gamer.value.teamPosition && participant.puuid !== gamer.value.puuid)!)
-
-onMounted(() => {
-  if (player.value) {
-    storageStore.getTeamImages(player.value.region, player.value.team)
-  }
-})
 
 const mappedChampions = computed(() => {
   return Object.entries(champions.value).map(([id, value]) => ({
@@ -252,7 +246,7 @@ function findChampionFromId(championId: number) {
               class="mx-auto"
             >
               <v-img
-                :src="teamImages[player.team]?.[player.player.toLowerCase()]"
+                :src="storageStore.getPlayerImage(player.player)"
                 lazy-src="~assets/default.png"
               />
             </v-avatar>
@@ -376,7 +370,7 @@ function findChampionFromId(championId: number) {
       >
         <v-avatar size="50">
           <v-img
-            :src="championIcons[gamer.championId]"
+            :src="storageStore.getChampionIcon(gamer.championId)"
             lazy-src="~assets/default.png"
           />
         </v-avatar>
@@ -392,7 +386,7 @@ function findChampionFromId(championId: number) {
         >
           <v-avatar size="50">
             <v-img
-              :src="championIcons[enemy.championId]"
+              :src="storageStore.getChampionIcon(enemy.championId)"
               lazy-src="~assets/default.png"
             />
           </v-avatar>

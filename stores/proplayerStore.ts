@@ -1,5 +1,6 @@
 import type { DocumentData, QuerySnapshot, Unsubscribe } from 'firebase/firestore'
 import { collection, doc, onSnapshot, query } from 'firebase/firestore'
+import { teamPerRegion } from '~/helpers/regions'
 import { useFirebase } from '~/helpers/useFirebase'
 import type { IActiveGame } from '~/models/activeGame'
 import type { IBootcampAccount } from '~/models/bootcampAccount'
@@ -71,55 +72,41 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     players.value = []
   }
 
-  const getProPlayersForRegion = async (region: string): Promise<IProPlayer[]> => {
-    if (savedPlayers.value[region]) {
-      const data = Object.values(savedPlayers.value[region]).flat()
-      players.value = data
-
-      return data
-    }
-
-    const url = `/v2/pro-players/accounts/${region}`
+  const getAllProPlayers = async (): Promise<IProPlayer[]> => {
+    const url = '/v2/pro-players/accounts/'
 
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 
     if (apiStore.isResponseOk(response)) {
-      const data = response!.data as Record<string, IProPlayer[]>
+      const data = response!.data as Record<string, Record<string, IProPlayer[]>>
+      savedPlayers.value = data
+      players.value = Object.values(data).flatMap(region => Object.values(region).flat())
 
-      const mappedData = Object.fromEntries(
-        Object.entries(data).map(([key, value]) => [key, value.map(mapIProPlayer)]),
-      )
-
-      savedPlayers.value[region] = mappedData
-      players.value = Object.values(mappedData).flat()
-
-      return Object.values(mappedData).flat()
+      return Object.values(data).flatMap(region => Object.values(region).flat())
     }
 
     return []
   }
 
-  const getProPlayersFromTeam = async (region: string, team: string): Promise<IProPlayer[]> => {
-    if (savedPlayers.value[region] && savedPlayers.value[region][team]) {
-      const data = savedPlayers.value[region][team]
-      players.value = Object.values(savedPlayers.value[region]).flat()
-
-      return data
+  const findRegionForTeam = (team: string): string | null => {
+    for (const [region, teams] of Object.entries(teamPerRegion)) {
+      if (teams.includes(team))
+        return region
     }
 
-    const url = `/v2/pro-players/accounts/${region}/${team}`
+    return null
+  }
 
-    const response = await apiStore.sendRequest({ url, method: 'GET' })
+  const getProPlayersFromTeam = (team: string): IProPlayer[] => {
+    const region = findRegionForTeam(team)
 
-    if (apiStore.isResponseOk(response)) {
-      const data = response!.data.map(mapIProPlayer)
+    if (!region) {
+      return []
+    }
 
-      if (!savedPlayers.value[region]) {
-        savedPlayers.value[region] = {}
-      }
-
-      savedPlayers.value[region][team] = data
-      players.value = Object.values(savedPlayers.value[region]).flat()
+    if (savedPlayers.value[region] && savedPlayers.value[region][team]) {
+      const data = savedPlayers.value[region][team]
+      players.value.push(...data)
 
       return data
     }
@@ -153,11 +140,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
       activeGames.value = games
     }
 
-    const onError = (error: Error) => {
-      console.error(error)
-    }
-
-    activeGamesUnsubscribe.value = onSnapshot(q, onSuccess, onError)
+    activeGamesUnsubscribe.value = onSnapshot(q, onSuccess)
   }
 
   const getProAccountNames = async (): Promise<IProAccountNames> => {
@@ -197,14 +180,9 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
       liveStreams.value = data as Record<string, IStream>
     }
 
-    const onError = (error: Error) => {
-      console.error(error)
-    }
-
     liveStreamsUnsubscribe.value = onSnapshot(
       doc(collection(firestore, 'live_streams'), 'live'),
       onSuccess,
-      onError,
     )
   }
 
@@ -252,7 +230,32 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     return false
   }
 
+  const getPlayerHistoryStats = async (team: string, player: string, amount: number = 20) => {
+    const url = `/v2/pro-players/history-stats/${team}/${player}?amount=${amount}`
+
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
+
+    if (apiStore.isResponseOk(response)) {
+      return response!.data
+    }
+
+    return null
+  }
+
+  const transferProPlayer = async (player: string, fromTeam: string, toTeam: string) => {
+    const url = `/v2/pro-players/transfer/${player}/from/${fromTeam}/to/${toTeam}`
+
+    const response = await apiStore.sendRequest({ url, method: 'PUT' })
+
+    if (apiStore.isResponseOk(response)) {
+      return true
+    }
+
+    return false
+  }
+
   return {
+    savedPlayers,
     players,
     activeGames,
     proAccountNames,
@@ -261,7 +264,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     notLiveStreams,
     resetState,
     resetPlayers,
-    getProPlayersForRegion,
+    getAllProPlayers,
     getProPlayersFromTeam,
     getPlayer,
     getActiveProGamesFromDatabase,
@@ -270,5 +273,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     getLiveStreams,
     getNotLiveStreams,
     createProPlayer,
+    getPlayerHistoryStats,
+    transferProPlayer,
   }
 })

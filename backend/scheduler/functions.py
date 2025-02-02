@@ -85,7 +85,7 @@ async def update_player_game_names():
     jobs = [
         _get_player_names_for_team(region, team)
         for region in regions.pro_regions
-        for team in regions.teams_per_region[region]
+        for team in regions.teams_per_region[region]  # type: ignore
     ]
 
     player_game_names = await asyncio.gather(*jobs)
@@ -115,7 +115,7 @@ async def update_live_streams():
     jobs = [
         _get_live_streams_for_team(client, region, team)
         for region in regions.pro_regions
-        for team in regions.teams_per_region[region]
+        for team in regions.teams_per_region[region]  # type: ignore
     ]
 
     results = await asyncio.gather(*jobs)
@@ -128,7 +128,7 @@ async def update_live_streams():
         "live_streams", live_streams_dict, document_id="live"
     )
     db_functions.add_or_update_document(
-        "not_live_streams", not_live_streams_dict, document_id="not_live"
+        "live_streams", not_live_streams_dict, document_id="not_live"
     )
 
 

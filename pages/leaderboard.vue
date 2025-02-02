@@ -8,6 +8,9 @@ const { leaderboardPerRegion } = storeToRefs(soloqStore)
 const proStore = useProPlayerStore()
 const { proAccountNames } = storeToRefs(proStore)
 
+const appStore = useAppStore()
+const { loading: appLoading } = storeToRefs(appStore)
+
 const { t } = useI18n()
 
 const loading = ref(false)
@@ -18,12 +21,6 @@ const isOnlyPros = ref(false)
 
 const playersPerPage = 25
 const maxPlayers = 300
-
-onMounted(() => {
-  if (!proAccountNames.value) {
-    proStore.getProAccountNames()
-  }
-})
 
 const accounts = computed(() => {
   if (!leaderboardPerRegion.value[region.value]) {
@@ -132,13 +129,7 @@ function getProPlayer(item: ILeaderboard) {
 
 <template>
   <v-container>
-    <v-card v-if="loading">
-      <v-skeleton-loader
-        type="card"
-        width="80%"
-        class="mx-auto my-8"
-      />
-    </v-card>
+    <Loader v-if="loading || appLoading" />
 
     <v-card v-else>
       <v-card-title class="text-h5">

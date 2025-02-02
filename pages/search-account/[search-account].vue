@@ -3,6 +3,7 @@ import { selectRegions } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 
 const route = useRoute()
+const router = useRouter()
 
 const accountStore = useAccountStore()
 
@@ -22,8 +23,9 @@ onMounted(async () => {
     username.value = paramsData.split('-')[0]
     tag.value = paramsData.split('-')[1]
   }
-  catch (e) {
-    console.error(e)
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  catch (error) {
+    router.push('/')
   }
 
   selectRegions.forEach(region => storageStore.getRegionIcon(region))
@@ -41,8 +43,9 @@ onMounted(async () => {
       }, {} as Record<string, IAccount | null>)
     }
   }
+  // eslint-disable-next-line unused-imports/no-unused-vars
   catch (error) {
-    console.error(error)
+    router.push('/')
   }
 })
 
@@ -57,13 +60,7 @@ watch(accounts, (newAccounts) => {
   <v-container
     align="center"
   >
-    <v-card v-if="loading">
-      <v-skeleton-loader
-        type="card"
-        width="80%"
-        class="mx-auto my-16"
-      />
-    </v-card>
+    <Loader v-if="loading" />
 
     <v-card
       v-else-if="!loading && !Object.keys(accounts).length"

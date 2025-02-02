@@ -11,7 +11,6 @@ const championStore = useChampionStore()
 const { champions, championStats, championMatches } = storeToRefs(championStore)
 
 const storageStore = useStorageStore()
-const { championIcons } = storeToRefs(storageStore)
 
 const champion = ref<{ id: number, title: string, value: string } | null>(null)
 const loading = ref(false)
@@ -22,18 +21,6 @@ const selectedEnemy = ref('ALL')
 
 const gamesAmount = 10
 const has2SecondsPassed = useTimeout(2000)
-
-onMounted(async () => {
-  loading.value = true
-
-  if (!Object.keys(champions.value).length) {
-    await championStore.getChampions()
-  }
-
-  await storageStore.getAllChampionIcons()
-
-  loading.value = false
-})
 
 const positionItems = computed(() => [
   {
@@ -187,13 +174,7 @@ function againstAutocompleteFocusChange(value: boolean) {
 
 <template>
   <v-container>
-    <v-card v-if="loading">
-      <v-skeleton-loader
-        type="card"
-        width="80%"
-        class="mx-auto my-8"
-      />
-    </v-card>
+    <Loader v-if="loading" />
 
     <v-card v-else-if="!loading && !champion">
       <v-card-title
@@ -225,7 +206,7 @@ function againstAutocompleteFocusChange(value: boolean) {
               size="100"
             >
               <v-img
-                :src="championIcons[champion.id]"
+                :src="storageStore.getChampionIcon(champion.id)"
                 lazy-src="~assets/default.png"
               />
             </v-avatar>
@@ -271,15 +252,7 @@ function againstAutocompleteFocusChange(value: boolean) {
         </v-row>
       </v-card-title>
 
-      <v-card-text
-        v-if="secondaryLoading"
-      >
-        <v-skeleton-loader
-          type="table-heading, table-row@8, table-tfoot"
-          width="80%"
-          class="mx-auto my-8"
-        />
-      </v-card-text>
+      <Loader v-if="secondaryLoading" />
 
       <v-card-text
         v-else-if="!secondaryLoading && !championMatches[champion.id]?.length"

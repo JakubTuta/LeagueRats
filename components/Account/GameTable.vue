@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // @ts-expect-error correct path
-import bannedDefault from '~/assets/banned_default.png'
-import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
-import type { IAccount } from '~/models/account'
-import type { IActiveGame, IParticipant } from '~/models/activeGame'
+import bannedDefault from '~/assets/banned_default.png';
+import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions';
+import type { IAccount } from '~/models/account';
+import type { IActiveGame, IParticipant } from '~/models/activeGame';
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<{
 const { game, account } = toRefs(props)
 
 const storageStore = useStorageStore()
-const { championIcons, runeIcons } = storeToRefs(storageStore)
+const { runeIcons } = storeToRefs(storageStore)
 
 const summonerSpellStore = useSummonerSpellsStore()
 const { summonerSpellIcons } = storeToRefs(summonerSpellStore)
@@ -141,7 +141,7 @@ watch(game, (newGame) => {
               <template #prepend>
                 <v-img
                   class="mr-4"
-                  :src="championIcons[participant.championId]"
+                  :src="storageStore.getChampionIcon(participant.championId)"
                   lazy-src="~/assets/default.png"
                   width="45"
                 />
@@ -230,7 +230,7 @@ watch(game, (newGame) => {
               <v-img
                 :src="bannedChampion.championId === -1
                   ? bannedDefault
-                  : championIcons[bannedChampion.championId]"
+                  : storageStore.getChampionIcon(bannedChampion.championId)"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>

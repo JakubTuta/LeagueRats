@@ -81,7 +81,7 @@
       "assists": "Assists",
       "deaths": "Deaths",
       "loadMore": "Load more games",
-      "lastGames": "Last 20 games"
+      "lastGames": "Last {games} games"
     },
     "currentGame": {
       "title": "Live game",

@@ -10,15 +10,13 @@ import midIcon from '~/assets/roles/mid.png'
 import adcIcon from '~/assets/roles/adc.png'
 // @ts-expect-error correct path
 import supIcon from '~/assets/roles/sup.png'
-import { teamFullName, teamPerRegion } from '~/helpers/regions'
+import { teamFullName } from '~/helpers/regions'
 import type { IProPlayer } from '~/models/proPlayer'
 
 const route = useRoute()
 const { mobile, height } = useDisplay()
 
 const storageStore = useStorageStore()
-const { teamImages } = storeToRefs(storageStore)
-
 const proPlayerStore = useProPlayerStore()
 
 const loading = ref(false)
@@ -33,32 +31,15 @@ const mapRole: { [key: string]: number } = {
   SUP: 5,
 }
 
-function findRegionForTeam(team: string) {
-  if (!team)
-    return
-
-  for (const [region, teams] of Object.entries(teamPerRegion)) {
-    if (teams.includes(team))
-      return region
-  }
-}
-
-onMounted(async () => {
+onMounted(() => {
   loading.value = true
 
   const team = (route.params.team as string).toUpperCase()
-  const proRegion = findRegionForTeam(team)
-
-  if (!proRegion)
-    return
 
   teamName.value = team
 
-  players.value = (await proPlayerStore.getProPlayersFromTeam(proRegion, team))
+  players.value = proPlayerStore.getProPlayersFromTeam(team)
     .sort((a, b) => mapRole[a.role] - mapRole[b.role])
-
-  if (proRegion)
-    storageStore.getTeamImages(proRegion, team)
 
   loading.value = false
 })
@@ -92,13 +73,7 @@ function getPlayerRoleIcon(player: { role: string }) {
       align="center"
       justify="center"
     >
-      <v-card v-if="loading">
-        <v-skeleton-loader
-          type="card"
-          width="80%"
-          class="mx-auto my-8"
-        />
-      </v-card>
+      <Loader v-if="loading" />
 
       <v-card v-else-if="!loading && !teamName">
         <v-card-title
@@ -117,7 +92,7 @@ function getPlayerRoleIcon(player: { role: string }) {
               class="pa-3"
             >
               <v-img
-                :src="teamImages[teamName]?.team"
+                :src="storageStore.getTeamLogo(teamName)"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>
@@ -152,7 +127,7 @@ function getPlayerRoleIcon(player: { role: string }) {
                   class="mr-1"
                 >
                   <v-img
-                    :src="teamImages[player.team]?.[player.player.toLowerCase()]"
+                    :src="storageStore.getPlayerImage(player.player)"
                     lazy-src="~/assets/default.png"
                   />
                 </v-avatar>

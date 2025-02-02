@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
-import { selectRegions, teamPerRegion } from '~/helpers/regions'
+import { selectRegions } from '~/helpers/regions'
 import type { IAccount } from '~/models/account'
 import type { IActiveGame } from '~/models/activeGame'
 import type { IChampionMastery } from '~/models/championMastery'
@@ -17,12 +17,13 @@ const accountStore = useAccountStore()
 const leagueStore = useLeagueStore()
 const matchStore = useMatchStore()
 const championStore = useChampionStore()
+const storageStore = useStorageStore()
 
 const proStore = useProPlayerStore()
 const { proAccountNames } = storeToRefs(proStore)
 
-const storageStore = useStorageStore()
-const { teamImages } = storeToRefs(storageStore)
+const appStore = useAppStore()
+const { loading: appLoading } = storeToRefs(appStore)
 
 const loading = ref(false)
 const rankLoading = ref(false)
@@ -63,9 +64,8 @@ onMounted(async () => {
     gameName = accountData.split('-')[0]
     tagLine = accountData.split('-')[1]
   }
+  // eslint-disable-next-line unused-imports/no-unused-vars
   catch (error) {
-    console.error(error)
-
     router.push('/404')
   }
 
@@ -143,34 +143,11 @@ function handleTabData() {
   }
 }
 
-function findRegionForTeam(team: string) {
-  for (const [region, teams] of Object.entries(teamPerRegion)) {
-    if (teams.includes(team))
-      return region
-  }
-}
-
-async function checkIfAccountIsPro() {
-  if (!account.value?.puuid)
+function checkIfAccountIsPro() {
+  if (!account.value?.puuid || !proAccountNames.value)
     return
-
-  if (!proAccountNames.value) {
-    await proStore.getProAccountNames()
-    if (!proAccountNames.value)
-      return
-  }
 
   proPlayer.value = proAccountNames.value[account.value.puuid] || null
-
-  if (!proPlayer.value)
-    return
-
-  const proRegion = findRegionForTeam(proPlayer.value.team)
-
-  if (!proRegion)
-    return
-
-  storageStore.getTeamImages(proRegion, proPlayer.value.team)
 }
 
 async function findLeagueEntry() {
@@ -203,13 +180,7 @@ async function findChampions() {
 
 <template>
   <v-container>
-    <v-card v-if="loading">
-      <v-skeleton-loader
-        type="card"
-        width="80%"
-        class="mx-auto my-16"
-      />
-    </v-card>
+    <Loader v-if="loading || appLoading" />
 
     <v-card
       v-else
@@ -225,7 +196,7 @@ async function findChampions() {
         >
           <v-avatar size="100">
             <v-img
-              :src="teamImages[proPlayer.team]?.[proPlayer.player.toLowerCase()]"
+              :src="storageStore.getPlayerImage(proPlayer.player)"
               lazy-src="~/assets/default.png"
             />
           </v-avatar>

@@ -20,7 +20,11 @@ export const useChampionStore = defineStore('championStore', () => {
 
     if (apiStore.isResponseOk(response)) {
       champions.value = response!.data
+
+      return Object.keys(champions.value).map(Number)
     }
+
+    return []
   }
 
   const getChampionMastery = async (puuid: string) => {
@@ -85,6 +89,14 @@ export const useChampionStore = defineStore('championStore', () => {
     return {}
   }
 
+  const getChampionName = (championId: number) => {
+    if (champions.value[championId]) {
+      return champions.value[championId].value
+    }
+
+    return null
+  }
+
   return {
     champions,
     championStats,
@@ -94,5 +106,6 @@ export const useChampionStore = defineStore('championStore', () => {
     getChampionStats,
     getChampionMatches,
     getChampionsPositions,
+    getChampionName,
   }
 })

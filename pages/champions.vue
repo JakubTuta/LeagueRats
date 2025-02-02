@@ -6,23 +6,12 @@ const { height } = useDisplay()
 const championStore = useChampionStore()
 const { champions } = storeToRefs(championStore)
 
+const appStore = useAppStore()
+const { loading: appLoading } = storeToRefs(appStore)
+
 const storageStore = useStorageStore()
-const { championIcons } = storeToRefs(storageStore)
 
-const loading = ref(false)
 const search = ref('')
-
-onMounted(async () => {
-  loading.value = true
-
-  if (!Object.keys(champions.value).length) {
-    await championStore.getChampions()
-  }
-
-  await storageStore.getAllChampionIcons()
-
-  loading.value = false
-})
 
 const sortedChampions = computed(() => {
   return Object.entries(champions.value).sort((a, b) => {
@@ -42,13 +31,7 @@ const filteredChampions = computed(() => {
 
 <template>
   <v-container>
-    <v-card v-if="loading">
-      <v-skeleton-loader
-        type="image"
-        width="80%"
-        class="mx-auto my-8"
-      />
-    </v-card>
+    <Loader v-if="appLoading" />
 
     <v-card v-else>
       <v-card-title class="text-h5">
@@ -96,7 +79,7 @@ const filteredChampions = computed(() => {
                   size="80"
                 >
                   <v-img
-                    :src="championIcons[Number(champion.id)]"
+                    :src="storageStore.getChampionIcon(champion.id)"
                     lazy-src="~/assets/default.png"
                   />
                 </v-avatar>

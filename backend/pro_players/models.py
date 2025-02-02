@@ -35,3 +35,11 @@ class BootcampAccount(pydantic.BaseModel):
     region: str
     accountId: str
     id: str
+
+
+class ChampionStats(pydantic.BaseModel):
+    kills: int
+    deaths: int
+    assists: int
+    wins: int
+    losses: int

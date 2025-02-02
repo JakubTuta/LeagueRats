@@ -1,23 +1,14 @@
 <script setup lang="ts">
-import { teamFullName } from '~/helpers/regions'
+import { teamFullName } from '~/helpers/regions';
 
 const storageStore = useStorageStore()
-const { teamLogos } = storeToRefs(storageStore)
 
 const teamsPerRegion = computed(() => ({
-  LEC: ['G2', 'FNC', 'MAD'],
+  LEC: ['G2', 'FNC', 'MKOI'],
   LCS: ['FLY', 'TL', '100'],
   LCK: ['HLE', 'GENG', 'DK', 'T1'],
   LPL: ['BLG', 'TES', 'LNG', 'WBG'],
 }))
-
-onMounted(() => {
-  for (const [region, teams] of Object.entries(teamsPerRegion.value)) {
-    for (const team of teams) {
-      storageStore.getTeamLogo(region, team)
-    }
-  }
-})
 </script>
 
 <template>
@@ -52,7 +43,7 @@ onMounted(() => {
               class="pa-2"
             >
               <v-img
-                :src="teamLogos[team]"
+                :src="storageStore.getTeamLogo(team)"
                 aspect-ratio="1"
                 cover
               />

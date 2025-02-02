@@ -10,13 +10,15 @@ const router = useRouter()
 const { mobile } = useDisplay()
 
 const proStore = useProPlayerStore()
-const { proAccountNames } = storeToRefs(proStore)
+const { savedPlayers } = storeToRefs(proStore)
 
 const storageStore = useStorageStore()
-const { championIcons, teamImages } = storeToRefs(storageStore)
 
 const championStore = useChampionStore()
 const { champions } = storeToRefs(championStore)
+
+const appStore = useAppStore()
+const { loading: appLoading } = storeToRefs(appStore)
 
 useSummonerSpellsStore()
 
@@ -29,14 +31,6 @@ const region = ref('EUW')
 const search = ref('')
 
 const errorMessage = t('rules.requiredField')
-
-onMounted(() => {
-  if (!proAccountNames.value)
-    proStore.getProAccountNames()
-
-  if (!Object.keys(champions.value).length)
-    championStore.getChampions()
-})
 
 onUnmounted(() => {
   clearValues()
@@ -57,7 +51,17 @@ const sortedChampions = computed(() => {
   }).map(item => ({ id: item[0], title: item[1].title, value: item[1].value }))
 })
 
+const allProPlayers = computed(() => {
+  if (!savedPlayers.value)
+    return []
+
+  return Object.values(savedPlayers.value).flatMap(region => Object.values(region).flat())
+})
+
 const searchItems = computed(() => {
+  if (search.value.length < 3)
+    return []
+
   const championItems = sortedChampions.value.map((champion) => {
     return {
       title: champion.title,
@@ -67,12 +71,7 @@ const searchItems = computed(() => {
     }
   })
 
-  if (!proAccountNames.value)
-    return championItems
-
-  const uniqueProPlayers = Object.values(proAccountNames.value).filter((player, index, self) => index === self.findIndex(p => p.player === player.player))
-
-  const proPlayerItems = uniqueProPlayers.map((player) => {
+  const proPlayerItems = allProPlayers.value.map((player) => {
     return {
       title: `${player.team} ${player.player}`,
       value: `${player.team.toLowerCase()} ${player.player.toLowerCase()}`,
@@ -180,7 +179,10 @@ function sendToUserView() {
 
     <v-spacer />
 
+    <Loader v-if="appLoading" />
+
     <v-card
+      v-else
       color="rgba(50, 50, 50, 0.9)"
       min-height="150px"
     >
@@ -297,8 +299,8 @@ function sendToUserView() {
                     ? `/champion/${item.raw.value.toLowerCase()}`
                     : `/player/${item.raw.team}/${item.raw.player}`"
                   :prepend-avatar="item.raw.isChampion
-                    ? championIcons[item.raw.id]
-                    : teamImages[item.raw.team]?.[item.raw.player.toLowerCase()]"
+                    ? storageStore.getChampionIcon(item.raw.id)
+                    : storageStore.getPlayerImage(item.raw.player)"
                 >
                   {{ item.raw.title }}
                 </v-list-item>

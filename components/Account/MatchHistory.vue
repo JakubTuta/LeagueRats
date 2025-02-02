@@ -26,8 +26,6 @@ const { t } = useI18n()
 const { mobile } = useDisplay()
 
 const storageStore = useStorageStore()
-const { championIcons } = storeToRefs(storageStore)
-
 const matchStore = useMatchStore()
 
 const selectedTab = ref('SOLOQ')
@@ -195,7 +193,7 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
     class="my-2"
   >
     <v-card-title>
-      {{ $t('profile.matchHistory.lastGames') }}
+      {{ $t('profile.matchHistory.lastGames', {"games": mapLast10Games.length}) }}
     </v-card-title>
 
     <v-card-text>
@@ -241,7 +239,7 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
                 size="50"
               >
                 <v-img
-                  :src="championIcons[champion.championId]"
+                  :src="storageStore.getChampionIcon(champion.championId)"
                   lazy-src="~/assets/default.png"
                 />
               </v-avatar>
@@ -264,13 +262,7 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
     </v-card-text>
   </v-card>
 
-  <v-card v-if="!matchHistoryPerRegion[selectedTab]?.length && loading">
-    <v-skeleton-loader
-      type="card"
-      width="80%"
-      class="mx-auto my-8"
-    />
-  </v-card>
+  <Loader v-if="!matchHistoryPerRegion[selectedTab]?.length && loading" />
 
   <v-spacer class="my-4" />
 

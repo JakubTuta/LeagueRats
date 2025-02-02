@@ -11,24 +11,21 @@ import adcIcon from '~/assets/roles/adc.png'
 // @ts-expect-error correct path
 import supIcon from '~/assets/roles/sup.png'
 import { mapKDAToColor } from '~/helpers/kdaColors'
-import { queueTypes } from '~/helpers/queueTypes'
 import { regionColors } from '~/helpers/regionColors'
 import { teamPerRegion } from '~/helpers/regions'
 import { calculateTotalLP } from '~/helpers/totalLP'
 import { fullUrl } from '~/helpers/url'
 import type { IAccount } from '~/models/account'
 import type { ILeagueEntry } from '~/models/leagueEntry'
-import type { IMatchData } from '~/models/matchData'
 import type { IProPlayer } from '~/models/proPlayer'
 import { useLeagueStore } from '~/stores/leagueStore'
-import { useMatchStore } from '~/stores/matchStore'
 
 interface IChampionHistory {
   championId: number
   championName: string
   games: number
   wins: number
-  loses: number
+  losses: number
   kills: number
   deaths: number
   assists: number
@@ -36,9 +33,6 @@ interface IChampionHistory {
 
 const route = useRoute()
 const { smAndDown, mobile } = useDisplay()
-
-const storageStore = useStorageStore()
-const { teamImages, rankIcons, championIcons } = storeToRefs(storageStore)
 
 const proStore = useProPlayerStore()
 const { liveStreams, notLiveStreams } = storeToRefs(proStore)
@@ -48,25 +42,21 @@ const { champions } = storeToRefs(championStore)
 
 const accountStore = useAccountStore()
 const leagueStore = useLeagueStore()
-const matchStore = useMatchStore()
+const storageStore = useStorageStore()
 
 const player = ref<IProPlayer | null>(null)
 const loading = ref(false)
 const proAccounts = ref<{ account: IAccount, leagueEntry: ILeagueEntry | null }[]>([])
-const lastGames = ref<IMatchData[]>([])
+const historyStats = ref<{ [championId: number]: { wins: number, losses: number, kills: number, deaths: number, assists: number } } | null>(null)
 
 onMounted(async () => {
   loading.value = true
 
-  proStore.getLiveStreams()
-  proStore.getNotLiveStreams()
-
-  if (!Object.keys(champions.value).length)
-    championStore.getChampions()
-
   const team = (route.params.team as string).toUpperCase()
   const playerName = route.params.player as string
   const region = findRegionForTeam(team)
+
+  proStore.getPlayerHistoryStats(team, playerName).then(stats => historyStats.value = stats)
 
   if (!region) {
     loading.value = false
@@ -76,23 +66,23 @@ onMounted(async () => {
 
   player.value = await proStore.getPlayer(region, team, playerName)
 
-  if (player.value) {
-    const promises = player.value.puuid.map(async puuid => await accountStore.getAccount({ puuid }))
-    const accounts = (await Promise.all(promises)).filter(account => account !== null) as IAccount[]
+  if (!player.value) {
+    loading.value = false
 
-    accounts.forEach(account => getLastGames(account))
-
-    const leagueEntryPromises = accounts.map(async account => await leagueStore.getLeagueEntry(account.puuid))
-    const leagueEntries = (await Promise.all(leagueEntryPromises)).filter(entry => entry !== null) as ILeagueEntry[]
-
-    proAccounts.value = accounts.map((account) => {
-      const leagueEntry = leagueEntries.flat().find(e => e.queueType === 'RANKED_SOLO_5x5' && e.summonerId === account.id) || null
-
-      return { account, leagueEntry }
-    }).sort((a, b) => calculateTotalLP(b.leagueEntry) - calculateTotalLP(a.leagueEntry))
-
-    storageStore.getTeamImages(player.value.region, team)
+    return
   }
+
+  const promises = player.value.puuid.map(async puuid => await accountStore.getAccount({ puuid }))
+  const accounts = (await Promise.all(promises)).filter(account => account !== null) as IAccount[]
+
+  const leagueEntryPromises = accounts.map(async account => await leagueStore.getLeagueEntry(account.puuid))
+  const leagueEntries = (await Promise.all(leagueEntryPromises)).filter(entry => entry !== null) as ILeagueEntry[]
+
+  proAccounts.value = accounts.map((account) => {
+    const leagueEntry = leagueEntries.flat().find(e => e.queueType === 'RANKED_SOLO_5x5' && e.summonerId === account.id) || null
+
+    return { account, leagueEntry }
+  }).sort((a, b) => calculateTotalLP(b.leagueEntry) - calculateTotalLP(a.leagueEntry))
 
   loading.value = false
 })
@@ -117,29 +107,21 @@ const groupedAccounts = computed(() => {
   return sortedRegions
 })
 
-async function getLastGames(account: IAccount) {
-  const requestQueueType = queueTypes.SOLOQ
+const mapChampionHistory = computed(() => {
+  if (!historyStats.value)
+    return []
 
-  const optionalKeys = {
-    count: 20,
-    queue: requestQueueType.id,
-    type: requestQueueType.name,
-    startTime: Math.floor(new Date('2021-06-16').getTime() / 1000),
-    endTime: Math.floor(new Date().getTime() / 1000),
-  }
+  return Object.entries(historyStats.value).map(([championId, stats]) => {
+    const championName = findChampionNameFromId(Number(championId))
 
-  const matchIds = await matchStore.getMatchHistory(account.puuid, optionalKeys)
-
-  const promises = matchIds.map(async matchId => await matchStore.getMatchData(matchId))
-  const matchData = (await Promise.all(promises))
-    .filter(item => item !== null)
-    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
-
-  lastGames.value.push(...matchData)
-
-  const playerChampions = matchData.map(match => match.info.participants.find(participant => participant.puuid === account.puuid)!.championId)
-  playerChampions.forEach(championId => storageStore.getChampionIcon(championId))
-}
+    return {
+      championId: Number(championId),
+      championName,
+      games: stats.wins + stats.losses,
+      ...stats,
+    }
+  }).sort((a, b) => b.games - a.games)
+})
 
 function romanToNumber(roman: string) {
   switch (roman) {
@@ -172,50 +154,6 @@ function getPlayerRoleIcon(player: { role: string }) {
       return ''
   }
 }
-
-const mapChampionHistory = computed(() => {
-  if (!player.value)
-    return []
-
-  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-  return lastGames.value
-    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
-    .slice(0, 20)
-    .reduce((acc, game) => {
-      const participant = game.info.participants.find(participant => player.value!.puuid.includes(participant.puuid))!
-
-      let champion = acc.find(champ => champ.championId === participant.championId)
-
-      if (!champion) {
-        champion = {
-          championId: participant.championId,
-          championName: findChampionNameFromId(participant.championId),
-          games: 0,
-          wins: 0,
-          loses: 0,
-          kills: 0,
-          deaths: 0,
-          assists: 0,
-        }
-        acc.push(champion)
-      }
-
-      champion.games++
-      champion.kills += participant.kills
-      champion.deaths += participant.deaths
-      champion.assists += participant.assists
-
-      if (participant.win) {
-        champion.wins++
-      }
-      else {
-        champion.loses++
-      }
-
-      return acc
-    }, [] as IChampionHistory[])
-    .sort((a, b) => b.games - a.games)
-})
 
 function findChampionNameFromId(championId: number) {
   return champions.value[championId]?.value || ''
@@ -256,13 +194,7 @@ function findRegionForTeam(team: string) {
       align="center"
       justify="center"
     >
-      <v-card v-if="loading">
-        <v-skeleton-loader
-          type="card"
-          width="80%"
-          class="mx-auto my-8"
-        />
-      </v-card>
+      <Loader v-if="loading" />
 
       <v-card v-else-if="!loading && !player">
         <v-card-title
@@ -328,7 +260,7 @@ function findRegionForTeam(team: string) {
           <p class="my-4">
             <v-avatar size="150">
               <v-img
-                :src="teamImages[player.team]?.[player.player.toLowerCase()]"
+                :src="storageStore.getPlayerImage(player.player)"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>
@@ -412,7 +344,7 @@ function findRegionForTeam(team: string) {
                         size="70"
                       >
                         <v-img
-                          :src="rankIcons[account.leagueEntry.tier.toLowerCase()]"
+                          :src="storageStore.getRankIcon(account.leagueEntry.tier)"
                           lazy-src="~/assets/default.png"
                         />
                       </v-avatar>
@@ -446,7 +378,7 @@ function findRegionForTeam(team: string) {
             </v-col>
 
             <v-col
-              v-if="lastGames.length"
+              v-if="mapChampionHistory.length"
               cols="12"
               md="5"
               :order="smAndDown
@@ -455,9 +387,7 @@ function findRegionForTeam(team: string) {
               class="mb-6"
             >
               <span class="text-h5 ml-5">
-                {{ $t('proPlayers.lastGames', {"games": lastGames.length > 20
-                  ? 20
-                  : lastGames.length}) }}
+                {{ $t('proPlayers.lastGames', {"games": mapChampionHistory.length}) }}
               </span>
 
               <v-list
@@ -474,7 +404,7 @@ function findRegionForTeam(team: string) {
                       size="45"
                     >
                       <v-img
-                        :src="championIcons[champion.championId]"
+                        :src="storageStore.getChampionIcon(champion.championId)"
                         lazy-src="~/assets/default.png"
                       />
                     </v-avatar>

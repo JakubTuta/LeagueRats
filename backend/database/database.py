@@ -53,7 +53,11 @@ def get_collection(collection_name: str) -> typing.Optional[CollectionReference]
     if firestore_client is None:
         return None
 
+    if collection_name in collections:
+        return collections[collection_name]
+
     collection = firestore_client.collection(collection_name)
+    collections[collection_name] = collection
 
     return collection
 

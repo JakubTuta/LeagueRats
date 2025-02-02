@@ -22,8 +22,10 @@ regions = [
 
 pro_regions = ["LCK", "LPL", "LEC", "LCS"]
 
-teams_per_region = {
-    "LCK": ["T1", "GENG", "DK", "DRX", "HLE", "KDF", "KT", "FOX", "BRO", "NS"],
+teams_per_region: typing.Dict[
+    typing.Literal["LEC", "LCS", "LCK", "LPL"], typing.List[str]
+] = {
+    "LCK": ["T1", "GENG", "DK", "DRX", "HLE", "DNF", "KT", "FOX", "BRO", "NS"],
     "LPL": [
         "AL",
         "BLG",
@@ -43,8 +45,8 @@ teams_per_region = {
         "UP",
         "WBG",
     ],
-    "LCS": ["TL", "C9", "FLY", "DIG", "100", "NRG", "SR", "IMT"],
-    "LEC": ["FNC", "G2", "GX", "KC", "MAD", "RGE", "SK", "BDS", "TH", "VIT"],
+    "LCS": ["TL", "C9", "FLY", "DIG", "100", "SR", "DSG", "LYN"],
+    "LEC": ["FNC", "G2", "GX", "KC", "MKOI", "RGE", "SK", "BDS", "TH", "VIT"],
 }
 
 important_regions = ["EUW", "NA", "KR"]

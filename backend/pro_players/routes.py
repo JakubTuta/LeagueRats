@@ -1,10 +1,25 @@
 import typing
 
+import database.functions as db_functions
 import fastapi
 
 from . import functions, models
 
 router = fastapi.APIRouter(prefix="/v2/pro-players")
+
+
+@router.get(
+    "/accounts/",
+    response_model=typing.Dict[str, typing.Dict[str, typing.List[models.ProPlayer]]],
+    status_code=200,
+)
+async def get_all_pro_players() -> (
+    typing.Dict[str, typing.Dict[str, typing.List[models.ProPlayer]]]
+):
+    if (players := await functions.get_all_players()) == []:
+        raise fastapi.HTTPException(status_code=404, detail="Players not found")
+
+    return players
 
 
 @router.post("/accounts/", response_model=models.ProPlayer, status_code=201)
@@ -52,7 +67,7 @@ async def get_pro_players(
 async def get_pro_players_by_team(
     region: str, team: str
 ) -> typing.List[models.ProPlayer]:
-    if (players := await functions.get_player_for_team(region, team)) == []:
+    if (players := await functions.get_players_for_team(region, team)) == []:
         raise fastapi.HTTPException(status_code=404, detail="Team not found")
 
     return players
@@ -120,3 +135,39 @@ async def get_not_live_streams() -> typing.Dict[str, typing.Dict[str, str]]:
         )
 
     return streams
+
+
+@router.put(
+    "/transfer/{player}/from/{fromTeam}/to/{toTeam}",
+    response_model=models.ProPlayer,
+    status_code=200,
+)
+async def transfer_player(player: str, fromTeam: str, toTeam: str) -> models.ProPlayer:
+    if (
+        updated_player := await functions.transfer_player(player, fromTeam, toTeam)
+    ) is None:
+        raise fastapi.HTTPException(status_code=404, detail="Player not found")
+
+    return updated_player
+
+
+@router.get(
+    "/history-stats/{team}/{player}",
+    response_model=typing.Dict[int, models.ChampionStats],
+    status_code=200,
+)
+async def get_pro_player_history_stats(
+    request: fastapi.Request, team: str, player: str, amount: int = 20
+) -> typing.Dict[int, models.ChampionStats]:
+    httpx_client = request.app.httpx_client
+
+    if (
+        history_stats := await functions.get_player_history_stats(
+            httpx_client, team, player, amount
+        )
+    ) == {}:
+        raise fastapi.HTTPException(
+            status_code=404, detail="Player history stats not found"
+        )
+
+    return history_stats

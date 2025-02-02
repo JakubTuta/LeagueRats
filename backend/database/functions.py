@@ -9,9 +9,7 @@ from . import database
 
 
 def clear_collection(collection_name: str):
-    collection = database.get_collection(collection_name)
-
-    if collection is None:
+    if (collection := database.get_collection(collection_name)) is None:
         return
 
     docs = collection.stream()
@@ -21,9 +19,7 @@ def clear_collection(collection_name: str):
 
 
 def is_document_in_collection(collection_name: str, document_id: str) -> bool:
-    collection = database.get_collection(collection_name)
-
-    if collection is None:
+    if (collection := database.get_collection(collection_name)) is None:
         return False
 
     document = collection.document(document_id)
@@ -34,9 +30,7 @@ def is_document_in_collection(collection_name: str, document_id: str) -> bool:
 def add_or_update_document(
     collection_name: str, document_data: dict, document_id: typing.Optional[str] = None
 ) -> None | WriteResult | typing.Tuple[typing.Any, typing.Any]:
-    collection = database.get_collection(collection_name)
-
-    if collection is None:
+    if (collection := database.get_collection(collection_name)) is None:
         return
 
     if document_id is not None:
@@ -59,9 +53,7 @@ def add_or_update_document(
 def get_document(
     collection_name: str, document_id: str
 ) -> typing.Optional[typing.Union[list, dict]]:
-    collection = database.get_collection(collection_name)
-
-    if collection is None:
+    if (collection := database.get_collection(collection_name)) is None:
         return None
 
     document_ref = collection.document(document_id)
@@ -70,12 +62,36 @@ def get_document(
     return document.to_dict() if document.exists else None
 
 
+def delete_document(collection_name: str, document_id: str) -> bool:
+    if (collection := database.get_collection(collection_name)) is None:
+        return False
+
+    if not (document := collection.document(document_id)).get().exists:
+        return False
+
+    document.delete()
+
+    return True
+
+
+def rename_collection(old_collection_name: str, new_collection_name: str) -> None:
+    if (old_collection := database.get_collection(old_collection_name)) is None:
+        return
+
+    if (new_collection := database.get_collection(new_collection_name)) is None:
+        return
+
+    docs = old_collection.stream()
+
+    for doc in docs:
+        new_collection.document(doc.id).set(doc.to_dict())
+        doc.reference.delete()
+
+
 def get_pro_team_documents(
     region: typing.Literal["LEC", "LCS", "LPL", "LCK"], team: str
 ) -> typing.List[pro_players_models.ProPlayer]:
-    collection = database.get_collection(f"pro_players/{region}/{team}")
-
-    if collection is None:
+    if (collection := database.get_collection(f"pro_players/{region}/{team}")) is None:
         return []
 
     player_docs = collection.stream()
@@ -86,9 +102,7 @@ def get_pro_team_documents(
 def save_leaderboard_accounts(
     region: str, rank: str, accounts: typing.List[league_models.LeaderboardEntry]
 ):
-    collection = database.get_collection(f"leaderboard/{region}/{rank}")
-
-    if collection is None:
+    if (collection := database.get_collection(f"leaderboard/{region}/{rank}")) is None:
         return
 
     for account in accounts:
@@ -97,9 +111,7 @@ def save_leaderboard_accounts(
 
 
 def update_champion_history(all_champions_data: dict):
-    collection = database.get_collection("champion_history")
-
-    if collection is None:
+    if (collection := database.get_collection("champion_history")) is None:
         return
 
     for champion_id, champion_data in all_champions_data.items():

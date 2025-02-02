@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ILeagueEntry } from '~/models/leagueEntry'
+import type { ILeagueEntry } from '~/models/leagueEntry';
 
 const props = defineProps<{
   leagueEntries: ILeagueEntry[]
@@ -9,7 +9,6 @@ const props = defineProps<{
 const { leagueEntries, loading } = toRefs(props)
 
 const storageStore = useStorageStore()
-const { rankIcons } = storeToRefs(storageStore)
 
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
@@ -72,13 +71,7 @@ const items = computed(() => [
 </script>
 
 <template>
-  <v-card v-if="loading">
-    <v-skeleton-loader
-      type="card"
-      width="80%"
-      class="mx-auto my-8"
-    />
-  </v-card>
+  <Loader v-if="loading" />
 
   <v-row
     v-else-if="!loading && !items.length"
@@ -119,7 +112,7 @@ const items = computed(() => [
               size="80"
             >
               <v-img
-                :src="rankIcons[entry.tier.toLowerCase()]"
+                :src="storageStore.getRankIcon(entry.tier)"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>

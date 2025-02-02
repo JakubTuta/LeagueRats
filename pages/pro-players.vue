@@ -26,8 +26,10 @@ const { t } = useI18n()
 const proStore = useProPlayerStore()
 const { players } = storeToRefs(proStore)
 
+const appStore = useAppStore()
+const { loading: appLoading } = storeToRefs(appStore)
+
 const storageStore = useStorageStore()
-const { teamImages, teamLogos } = storeToRefs(storageStore)
 
 const loading = ref(false)
 const selectedRegion = ref('lec')
@@ -97,8 +99,7 @@ function getPlayers(region: string) {
   savedTeams.value = newTeams
 
   newTeams.forEach((team) => {
-    proStore.getProPlayersFromTeam(region, team)
-    storageStore.getTeamImages(region, team)
+    proStore.getProPlayersFromTeam(team)
   })
 
   has2SecondsPassed = useTimeout(2000)
@@ -107,14 +108,8 @@ function getPlayers(region: string) {
 watch(selectedRegion, (region) => {
   loading.value = true
 
-  const upperCaseRegion = region.toUpperCase()
-
   if (selectedTab.value === 'players') {
-    getPlayers(upperCaseRegion)
-  }
-  else {
-    const teams = teamPerRegion[upperCaseRegion]
-    teams.forEach(team => storageStore.getTeamLogo(upperCaseRegion, team))
+    getPlayers(region.toUpperCase())
   }
 
   loading.value = false
@@ -147,8 +142,7 @@ async function loadPlayers({ done }: { done: (status: string) => void }) {
 
   const newTeam = notSavedTeams[0]
 
-  proStore.getProPlayersFromTeam(selectedRegion.value.toUpperCase(), newTeam)
-  storageStore.getTeamImages(selectedRegion.value.toUpperCase(), newTeam)
+  proStore.getProPlayersFromTeam(newTeam)
 
   savedTeams.value.push(newTeam)
 
@@ -214,7 +208,9 @@ function getPlayerRoleIcon(player: { role: string }) {
       align="center"
       justify="center"
     >
-      <v-card>
+      <Loader v-if="appLoading" />
+
+      <v-card v-else>
         <v-card-title class="mb-8 mt-2">
           <v-row>
             <v-col
@@ -299,7 +295,7 @@ function getPlayerRoleIcon(player: { role: string }) {
                   class="pa-2"
                 >
                   <v-img
-                    :src="teamLogos[team]"
+                    :src="storageStore.getTeamLogo(team)"
                     aspect-ratio="1"
                     cover
                   />
@@ -398,7 +394,7 @@ function getPlayerRoleIcon(player: { role: string }) {
                     class="mr-1"
                   >
                     <v-img
-                      :src="teamImages[player.team]?.[player.player.toLowerCase()]"
+                      :src="storageStore.getPlayerImage(player.player)"
                       lazy-src="~/assets/default.png"
                     />
                   </v-avatar>
@@ -410,7 +406,7 @@ function getPlayerRoleIcon(player: { role: string }) {
                         size="40"
                       >
                         <v-img
-                          :src="teamImages[player.team]?.team"
+                          :src="storageStore.getTeamLogo(player.team)"
                           lazy-src="~/assets/default.png"
                         />
                       </v-avatar>

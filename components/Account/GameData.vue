@@ -20,7 +20,7 @@ const router = useRouter()
 const { xs } = useDisplay()
 
 const storageStore = useStorageStore()
-const { championIcons, runeIcons, itemIcons } = storeToRefs(storageStore)
+const { runeIcons, itemIcons } = storeToRefs(storageStore)
 
 const runeStore = useRuneStore()
 const { runeInfo } = storeToRefs(runeStore)
@@ -320,7 +320,7 @@ function findSecondaryRuneTree() {
                 size="60"
               >
                 <v-img
-                  :src="championIcons[gamer.championId]"
+                  :src="storageStore.getChampionIcon(gamer.championId)"
                   lazy-src="~/assets/default.png"
                 />
               </v-avatar>
@@ -506,7 +506,7 @@ function findSecondaryRuneTree() {
                       class="mr-1"
                     >
                       <v-img
-                        :src="championIcons[participant.championId]"
+                        :src="storageStore.getChampionIcon(participant.championId)"
                         lazy-src="~/assets/default.png"
                       />
                     </v-avatar>

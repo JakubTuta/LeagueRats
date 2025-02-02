@@ -3,6 +3,7 @@ import { proRegions, teamPerRegion } from '~/helpers/regions'
 import type { IProPlayer } from '~/models/proPlayer'
 
 const proPlayerStore = useProPlayerStore()
+const { proAccountNames } = storeToRefs(proPlayerStore)
 
 const correctPassword = 'password123'
 const isCorrectPassword = ref(false)
@@ -15,10 +16,34 @@ const name = ref('')
 const accountName = ref('')
 const accountTag = ref('')
 const accountRegion = ref<string | null>(null)
+const selectedTab = ref('add')
+const transferPlayer = ref<string | null>(null)
+const fromTeam = ref<string | null>(null)
+const toTeam = ref<string | null>(null)
+
+const tabs = [
+  {
+    title: 'Add',
+    value: 'add',
+  },
+  {
+    title: 'Transfer',
+    value: 'transfer',
+  },
+]
 
 const roles = ['TOP', 'JNG', 'MID', 'ADC', 'SUP']
 
 const accountRegions = ['NA', 'EUW', 'KR']
+
+const allTeams = computed(() => Object.values(teamPerRegion).flat())
+const allPlayers = computed(() => {
+  if (!proAccountNames.value) {
+    return []
+  }
+
+  return Array.from(new Set(Object.values(proAccountNames.value).map(e => `[${e.team}] ${e.player}`)).values())
+})
 
 watch(password, (value) => {
   isCorrectPassword.value = value === correctPassword
@@ -54,6 +79,19 @@ async function add() {
   accountName.value = ''
   accountTag.value = ''
 }
+
+async function transfer() {
+  if (!transferPlayer.value || !fromTeam.value || !toTeam.value)
+    return
+
+  const playerName = transferPlayer.value.split('] ')[1]
+
+  await proPlayerStore.transferProPlayer(playerName, fromTeam.value, toTeam.value)
+
+  transferPlayer.value = null
+  fromTeam.value = null
+  toTeam.value = null
+}
 </script>
 
 <!-- eslint-disable vue/no-bare-strings-in-template -->
@@ -65,26 +103,39 @@ async function add() {
       <v-card-text>
         <v-text-field
           v-model="password"
-          variant="outlined"
           label="Password"
         />
       </v-card-text>
     </v-card>
 
+    <v-card v-if="isCorrectPassword">
+      <v-tabs
+        v-model="selectedTab"
+        color="primary"
+        grow
+      >
+        <v-tab
+          v-for="tab in tabs"
+          :key="tab.value"
+          :value="tab.value"
+        >
+          {{ tab.title }}
+        </v-tab>
+      </v-tabs>
+    </v-card>
+
     <v-card
-      v-else
+      v-if="isCorrectPassword && selectedTab === 'add'"
     >
       <v-card-text>
         <v-select
           v-model="region"
-          variant="outlined"
           :items="proRegions"
           label="region"
         />
 
         <v-autocomplete
           v-model="team"
-          variant="outlined"
           :items="region
             ? teamPerRegion[region]
             : []"
@@ -93,38 +144,32 @@ async function add() {
 
         <v-select
           v-model="role"
-          variant="outlined"
           :items="roles"
           label="role"
         />
 
         <v-text-field
           v-model="name"
-          variant="outlined"
           label="name"
         />
 
         <v-select
           v-model="accountRegion"
-          variant="outlined"
           :items="accountRegions"
           label="account region"
         />
 
         <v-text-field
           v-model="accountName"
-          variant="outlined"
           label="account name"
         />
 
         <v-text-field
           v-model="accountTag"
-          variant="outlined"
           label="account tag"
         />
 
         <v-btn
-          variant="outlined"
           @click="add"
         >
           Add
@@ -132,6 +177,52 @@ async function add() {
 
         <v-btn>
           Function
+        </v-btn>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-if="isCorrectPassword && selectedTab === 'transfer'">
+      <v-card-text>
+        <v-row align="center">
+          <v-col
+            cols="12"
+            sm="4"
+          >
+            <v-combobox
+              v-model="transferPlayer"
+              :items="allPlayers"
+              label="Player name"
+              variant="outlined"
+            />
+          </v-col>
+
+          <v-col
+            cols="12"
+            sm="4"
+          >
+            <v-autocomplete
+              v-model="fromTeam"
+              :items="allTeams"
+              label="From team"
+            />
+          </v-col>
+
+          <v-col
+            cols="12"
+            sm="4"
+          >
+            <v-autocomplete
+              v-model="toTeam"
+              :items="allTeams"
+              label="To team"
+            />
+          </v-col>
+        </v-row>
+
+        <v-btn
+          @click="transfer"
+        >
+          Transfer
         </v-btn>
       </v-card-text>
     </v-card>

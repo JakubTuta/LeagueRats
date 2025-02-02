@@ -7,19 +7,16 @@ import type { IStream } from '~/stores/proplayerStore'
 const proStore = useProPlayerStore()
 const { liveStreams, notLiveStreams } = storeToRefs(proStore)
 
+const appStore = useAppStore()
+const { loading: appLoading } = storeToRefs(appStore)
+
 const storageStore = useStorageStore()
-const { teamImages } = storeToRefs(storageStore)
 
 const { smAndDown, height } = useDisplay()
 
 const currentStream = ref<IStream | null>(null)
 const search = ref('')
 const renderComponent = ref(true)
-
-onMounted(() => {
-  proStore.getLiveStreams()
-  proStore.getNotLiveStreams()
-})
 
 const allStreams = computed(() => Object.values(liveStreams.value).concat(Object.values(notLiveStreams.value)))
 const searchStreams = computed(() => {
@@ -40,23 +37,6 @@ watch(liveStreams, (newLiveStreams) => {
   }
 }, { immediate: true })
 
-watch(allStreams, (newStreams) => {
-  const uniqueTeamsPerRegion = newStreams.reduce((acc, stream) => {
-    if (!acc[stream.region]) {
-      acc[stream.region] = new Set()
-    }
-    acc[stream.region].add(stream.team)
-
-    return acc
-  }, {} as { [key: string]: Set<string> })
-
-  Object.entries(uniqueTeamsPerRegion).forEach(([region, teams]) => {
-    teams.forEach((team) => {
-      storageStore.getTeamImages(region, team)
-    })
-  })
-})
-
 async function forceUpdate() {
   renderComponent.value = false
   await nextTick()
@@ -74,7 +54,9 @@ function changeStream(stream: IStream) {
 
 <template>
   <v-container style="max-width: 1600px">
-    <v-card>
+    <Loader v-if="appLoading" />
+
+    <v-card v-else>
       <v-card-title class="text-h5">
         {{ $t('navbar.streams') }}
       </v-card-title>
@@ -123,7 +105,7 @@ function changeStream(stream: IStream) {
                     class="mr-1"
                   >
                     <v-img
-                      :src="teamImages[stream.team]?.[stream.player.toLowerCase()]"
+                      :src="storageStore.getPlayerImage(stream.player)"
                       lazy-src="~/assets/default.png"
                     />
                   </v-avatar>

@@ -81,7 +81,7 @@
       "assists": "Asysty",
       "deaths": "Śmierci",
       "loadMore": "Załaduj więcej gier",
-      "lastGames": "Ostatnie 20 gier"
+      "lastGames": "Ostatnie {games} gier"
     },
     "currentGame": {
       "title": "Gra na żywo",

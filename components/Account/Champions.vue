@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify'
-import type { IAccount } from '~/models/account'
-import type { IChampionMastery } from '~/models/championMastery'
-import { useChampionStore } from '~/stores/championStore'
+import { useDisplay } from 'vuetify';
+import type { IAccount } from '~/models/account';
+import type { IChampionMastery } from '~/models/championMastery';
+import { useChampionStore } from '~/stores/championStore';
 
 const props = defineProps<{
   account: IAccount | null
@@ -15,7 +15,6 @@ const { champions, loading, account } = toRefs(props)
 const { height } = useDisplay()
 
 const storageStore = useStorageStore()
-const { championIcons } = storeToRefs(storageStore)
 
 const proStore = useProPlayerStore()
 const { proAccountNames } = storeToRefs(proStore)
@@ -27,10 +26,6 @@ const loadedChampions = ref<IChampionMastery[]>([])
 const isAccountPro = ref(false)
 
 onMounted(() => {
-  if (!Object.keys(storeChampions.value).length) {
-    championStore.getChampions()
-  }
-
   checkIfAccountIsPro()
 })
 
@@ -57,15 +52,9 @@ watch(champions, (newChampions) => {
   })
 })
 
-async function checkIfAccountIsPro() {
-  if (!account.value?.puuid)
+function checkIfAccountIsPro() {
+  if (!account.value?.puuid || !proAccountNames.value)
     return
-
-  if (!proAccountNames.value) {
-    await proStore.getProAccountNames()
-    if (!proAccountNames.value)
-      return
-  }
 
   const proPlayer = proAccountNames.value[account.value.puuid] || null
 
@@ -112,13 +101,7 @@ function findChampionFromId(championId: number) {
 </script>
 
 <template>
-  <v-card v-if="loading">
-    <v-skeleton-loader
-      type="card"
-      width="80%"
-      class="mx-auto my-8"
-    />
-  </v-card>
+  <Loader v-if="loading" />
 
   <v-row
     v-else-if="!champions.length && !loading"
@@ -162,7 +145,7 @@ function findChampionFromId(championId: number) {
                 size="70"
               >
                 <v-img
-                  :src="championIcons[champion.championId]"
+                  :src="storageStore.getChampionIcon(champion.championId)"
                   lazy-src="~/assets/default.png"
                 />
               </v-avatar>

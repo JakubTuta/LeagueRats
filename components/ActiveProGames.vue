@@ -7,7 +7,6 @@ const proStore = useProPlayerStore()
 const { activeGames, liveStreams } = storeToRefs(proStore)
 
 const storageStore = useStorageStore()
-const { championIcons, teamImages } = storeToRefs(storageStore)
 
 const refreshTime = ref('00:00')
 
@@ -17,9 +16,6 @@ setInterval(getNextUpdateTime, 1000)
 
 onMounted(() => {
   proStore.getActiveProGamesFromDatabase()
-
-  proStore.getLiveStreams()
-  proStore.getNotLiveStreams()
 })
 
 const filteredGames = computed(() => activeGames.value.filter((game, index, self) => index === self.findIndex(g => g.player.player === game.player.player)))
@@ -193,7 +189,7 @@ function getPlayerStream(player: IProPlayer) {
                     >
                       <v-img
                         lazy-src="~/assets/default.png"
-                        :src="teamImages[game.player.team]?.[game.player.player.toLowerCase()]"
+                        :src="storageStore.getPlayerImage(game.player.player)"
                       />
                     </v-avatar>
 
@@ -208,7 +204,7 @@ function getPlayerStream(player: IProPlayer) {
                     >
                       <v-img
                         lazy-src="~/assets/default.png"
-                        :src="championIcons[game.participant.championId]"
+                        :src="storageStore.getChampionIcon(game.participant.championId)"
                       />
                     </v-avatar>
                   </div>

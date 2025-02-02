@@ -1,7 +1,7 @@
 export const colorForTeam: { [key: string]: string } = {
   G2: '#8d8d8d',
   FNC: '#ff9e00',
-  MAD: '#fff000',
+  MKOI: '#fff000',
   TL: '#6668ff',
   FLY: '#3bba00',
   HLE: '#b68700',

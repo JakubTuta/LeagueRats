@@ -39,10 +39,24 @@ async def get_active_match(
 
 async def get_match_history(
     client: httpx.AsyncClient,
-    region: str,
-    puuid: str,
-    query_params: typing.Dict[str, typing.Union[str, int, None]],
+    account: typing.Optional[account_models.Account] = None,
+    puuid: typing.Optional[str] = None,
+    query_params: typing.Dict[str, typing.Union[str, int, None]] = {},
 ) -> typing.List[str]:
+    if account is not None:
+        region = account.region
+        puuid = account.puuid
+
+    elif (
+        puuid is not None
+        and (account := await account_functions.get_account(client, puuid=puuid))
+        is not None
+    ):
+        region = account.region
+
+    else:
+        return []
+
     if (row_regions := regions.get_region(region)) is None:
         return []
 
@@ -111,7 +125,7 @@ async def get_ranked_matches_from_period(
     }
 
     match_ids = await get_match_history(
-        client, account.region, account.puuid, match_ids_query_params
+        client, account=account, query_params=match_ids_query_params
     )
 
     jobs = [get_match_data(client, match_id) for match_id in match_ids]
