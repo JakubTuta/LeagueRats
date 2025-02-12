@@ -1,5 +1,3 @@
-import asyncio
-import datetime
 import typing
 
 import account.functions as account_functions
@@ -8,7 +6,6 @@ import database.functions as db_functions
 import helpers.regions as regions
 import helpers.riot_api as riot_api
 import httpx
-import match.models as match_models
 
 from . import models
 
@@ -108,30 +105,3 @@ async def get_match_data(
 
     except:
         pass
-
-
-async def get_ranked_matches_from_period(
-    client: httpx.AsyncClient, account: account_models.Account, hours: int
-) -> typing.List[match_models.MatchHistory]:
-    now = datetime.datetime.now()
-    past = now - datetime.timedelta(hours=hours)
-
-    match_ids_query_params = {
-        "count": 100,
-        "queue": 420,
-        "type": "ranked",
-        "startTime": int(past.timestamp()),
-        "endTime": int(now.timestamp()),
-    }
-
-    match_ids = await get_match_history(
-        client, account=account, query_params=match_ids_query_params
-    )
-
-    jobs = [get_match_data(client, match_id) for match_id in match_ids]
-
-    responses = await asyncio.gather(*jobs)
-
-    matches = list(filter(None, responses))
-
-    return matches

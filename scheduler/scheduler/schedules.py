@@ -1,4 +1,3 @@
-import fastapi
 import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 

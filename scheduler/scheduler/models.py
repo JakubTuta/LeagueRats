@@ -3,76 +3,47 @@ import typing
 
 import pydantic
 
-
-class BannedChampion(pydantic.BaseModel):
-    pickTurn: int
-    championId: int
-    teamId: int
+# Account models
 
 
-class Perks(pydantic.BaseModel):
-    perkIds: typing.List[int]
-    perkStyle: int
-    perkSubStyle: int
-
-
-class Participant(pydantic.BaseModel):
-    championId: int
-    perks: Perks
-    teamId: int
-    summonerId: str
-    riotId: str
-    gameName: str = ""
-    tagLine: str = ""
+class Account(pydantic.BaseModel):
+    gameName: str
+    tagLine: str
     puuid: str
-    spell1Id: int
-    spell2Id: int
-
-    @pydantic.model_validator(mode="before")
-    def split_riot_id(cls, values):
-        riot_id = values.get("riotId")
-
-        if riot_id and "#" in riot_id:
-            game_name, tag_line = riot_id.split("#", 1)
-            values["gameName"] = game_name
-            values["tagLine"] = tag_line
-
-        return values
+    region: str
+    accountId: str
+    id: str
+    profileIconId: int
+    summonerLevel: int
 
 
-class ActiveMatch(pydantic.BaseModel):
-    gameId: int
-    gameType: str
-    gameStartTime: datetime.datetime
-    mapId: int
-    gameLength: int
-    gameMode: str
-    bannedChampions: typing.List[BannedChampion]
-    participants: typing.List[Participant]
-    platformId: str
-    gameQueueConfigId: typing.Literal["NORMAL", "SOLOQ", "FLEXQ"]
+# League models
 
-    @pydantic.field_validator("gameStartTime", mode="before")
-    def parse_game_start_time(cls, value) -> datetime.datetime:
-        if isinstance(value, int):
-            return datetime.datetime.fromtimestamp(value / 1000)
 
-        elif isinstance(value, str):
-            return datetime.datetime.fromisoformat(value)
+class LeaderboardEntry(pydantic.BaseModel):
+    gameName: str
+    tagLine: str
+    puuid: str
+    rank: int
+    leaguePoints: int
+    wins: int
+    losses: int
+    league: str
 
-        return value
 
-    @pydantic.field_validator("gameQueueConfigId", mode="before")
-    def validate_game_queue_config_id(
-        cls, value
-    ) -> typing.Literal["NORMAL", "SOLOQ", "FLEXQ"]:
-        match (value):
-            case 420:
-                return "SOLOQ"
-            case 440:
-                return "FLEXQ"
-            case _:
-                return "NORMAL"
+# Pro player models
+
+
+class ProPlayer(pydantic.BaseModel):
+    player: str
+    puuid: list[str]
+    region: typing.Literal["LCK", "LEC", "LCS", "LPL"]
+    role: typing.Literal["TOP", "JNG", "MID", "ADC", "SUP"]
+    team: str
+    socialMedia: typing.Optional[typing.Dict[str, str]] = None
+
+
+# Match models
 
 
 class MatchMetadata(pydantic.BaseModel):
@@ -199,3 +170,74 @@ class MatchInfo(pydantic.BaseModel):
 class MatchHistory(pydantic.BaseModel):
     metadata: MatchMetadata
     info: MatchInfo
+
+
+class BannedChampion(pydantic.BaseModel):
+    pickTurn: int
+    championId: int
+    teamId: int
+
+
+class Perks(pydantic.BaseModel):
+    perkIds: typing.List[int]
+    perkStyle: int
+    perkSubStyle: int
+
+
+class Participant(pydantic.BaseModel):
+    championId: int
+    perks: Perks
+    teamId: int
+    summonerId: str
+    riotId: str
+    gameName: str = ""
+    tagLine: str = ""
+    puuid: str
+    spell1Id: int
+    spell2Id: int
+
+    @pydantic.model_validator(mode="before")
+    def split_riot_id(cls, values):
+        riot_id = values.get("riotId")
+
+        if riot_id and "#" in riot_id:
+            game_name, tag_line = riot_id.split("#", 1)
+            values["gameName"] = game_name
+            values["tagLine"] = tag_line
+
+        return values
+
+
+class ActiveMatch(pydantic.BaseModel):
+    gameId: int
+    gameType: str
+    gameStartTime: datetime.datetime
+    mapId: int
+    gameLength: int
+    gameMode: str
+    bannedChampions: typing.List[BannedChampion]
+    participants: typing.List[Participant]
+    platformId: str
+    gameQueueConfigId: typing.Literal["NORMAL", "SOLOQ", "FLEXQ"]
+
+    @pydantic.field_validator("gameStartTime", mode="before")
+    def parse_game_start_time(cls, value) -> datetime.datetime:
+        if isinstance(value, int):
+            return datetime.datetime.fromtimestamp(value / 1000)
+
+        elif isinstance(value, str):
+            return datetime.datetime.fromisoformat(value)
+
+        return value
+
+    @pydantic.field_validator("gameQueueConfigId", mode="before")
+    def validate_game_queue_config_id(
+        cls, value
+    ) -> typing.Literal["NORMAL", "SOLOQ", "FLEXQ"]:
+        match (value):
+            case 420:
+                return "SOLOQ"
+            case 440:
+                return "FLEXQ"
+            case _:
+                return "NORMAL"
