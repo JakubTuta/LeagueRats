@@ -31,7 +31,7 @@
     "@vueuse/nuxt": "^10.11.0",
     "axios": "^1.7.2",
     "chart.js": "^4.4.4",
-    "eslint": "^8.57.0",
+    "eslint": "^9.20.1",
     "firebase": "^10.12.2",
     "firebase-admin": "^12.2.0",
     "firebase-tools": "^13.12.0",

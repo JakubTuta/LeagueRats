@@ -32,6 +32,9 @@ const selectedTab = ref('SOLOQ')
 const loading = ref(false)
 const matchHistoryPerRegion = ref<Record<string, IMatchData[]>>({})
 const canLoadMore = ref(true)
+const matchesLoading = ref(0)
+
+const matchAmount = 10
 
 const tabs = computed(() => [
   { title: t('queueTypes.RANKED_SOLO_5x5'), value: 'SOLOQ' },
@@ -72,50 +75,50 @@ async function getMatchIds(count: number) {
   return matchIds
 }
 
-async function loadMatches(count: number = 10) {
+async function loadMatches(count: number = matchAmount) {
   const matchIds = await getMatchIds(count)
 
+  matchesLoading.value = matchIds.length
+
+  matchIds.forEach(async (matchId, index) => {
+    const matchData = await matchStore.getMatchData(matchId)
+
+    matchHistoryPerRegion.value[selectedTab.value].push(matchData)
+    matchesLoading.value--
+
+    if (index === matchIds.length - 1) {
+      loading.value = false
+    }
+  })
+
   if (matchIds.length < count) {
-    loading.value = false
     canLoadMore.value = false
-
-    return []
   }
-
-  const promises = matchIds.map(async matchId => await matchStore.getMatchData(matchId))
-  const matchData = await Promise.all(promises)
-
-  return matchData
 }
 
-async function getMatchHistory() {
+function getMatchHistory() {
   if (!account.value || loading.value)
     return
 
-  loading.value = true
-
-  const matches = await loadMatches()
-
   if (!matchHistoryPerRegion.value[selectedTab.value])
-    matchHistoryPerRegion.value[selectedTab.value] = []
+    matchHistoryPerRegion.value[selectedTab.value] = [] as IMatchData[]
 
-  const sortedMatches = (matches.filter(item => item !== null
-    && item.info.participants.length
-    && !item.info.participants[0]?.gameEndedInEarlySurrender) as IMatchData[])
-    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
-
-  matchHistoryPerRegion.value[selectedTab.value].push(...sortedMatches)
-
-  loading.value = false
+  loadMatches()
 }
 
-// eslint-disable-next-line vue/no-side-effects-in-computed-properties
-const last10Games = computed(() => matchHistoryPerRegion.value[selectedTab.value]
-  ?.sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
-  .slice(0, 10) || [])
+const processedGames = computed(() => {
+  if (!matchHistoryPerRegion.value[selectedTab.value])
+    return []
 
-const mapLast10Games = computed(() => {
-  return last10Games.value
+  return matchHistoryPerRegion.value[selectedTab.value]
+    .filter(match => match.info.participants.length && !match.info.participants[0].gameEndedInEarlySurrender)
+    .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
+})
+
+const lastGames = computed(() => processedGames.value.slice(0, matchAmount) || [])
+
+const mapLastGames = computed(() => {
+  return lastGames.value
     .reduce((acc, game) => {
       const participant = game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))!
 
@@ -165,8 +168,12 @@ function getWinRatio(champion: IChampionHistory) {
   return (winRatio * 100).toFixed(0)
 }
 
-const last10GamesWins = computed(() => last10Games.value.filter(game => game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
-const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win).length)
+const lastGamesWins = computed(() => lastGames.value.reduce((acc, game) => acc + (game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win
+  ? 1
+  : 0), 0))
+const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc + (!game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win
+  ? 1
+  : 0), 0))
 </script>
 
 <template>
@@ -189,11 +196,11 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
   </v-tabs>
 
   <v-card
-    v-if="!loading && mapLast10Games.length"
+    v-if="!loading && mapLastGames.length"
     class="my-2"
   >
     <v-card-title>
-      {{ $t('profile.matchHistory.lastGames', {"games": mapLast10Games.length}) }}
+      {{ $t('profile.matchHistory.lastGames', {"games": lastGamesWins + lastGamesLosses}) }}
     </v-card-title>
 
     <v-card-text>
@@ -205,22 +212,22 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
         >
           <div>
             <PieChart
-              :wins="last10GamesWins"
-              :losses="last10GamesLosses"
+              :wins="lastGamesWins"
+              :losses="lastGamesLosses"
               :size="100"
             />
           </div>
 
           <p class="text-subtitle-2 mt-2 text-light-blue">
-            {{ `${$t('profile.rank.wins')}: ${last10GamesWins}` }}
+            {{ `${$t('profile.rank.wins')}: ${lastGamesWins}` }}
           </p>
 
           <p class="text-subtitle-2 text-red">
-            {{ `${$t('profile.rank.losses')}: ${last10GamesLosses}` }}
+            {{ `${$t('profile.rank.losses')}: ${lastGamesLosses}` }}
           </p>
 
           <p class="text-subtitle-2 mt-1">
-            {{ `${$t('profile.rank.winRate')}: ${(last10GamesWins / 10 * 100).toFixed(0)}%` }}
+            {{ `${$t('profile.rank.winRate')}: ${(lastGamesWins / 10 * 100).toFixed(0)}%` }}
           </p>
         </v-col>
 
@@ -230,7 +237,7 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
         >
           <div style="display: flex; overflow-x: auto; width: 100%">
             <div
-              v-for="champion in mapLast10Games"
+              v-for="champion in mapLastGames"
               :key="champion.championId"
               align="center"
               style="min-width: 80px"
@@ -262,8 +269,6 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
     </v-card-text>
   </v-card>
 
-  <Loader v-if="!matchHistoryPerRegion[selectedTab]?.length && loading" />
-
   <v-spacer class="my-4" />
 
   <AccountGameData
@@ -272,6 +277,13 @@ const last10GamesLosses = computed(() => last10Games.value.filter(game => !game.
     class="mt-4"
     :account="account"
     :game="match"
+  />
+
+  <v-skeleton-loader
+    v-for="n in matchesLoading"
+    :key="n"
+    class="my-4"
+    type="image"
   />
 
   <v-row

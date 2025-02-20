@@ -19,7 +19,7 @@ onMounted(async () => {
   loading.value = true
 
   try {
-    const paramsData = String(route.params.searchaccount)
+    const paramsData = String(route.params.searchAccount)
     username.value = paramsData.split('-')[0]
     tag.value = paramsData.split('-')[1]
   }

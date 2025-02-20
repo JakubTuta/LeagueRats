@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     head: {
       title: 'League Rats',
       meta: [
-        { name: 'description', content: 'Strona z profesjonalnymi rozgrywkami gry League of Legends' },
+        { name: 'description', content: 'Track and analyze professional League of Legends players, their stats, matches, and competitive achievements. Stay updated with pro players\' performance across different regions.' },
       ],
     },
   },
@@ -23,9 +23,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {
-        // eslint-disable-next-line ts/ban-ts-comment
-        // @ts-expect-error
-        config.plugins.push(vuetify({ autoImport: true }))
+        config?.plugins?.push(vuetify({ autoImport: true }))
       })
     },
   ],
@@ -35,6 +33,7 @@ export default defineNuxtConfig({
     dirs: [
       'stores/**',
       'constants/**',
+      'components/**',
       'utils/**',
     ],
   },
@@ -86,7 +85,7 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2024-07-18',
 
-  devtools: {
-    enabled: false,
+  pinia: {
+    storesDirs: ['./stores/**'],
   },
 })
