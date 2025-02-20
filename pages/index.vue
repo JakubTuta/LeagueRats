@@ -91,7 +91,7 @@ const filteredSearchItems = computed(() => {
 
   const filteredItems = searchItems.value
     .filter(item => item.value.toLowerCase().includes(search.value.toLowerCase())
-    || item.title.toLowerCase().includes(search.value.toLowerCase()))
+      || item.title.toLowerCase().includes(search.value.toLowerCase()))
 
   return filteredItems
 })

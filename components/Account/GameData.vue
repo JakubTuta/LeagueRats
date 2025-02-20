@@ -102,8 +102,8 @@ function mapGameTime() {
   const seconds = game.value.info.gameDuration % 60
 
   return `${minutes}:${seconds < 10
-? `0${seconds}`
-: seconds}`
+    ? `0${seconds}`
+    : seconds}`
 }
 
 function whenWasGame() {

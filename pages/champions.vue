@@ -49,9 +49,9 @@ const filteredChampions = computed(() => {
             class="mx-4"
             :label="$t('universal.search')"
 
+            clearable
             dense
             outlined
-            clearable
             prepend-inner-icon="mdi-magnify"
           />
         </v-col>

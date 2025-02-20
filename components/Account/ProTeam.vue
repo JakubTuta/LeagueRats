@@ -14,7 +14,7 @@ const storageStore = useStorageStore()
 
 const players = ref<IProPlayer[]>([])
 
-const mapLane: { [key in 'TOP' | 'JNG' | 'MID' | 'ADC' | 'SUP']: number } = {
+const mapLane: Record<'TOP' | 'JNG' | 'MID' | 'ADC' | 'SUP', number> = {
   TOP: 1,
   JNG: 2,
   MID: 3,

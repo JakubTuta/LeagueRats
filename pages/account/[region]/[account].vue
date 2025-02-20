@@ -64,7 +64,7 @@ onMounted(async () => {
     gameName = accountData.split('-')[0]
     tagLine = accountData.split('-')[1]
   }
-  // eslint-disable-next-line unused-imports/no-unused-vars
+
   catch (error) {
     router.push('/404')
   }

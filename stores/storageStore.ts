@@ -1,4 +1,3 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import { getDownloadURL, ref as storageRef } from 'firebase/storage'
 import { teamPerRegion } from '~/helpers/regions'
 import { useFirebase } from '~/helpers/useFirebase'

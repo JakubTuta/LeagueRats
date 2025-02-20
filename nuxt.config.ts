@@ -67,25 +67,16 @@ export default defineNuxtConfig({
   ssr: false,
 
   nitro: {
-    static: true,
-    esbuild: {
-      options: {
-        target: 'esnext',
-      },
-    },
-    prerender: {
-      crawlLinks: true,
-      routes: ['/'],
-    },
+    preset: 'static',
   },
 
   typescript: {
     strict: true,
   },
 
-  compatibilityDate: '2024-07-18',
-
   pinia: {
     storesDirs: ['./stores/**'],
   },
+
+  compatibilityDate: '2024-07-18',
 })

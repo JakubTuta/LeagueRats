@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDisplay } from 'vuetify';
-import type { IAccount } from '~/models/account';
-import type { IActiveGame } from '~/models/activeGame';
+import { useDisplay } from 'vuetify'
+import type { IAccount } from '~/models/account'
+import type { IActiveGame } from '~/models/activeGame'
 
 const props = defineProps<{
   currentGame: IActiveGame | null
@@ -18,8 +18,8 @@ function formatTime(time: number) {
   const seconds = time % 60
 
   return `${minutes}:${seconds < 10
-? `0${seconds}`
-: seconds}`
+    ? `0${seconds}`
+    : seconds}`
 }
 
 const interval = setInterval(() => {

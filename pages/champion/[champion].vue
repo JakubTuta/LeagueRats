@@ -206,7 +206,7 @@ function againstAutocompleteFocusChange(value: boolean) {
               size="100"
             >
               <v-img
-                :src="storageStore.getChampionIcon(champion.id)"
+                :src="storageStore.getChampionIcon(champion.id) || ''"
                 lazy-src="~assets/default.png"
               />
             </v-avatar>

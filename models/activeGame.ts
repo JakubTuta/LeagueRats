@@ -77,7 +77,7 @@ function mapGameConfig(gameQueueConfigId: string | number): TGameConfig {
   try {
     return queueIdToType[gameQueueConfigId] as TGameConfig
   }
-  // eslint-disable-next-line unused-imports/no-unused-vars
+
   catch (error: any) {
     return 'NORMAL'
   }

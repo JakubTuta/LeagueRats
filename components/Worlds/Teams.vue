@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { teamFullName } from '~/helpers/regions';
+import { teamFullName } from '~/helpers/regions'
 
 const storageStore = useStorageStore()
 

@@ -23,7 +23,7 @@ onMounted(async () => {
     username.value = paramsData.split('-')[0]
     tag.value = paramsData.split('-')[1]
   }
-  // eslint-disable-next-line unused-imports/no-unused-vars
+
   catch (error) {
     router.push('/')
   }
@@ -43,7 +43,7 @@ onMounted(async () => {
       }, {} as Record<string, IAccount | null>)
     }
   }
-  // eslint-disable-next-line unused-imports/no-unused-vars
+
   catch (error) {
     router.push('/')
   }
