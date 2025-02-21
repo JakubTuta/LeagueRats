@@ -37,10 +37,12 @@ async def get_champion_matches(
     champion_id: str,
     startAfter: typing.Optional[str] = None,
     limit: int = 10,
+    lane: typing.Optional[str] = None,
+    versus: typing.Optional[str] = None,
 ) -> typing.List[models.ChampionHistory]:
     if (
         champion_matches := functions.get_champion_matches(
-            champion_id, startAfter, limit
+            champion_id, startAfter, limit, lane, versus
         )
     ) is None:
         raise fastapi.HTTPException(

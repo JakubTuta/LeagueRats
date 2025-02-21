@@ -13,6 +13,11 @@ export const useChampionStore = defineStore('championStore', () => {
 
   const apiStore = useApiStore()
 
+  const clearChampionMatches = (championId: number) => {
+    championMatches.value[championId] = []
+    delete lastLoadedMatchForChampion[championId]
+  }
+
   const getChampions = async () => {
     const url = '/v2/champions/'
 
@@ -49,17 +54,25 @@ export const useChampionStore = defineStore('championStore', () => {
     }
   }
 
-  const getChampionMatches = async (championId: number, amount: number) => {
+  const getChampionMatches = async (championId: number, amount: number, lane: string | null = null, versus: string | null = null) => {
     let url = `/v2/champions/${championId}/matches?amount=${amount}`
 
     if (lastLoadedMatchForChampion[championId]) {
       url += `&startAfter=${lastLoadedMatchForChampion[championId]}`
     }
 
+    if (lane) {
+      url += `&lane=${lane}`
+    }
+
+    if (versus) {
+      url += `&versus=${versus}`
+    }
+
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 
     if (!apiStore.isResponseOk(response)) {
-      return
+      return []
     }
 
     const docData = response!.data.map((doc: any) => ({ player: mapIProPlayer(doc.player), match: mapMatchData(doc.match) })) as { player: IProPlayer, match: IMatchData }[]
@@ -74,6 +87,8 @@ export const useChampionStore = defineStore('championStore', () => {
     if (docData.length) {
       lastLoadedMatchForChampion[championId] = docData[docData.length - 1].match.metadata.matchId
     }
+
+    return docData
   }
 
   const getChampionsPositions = async (champions: number[]) => {
@@ -101,6 +116,7 @@ export const useChampionStore = defineStore('championStore', () => {
     champions,
     championStats,
     championMatches,
+    clearChampionMatches,
     getChampions,
     getChampionMastery,
     getChampionStats,

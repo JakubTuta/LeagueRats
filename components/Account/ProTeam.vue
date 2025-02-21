@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IProPlayer } from '~/models/proPlayer';
+import type { IProPlayer } from '~/models/proPlayer'
 
 const props = defineProps<{
   team: string

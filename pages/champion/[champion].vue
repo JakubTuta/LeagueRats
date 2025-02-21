@@ -10,14 +10,17 @@ const { t } = useI18n()
 const championStore = useChampionStore()
 const { champions, championStats, championMatches } = storeToRefs(championStore)
 
+const appStore = useAppStore()
+const { loading: appLoading } = storeToRefs(appStore)
+
 const storageStore = useStorageStore()
 
 const champion = ref<{ id: number, title: string, value: string } | null>(null)
-const loading = ref(false)
+const loading = ref(true)
 const secondaryLoading = ref(false)
 const loadedGames = ref<{ player: IProPlayer, match: IMatchData }[]>([])
 const selectedPosition = ref('ALL')
-const selectedEnemy = ref('ALL')
+const selectedEnemy = ref({ id: 0, title: t('champion.enemyAll'), value: 'ALL' })
 
 const gamesAmount = 10
 const has2SecondsPassed = useTimeout(2000)
@@ -49,6 +52,18 @@ const positionItems = computed(() => [
   },
 ])
 
+const sortedChampions = computed(() => {
+  if (!Object.keys(champions.value).length) {
+    return []
+  }
+
+  // console.log(champions.value)
+
+  return Object.entries(champions.value).sort((a, b) => {
+    return a[1].value.localeCompare(b[1].value, 'en', { sensitivity: 'base' })
+  }).map(item => ({ id: item[0], title: item[1].title, value: item[1].value }))
+})
+
 const enemyItems = computed(() => {
   const mappedEnemies: { id: number, title: string, value: string }[] = [
     {
@@ -59,15 +74,15 @@ const enemyItems = computed(() => {
   ]
 
   if (champion.value) {
-    for (const [id, value] of Object.entries(champions.value)) {
-      if (value.value.toLowerCase() === champion.value.value.toLowerCase()) {
+    for (const item of Object.values(sortedChampions.value)) {
+      if (Number(item.id) === champion.value.id) {
         continue
       }
 
       mappedEnemies.push({
-        id: Number(id),
-        title: value.title,
-        value: value.value,
+        id: Number(item.id),
+        title: item.title,
+        value: item.value,
       })
     }
   }
@@ -75,54 +90,19 @@ const enemyItems = computed(() => {
   return mappedEnemies
 })
 
-const filterGamesByPosition = computed(() => {
-  if (selectedPosition.value === 'ALL') {
-    return loadedGames.value
-  }
-
-  return loadedGames.value.filter((game) => {
-    const playerParticipant = game.match.info.participants.find(participant => game.player.puuid.includes(participant.puuid))
-
-    return playerParticipant?.teamPosition === selectedPosition.value
-  })
-})
-
-const filterGamesByEnemy = computed(() => {
-  if (selectedEnemy.value === 'ALL') {
-    return loadedGames.value
-  }
-
-  const enemyChampion = enemyItems.value.find(enemy => enemy.value === selectedEnemy.value)
-
-  if (!enemyChampion) {
-    return loadedGames.value
-  }
-
-  return loadedGames.value.filter((game) => {
-    const playerParticipant = game.match.info.participants.find(participant => game.player.puuid.includes(participant.puuid))
-    const enemyParticipant = game.match.info.participants.find(participant => playerParticipant?.teamPosition === participant.teamPosition && participant.puuid !== playerParticipant?.puuid)
-
-    return enemyParticipant?.championId === enemyChampion.id
-  })
-})
-
-const filterGames = computed(() => {
-  return filterGamesByPosition.value.filter(game => filterGamesByEnemy.value.includes(game))
-})
-
 watch(champions, (newChampions) => {
-  if (Object.keys(newChampions).length) {
-    loading.value = true
-
-    for (const [id, value] of Object.entries(newChampions)) {
-      if (value.value.toLowerCase() === String(route.params.champion).toLowerCase()) {
-        champion.value = { id: Number(id), title: value.title, value: value.value }
-        break
-      }
-    }
-
-    loading.value = false
+  if (!Object.keys(newChampions).length) {
+    return
   }
+
+  for (const [id, value] of Object.entries(newChampions)) {
+    if (value.value.toLowerCase() === String(route.params.champion).toLowerCase()) {
+      champion.value = { id: Number(id), title: value.title, value: value.value }
+      break
+    }
+  }
+
+  loading.value = false
 }, { immediate: true })
 
 watch(champion, async (newChampion) => {
@@ -150,10 +130,17 @@ async function loadGames({ done }: { done: (status: string) => void }) {
     return
   }
 
-  await championStore.getChampionMatches(champion.value!.id, gamesAmount)
+  const lane = selectedPosition.value === 'ALL'
+    ? null
+    : selectedPosition.value
+  const versus = !selectedEnemy.value || selectedEnemy.value.value === 'ALL'
+    ? null
+    : selectedEnemy.value.id.toString()
+
+  const response = await championStore.getChampionMatches(champion.value!.id, gamesAmount, lane, versus)
   loadedGames.value = championMatches.value[champion.value!.id]
 
-  if (loadedGames.value.length >= championStats.value[champion.value!.id].games) {
+  if (response.length === 0 || loadedGames.value.length >= championStats.value[champion.value!.id].games) {
     done('empty')
 
     return
@@ -162,21 +149,40 @@ async function loadGames({ done }: { done: (status: string) => void }) {
   done('done')
 }
 
-function againstAutocompleteFocusChange(value: boolean) {
-  if (value && selectedEnemy.value === 'ALL') {
-    selectedEnemy.value = ''
-  }
-  else if (!value && !selectedEnemy.value) {
-    selectedEnemy.value = 'ALL'
-  }
-}
+watch(selectedPosition, async (value) => {
+  championStore.clearChampionMatches(champion.value!.id)
+
+  const lane = value === 'ALL'
+    ? null
+    : value
+  const versus = !selectedEnemy.value || selectedEnemy.value.value === 'ALL'
+    ? null
+    : selectedEnemy.value.id.toString()
+
+  await championStore.getChampionMatches(champion.value!.id, gamesAmount, lane, versus)
+  loadedGames.value = championMatches.value[champion.value!.id]
+})
+
+watch(selectedEnemy, async (value) => {
+  championStore.clearChampionMatches(champion.value!.id)
+
+  const lane = selectedPosition.value === 'ALL'
+    ? null
+    : selectedPosition.value
+  const versus = !value || value.value === 'ALL'
+    ? null
+    : value.id.toString()
+
+  await championStore.getChampionMatches(champion.value!.id, gamesAmount, lane, versus)
+  loadedGames.value = championMatches.value[champion.value!.id]
+})
 </script>
 
 <template>
   <v-container>
-    <Loader v-if="loading" />
+    <Loader v-if="loading || appLoading" />
 
-    <v-card v-else-if="!loading && !champion">
+    <v-card v-else-if="!champion">
       <v-card-title
         align="center"
         class="text-h5 my-4"
@@ -185,7 +191,7 @@ function againstAutocompleteFocusChange(value: boolean) {
       </v-card-title>
     </v-card>
 
-    <v-card v-else-if="!loading && champion">
+    <v-card v-else>
       <v-card-title>
         <v-row
           style="display: flex; justify-content: space-between; align-items: start"
@@ -252,18 +258,7 @@ function againstAutocompleteFocusChange(value: boolean) {
         </v-row>
       </v-card-title>
 
-      <Loader v-if="secondaryLoading" />
-
-      <v-card-text
-        v-else-if="!secondaryLoading && !championMatches[champion.id]?.length"
-        align="center"
-      >
-        <span class="text-h6">
-          {{ $t('champion.noMatches') }}
-        </span>
-      </v-card-text>
-
-      <v-card-text v-else-if="!secondaryLoading && championMatches[champion.id]?.length">
+      <v-card-text>
         <v-row class="mx-2 mt-0">
           <v-col cols="6">
             <v-select
@@ -276,26 +271,29 @@ function againstAutocompleteFocusChange(value: boolean) {
           <v-col cols="6">
             <v-autocomplete
               v-model="selectedEnemy"
-
               clearable
               auto-select-first
+              return-object
               :items="enemyItems"
               :label="$t('champion.enemy')"
-              @click:clear="selectedEnemy = 'ALL'"
-              @update:focused="againstAutocompleteFocusChange"
+              @click:clear="selectedEnemy.value = 'ALL'"
             />
           </v-col>
         </v-row>
 
         <v-divider />
 
+        <Loader v-if="secondaryLoading" />
+
         <v-infinite-scroll
+          v-if="championMatches[champion.id]?.length"
           :height="`${height - 435}px`"
-          empty-text=""
+          :empty-text="$t('champion.noMatches')"
+          mode="manual"
           @load="loadGames"
         >
           <template
-            v-for="game in filterGames"
+            v-for="game in loadedGames"
             :key="game.match.metadata.matchId"
           >
             <ProChampionHistory

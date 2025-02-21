@@ -5,6 +5,7 @@ import database.functions as db_functions
 import helpers.regions as regions
 import helpers.riot_api as riot_api
 import httpx
+import match.models as match_models
 
 from . import models
 
@@ -32,7 +33,11 @@ def get_champion_stats(champion_id: str) -> typing.Optional[typing.Dict[str, int
 
 
 def get_champion_matches(
-    champion_id: str, start_after: typing.Optional[str], limit: int
+    champion_id: str,
+    start_after: typing.Optional[str],
+    limit: int,
+    lane: typing.Optional[str],
+    versus: typing.Optional[str],
 ) -> typing.Optional[typing.List[models.ChampionHistory]]:
     collection = db.get_collection(f"champion_history/{champion_id}/matches")
 
@@ -45,16 +50,17 @@ def get_champion_matches(
         query = (
             collection.order_by("match.info.gameStartTimestamp", direction="DESCENDING")
             .start_after(start_after_match)
-            .limit(limit)
+            .limit(100)
         )
     else:
         query = collection.order_by(
             "match.info.gameStartTimestamp", direction="DESCENDING"
-        ).limit(limit)
+        ).limit(100)
 
     matches = [models.ChampionHistory(**match.to_dict()) for match in query.stream()]
+    matches = _apply_lane_and_versus_filter(matches, int(champion_id), lane, versus)
 
-    return matches
+    return matches[:limit] if matches else None
 
 
 def find_highest_playrate_role(champion_data: dict, champion_id: str) -> str:
@@ -120,3 +126,43 @@ async def get_champion_mastery(
         pass
 
     return []
+
+
+def _apply_lane_and_versus_filter(
+    matches: typing.List[models.ChampionHistory],
+    champion: int,
+    lane: typing.Optional[str],
+    versus: typing.Optional[str],
+) -> typing.List[models.ChampionHistory]:
+    def match_filters(
+        match: models.ChampionHistory, player: match_models.ParticipantStats
+    ):
+        if lane is not None and player.teamPosition != lane:
+            return False
+
+        if versus is not None:
+            if not (
+                next(
+                    (
+                        p
+                        for p in match.match.info.participants
+                        if p.championId == int(versus) and p.teamId != player.teamId
+                    ),
+                    None,
+                )
+            ):
+                return False
+
+        return True
+
+    return [
+        match
+        for match in matches
+        if (
+            player := next(
+                (p for p in match.match.info.participants if p.championId == champion),
+                None,
+            )
+        )
+        and match_filters(match, player)
+    ]

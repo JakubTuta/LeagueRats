@@ -1,16 +1,11 @@
 <script setup lang="ts">
+import adcIcon from '~/assets/roles/adc.png'
+import jngIcon from '~/assets/roles/jng.png'
+import midIcon from '~/assets/roles/mid.png'
+import supIcon from '~/assets/roles/sup.png'
+import topIcon from '~/assets/roles/top.png'
 import type { IMatchData } from '~/models/matchData'
 import type { IProPlayer } from '~/models/proPlayer'
-// @ts-expect-error correct path
-import topIcon from '~/assets/roles/top.png'
-// @ts-expect-error correct path
-import jngIcon from '~/assets/roles/jng.png'
-// @ts-expect-error correct path
-import midIcon from '~/assets/roles/mid.png'
-// @ts-expect-error correct path
-import adcIcon from '~/assets/roles/adc.png'
-// @ts-expect-error correct path
-import supIcon from '~/assets/roles/sup.png'
 
 const props = defineProps<{
   player: IProPlayer
@@ -39,7 +34,7 @@ const gamer = computed(() => match.value.info.participants.find(participant => p
 const isWin = computed(() => gamer.value.win)
 const keyRuneId = computed(() => (gamer.value.perks.styles.find(style => style.description === 'primaryStyle')!.selections[0].perk))
 const items = computed(() => [gamer.value.item0, gamer.value.item1, gamer.value.item2, gamer.value.item3, gamer.value.item4, gamer.value.item5].filter(item => item !== 0))
-const enemy = computed(() => match.value.info.participants.find(participant => participant.teamPosition === gamer.value.teamPosition && participant.puuid !== gamer.value.puuid)!)
+const enemy = computed(() => match.value.info.participants.find(participant => participant.teamPosition === gamer.value.teamPosition && participant.teamId !== gamer.value.teamId)!)
 
 const mappedChampions = computed(() => {
   return Object.entries(champions.value).map(([id, value]) => ({
