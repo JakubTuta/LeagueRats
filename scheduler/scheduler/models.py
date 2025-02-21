@@ -241,3 +241,12 @@ class ActiveMatch(pydantic.BaseModel):
                 return "FLEXQ"
             case _:
                 return "NORMAL"
+
+
+class ChampionHistory(pydantic.BaseModel):
+    player: ProPlayer
+    match: MatchHistory
+    enemy: typing.Optional[int] = None
+    lane: typing.Optional[
+        typing.Literal["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
+    ] = None

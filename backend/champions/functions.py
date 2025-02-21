@@ -44,21 +44,22 @@ def get_champion_matches(
     if collection is None:
         return None
 
+    query = collection.order_by("match.info.gameStartTimestamp", direction="DESCENDING")
+
     if start_after is not None and (
         (start_after_match := collection.document(start_after).get()).exists
     ):
-        query = (
-            collection.order_by("match.info.gameStartTimestamp", direction="DESCENDING")
-            .start_after(start_after_match)
-            .limit(100)
-        )
-    else:
-        query = collection.order_by(
-            "match.info.gameStartTimestamp", direction="DESCENDING"
-        ).limit(100)
+        query = query.start_after(start_after_match)
+
+    if lane is not None:
+        query = query.where("lane", "==", lane.upper())
+
+    if versus is not None:
+        query = query.where("enemy", "==", int(versus))
+
+    query = query.limit(limit)
 
     matches = [models.ChampionHistory(**match.to_dict()) for match in query.stream()]
-    matches = _apply_lane_and_versus_filter(matches, int(champion_id), lane, versus)
 
     return matches[:limit] if matches else None
 
@@ -126,43 +127,3 @@ async def get_champion_mastery(
         pass
 
     return []
-
-
-def _apply_lane_and_versus_filter(
-    matches: typing.List[models.ChampionHistory],
-    champion: int,
-    lane: typing.Optional[str],
-    versus: typing.Optional[str],
-) -> typing.List[models.ChampionHistory]:
-    def match_filters(
-        match: models.ChampionHistory, player: match_models.ParticipantStats
-    ):
-        if lane is not None and player.teamPosition != lane:
-            return False
-
-        if versus is not None:
-            if not (
-                next(
-                    (
-                        p
-                        for p in match.match.info.participants
-                        if p.championId == int(versus) and p.teamId != player.teamId
-                    ),
-                    None,
-                )
-            ):
-                return False
-
-        return True
-
-    return [
-        match
-        for match in matches
-        if (
-            player := next(
-                (p for p in match.match.info.participants if p.championId == champion),
-                None,
-            )
-        )
-        and match_filters(match, player)
-    ]
