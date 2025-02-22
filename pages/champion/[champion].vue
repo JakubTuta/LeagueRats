@@ -57,8 +57,6 @@ const sortedChampions = computed(() => {
     return []
   }
 
-  // console.log(champions.value)
-
   return Object.entries(champions.value).sort((a, b) => {
     return a[1].value.localeCompare(b[1].value, 'en', { sensitivity: 'base' })
   }).map(item => ({ id: item[0], title: item[1].title, value: item[1].value }))

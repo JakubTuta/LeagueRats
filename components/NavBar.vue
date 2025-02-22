@@ -136,12 +136,9 @@ const isExtension = computed(() => (mdAndDown.value
       ? 'rgba(50, 50, 50, 0.9)'
       : 'rgba(200, 200, 200, 0.9)'"
   >
-    <template
-      v-if="isExtension"
-      #extension
-    >
+    <template #extension>
       <v-row
-        v-if="!mdAndDown"
+        v-if="isExtension && !mdAndDown"
         no-gutters
         align="center"
         class="mt-6"

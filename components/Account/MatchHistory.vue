@@ -30,9 +30,15 @@ const matchStore = useMatchStore()
 
 const selectedTab = ref('SOLOQ')
 const loading = ref(false)
-const matchHistoryPerRegion = ref<Record<string, IMatchData[]>>({})
+const matchHistoryPerRegion = ref<Record<string, IMatchData[]>>({
+  SOLOQ: [] as IMatchData[],
+  FLEXQ: [] as IMatchData[],
+  NORMAL: [] as IMatchData[],
+  ARAM: [] as IMatchData[],
+})
 const canLoadMore = ref(true)
 const matchesLoading = ref(0)
+const loadedFirstBatch = ref(false)
 
 const matchAmount = 10
 
@@ -45,7 +51,7 @@ const tabs = computed(() => [
 
 watch(selectedTab, () => {
   getMatchHistory()
-}, { immediate: true })
+})
 
 watch(account, () => {
   getMatchHistory()
@@ -59,8 +65,9 @@ async function getMatchIds(count: number) {
 
   let lastLoadedMatchDate = new Date().getTime()
 
-  if (matchHistoryPerRegion.value[selectedTab.value]?.length)
-    lastLoadedMatchDate = matchHistoryPerRegion.value[selectedTab.value]?.[matchHistoryPerRegion.value[selectedTab.value]?.length - 1].info.gameStartTimestamp.seconds * 1000 || new Date().getTime()
+  const matches = matchHistoryPerRegion.value[selectedTab.value]
+  if (matches.length)
+    lastLoadedMatchDate = matches[matches.length - 1].info.gameStartTimestamp.seconds * 1000 || new Date().getTime()
 
   const optionalKeys = {
     count,
@@ -83,11 +90,13 @@ async function loadMatches(count: number = matchAmount) {
   matchIds.forEach(async (matchId, index) => {
     const matchData = await matchStore.getMatchData(matchId)
 
-    matchHistoryPerRegion.value[selectedTab.value].push(matchData)
+    if (matchData)
+      matchHistoryPerRegion.value[selectedTab.value].push(matchData)
     matchesLoading.value--
 
     if (index === matchIds.length - 1) {
       loading.value = false
+      loadedFirstBatch.value = true
     }
   })
 
@@ -100,16 +109,10 @@ function getMatchHistory() {
   if (!account.value || loading.value)
     return
 
-  if (!matchHistoryPerRegion.value[selectedTab.value])
-    matchHistoryPerRegion.value[selectedTab.value] = [] as IMatchData[]
-
   loadMatches()
 }
 
 const processedGames = computed(() => {
-  if (!matchHistoryPerRegion.value[selectedTab.value])
-    return []
-
   return matchHistoryPerRegion.value[selectedTab.value]
     .filter(match => match.info.participants.length && !match.info.participants[0].gameEndedInEarlySurrender)
     .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
@@ -196,7 +199,7 @@ const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc
   </v-tabs>
 
   <v-card
-    v-if="!loading && mapLastGames.length"
+    v-if="!loading && mapLastGames.length && loadedFirstBatch"
     class="my-2"
   >
     <v-card-title>
@@ -204,7 +207,9 @@ const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc
     </v-card-title>
 
     <v-card-text>
-      <v-row align="center">
+      <v-row
+        align="center"
+      >
         <v-col
           cols="12"
           sm="3"
@@ -246,7 +251,7 @@ const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc
                 size="50"
               >
                 <v-img
-                  :src="storageStore.getChampionIcon(champion.championId)"
+                  :src="storageStore.getChampionIcon(champion.championId) || ''"
                   lazy-src="~/assets/default.png"
                 />
               </v-avatar>
@@ -279,12 +284,14 @@ const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc
     :game="match"
   />
 
-  <v-skeleton-loader
-    v-for="n in matchesLoading"
-    :key="n"
-    class="my-4"
-    type="image"
-  />
+  <div v-if="matchesLoading > 0">
+    <v-skeleton-loader
+      v-for="n in matchesLoading"
+      :key="n"
+      class="my-4"
+      type="image"
+    />
+  </div>
 
   <v-row
     v-if="canLoadMore"
