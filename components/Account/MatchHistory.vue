@@ -118,10 +118,8 @@ const processedGames = computed(() => {
     .sort((a, b) => b.info.gameStartTimestamp.seconds - a.info.gameStartTimestamp.seconds)
 })
 
-const lastGames = computed(() => processedGames.value.slice(0, matchAmount) || [])
-
 const mapLastGames = computed(() => {
-  return lastGames.value
+  return processedGames.value
     .reduce((acc, game) => {
       const participant = game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))!
 
@@ -171,10 +169,10 @@ function getWinRatio(champion: IChampionHistory) {
   return (winRatio * 100).toFixed(0)
 }
 
-const lastGamesWins = computed(() => lastGames.value.reduce((acc, game) => acc + (game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win
+const lastGamesWins = computed(() => processedGames.value.reduce((acc, game) => acc + (game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win
   ? 1
   : 0), 0))
-const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc + (!game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win
+const lastGamesLosses = computed(() => processedGames.value.reduce((acc, game) => acc + (!game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))?.win
   ? 1
   : 0), 0))
 </script>
@@ -199,7 +197,7 @@ const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc
   </v-tabs>
 
   <v-card
-    v-if="!loading && mapLastGames.length && loadedFirstBatch"
+    v-if="mapLastGames.length && loadedFirstBatch"
     class="my-2"
   >
     <v-card-title>
@@ -277,7 +275,7 @@ const lastGamesLosses = computed(() => lastGames.value.reduce((acc, game) => acc
   <v-spacer class="my-4" />
 
   <AccountGameData
-    v-for="match in matchHistoryPerRegion[selectedTab]"
+    v-for="match in processedGames"
     :key="match.metadata.matchId"
     class="mt-4"
     :account="account"
