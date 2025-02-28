@@ -135,6 +135,7 @@ const isExtension = computed(() => (mdAndDown.value
     :color="isDark
       ? 'rgba(50, 50, 50, 0.9)'
       : 'rgba(200, 200, 200, 0.9)'"
+      :extended="isExtension"
   >
     <template #extension>
       <v-row
