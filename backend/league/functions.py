@@ -11,13 +11,13 @@ from . import models
 async def get_league_entries(
     client: httpx.AsyncClient,
     region: str,
-    encrypted_summoner_id: str,
+    puuid: str,
 ) -> typing.List[models.LeagueEntry]:
     if (row_regions := regions.get_region(region)) is None:
         return []
 
     request_region = row_regions[1].lower()
-    request_url = f"https://{request_region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{encrypted_summoner_id}"
+    request_url = f"https://{request_region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}"
 
     try:
         response = await client.get(request_url, headers=riot_api.get_headers())

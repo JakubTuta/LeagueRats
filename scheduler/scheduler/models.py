@@ -11,10 +11,6 @@ class Account(pydantic.BaseModel):
     tagLine: str
     puuid: str
     region: str
-    accountId: str
-    id: str
-    profileIconId: int
-    summonerLevel: int
 
 
 # League models
@@ -106,7 +102,6 @@ class ParticipantStats(pydantic.BaseModel):
     riotIdTagline: str
     summoner1Id: int
     summoner2Id: int
-    summonerId: str
     summonerName: str
     teamId: int
     teamPosition: typing.Literal["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY", ""]
@@ -188,7 +183,6 @@ class Participant(pydantic.BaseModel):
     championId: int
     perks: Perks
     teamId: int
-    summonerId: str
     riotId: str
     gameName: str = ""
     tagLine: str = ""

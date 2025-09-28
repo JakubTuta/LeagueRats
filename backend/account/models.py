@@ -6,7 +6,3 @@ class Account(pydantic.BaseModel):
     tagLine: str
     puuid: str
     region: str
-    accountId: str
-    id: str
-    profileIconId: int
-    summonerLevel: int

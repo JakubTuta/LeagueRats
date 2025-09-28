@@ -1,9 +1,8 @@
 <script setup lang="ts">
-// @ts-expect-error correct path
-import bannedDefault from '~/assets/banned_default.png'
-import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
-import type { IAccount } from '~/models/account'
-import type { IActiveGame, IParticipant } from '~/models/activeGame'
+import bannedDefault from '~/assets/banned_default.png';
+import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions';
+import type { IAccount } from '~/models/account';
+import type { IActiveGame, IParticipant } from '~/models/activeGame';
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null
@@ -141,7 +140,7 @@ watch(game, (newGame) => {
               <template #prepend>
                 <v-img
                   class="mr-4"
-                  :src="storageStore.getChampionIcon(participant.championId)"
+                  :src="storageStore.getChampionIcon(participant.championId) || undefined"
                   lazy-src="~/assets/default.png"
                   width="45"
                 />
@@ -230,7 +229,7 @@ watch(game, (newGame) => {
               <v-img
                 :src="bannedChampion.championId === -1
                   ? bannedDefault
-                  : storageStore.getChampionIcon(bannedChampion.championId)"
+                  : storageStore.getChampionIcon(bannedChampion.championId) || undefined"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>

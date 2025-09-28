@@ -5,7 +5,7 @@ import { lengthRule } from '~/helpers/rules'
 
 const router = useRouter()
 const route = useRoute()
-const { mdAndDown, width, mobile } = useDisplay()
+const { width, mobile } = useDisplay()
 const { t } = useI18n()
 
 const accountStore = useAccountStore()
@@ -16,7 +16,6 @@ const tagLine = ref<string | null>(null)
 const region = ref('EUW')
 const gameNameError = ref('')
 const tagLineError = ref('')
-// const isShowSettings = ref(false)
 const selectedTab = ref<string | null>(null)
 
 const themeStore = useThemeStore()
@@ -27,10 +26,6 @@ const tabs = computed(() => [
     title: t('navbar.proPlayers'),
     to: '/pro-players',
   },
-  // {
-  //   title: 'Worlds 24',
-  //   to: '/worlds-24',
-  // },
   {
     title: t('navbar.streams'),
     to: '/streams',
@@ -115,13 +110,21 @@ async function sendToUserView() {
   loading.value = false
 }
 
-const isExtension = computed(() => (mdAndDown.value
-  ? true
-  : route.path !== '/'))
+const isMainPage = computed(() => route.path === '/')
 
-// function toggleSettings() {
-//   isShowSettings.value = !isShowSettings.value
-// }
+const isExtension = computed(() => {
+  if (mobile.value) {
+    return true
+  }
+
+  return !isMainPage.value
+})
+
+const extensionHeight = computed(() => {
+  return isExtension.value
+    ? 60
+    : 0
+})
 </script>
 
 <template>
@@ -131,15 +134,15 @@ const isExtension = computed(() => (mdAndDown.value
       : width - 35}px;`"
     rounded="xl"
     flat
-    extension-height="60"
+    :extension-height="extensionHeight"
     :color="isDark
       ? 'rgba(50, 50, 50, 0.9)'
       : 'rgba(200, 200, 200, 0.9)'"
-      :extended="isExtension"
+    :extended="isExtension"
   >
     <template #extension>
       <v-row
-        v-if="isExtension && !mdAndDown"
+        v-if="!isMainPage && isExtension && !mobile"
         no-gutters
         align="center"
         class="mt-6"
@@ -209,10 +212,10 @@ const isExtension = computed(() => (mdAndDown.value
       </v-row>
 
       <v-tabs
-        v-else
+        v-if="mobile"
         v-model="selectedTab"
         :mandatory="false"
-        grow
+        show-arrows
         color="primary"
       >
         <v-tab
@@ -252,7 +255,7 @@ const isExtension = computed(() => (mdAndDown.value
     </span>
 
     <v-tabs
-      v-if="!mdAndDown"
+      v-if="!mobile"
       v-model="selectedTab"
       :mandatory="false"
       height="50px"
@@ -269,26 +272,5 @@ const isExtension = computed(() => (mdAndDown.value
         {{ tab.title }}
       </v-tab>
     </v-tabs>
-
-    <!--
-      <template #append>
-      <v-btn
-      icon
-      class="mr-2"
-      @click="toggleSettings"
-      >
-      <v-icon
-      icon="mdi-cog-outline"
-      />
-      </v-btn>
-      </template>
-    -->
   </v-app-bar>
-
-  <!--
-    <SettingsDialog
-    :is-show="isShowSettings"
-    @close="toggleSettings"
-    />
-  -->
 </template>

@@ -241,7 +241,7 @@ function findChampionFromId(championId: number) {
               class="mx-auto"
             >
               <v-img
-                :src="storageStore.getPlayerImage(player.player)"
+                :src="storageStore.getPlayerImage(player.player) || undefined"
                 lazy-src="~assets/default.png"
               />
             </v-avatar>
@@ -365,7 +365,7 @@ function findChampionFromId(championId: number) {
       >
         <v-avatar size="50">
           <v-img
-            :src="storageStore.getChampionIcon(gamer.championId)"
+            :src="storageStore.getChampionIcon(gamer.championId) || undefined"
             lazy-src="~assets/default.png"
           />
         </v-avatar>
@@ -381,7 +381,7 @@ function findChampionFromId(championId: number) {
         >
           <v-avatar size="50">
             <v-img
-              :src="storageStore.getChampionIcon(enemy.championId)"
+              :src="storageStore.getChampionIcon(enemy.championId) || undefined"
               lazy-src="~assets/default.png"
             />
           </v-avatar>

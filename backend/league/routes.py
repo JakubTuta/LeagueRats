@@ -26,7 +26,7 @@ async def get_league_entries(
         raise fastapi.HTTPException(status_code=404, detail="Account not found")
 
     league_entries = await functions.get_league_entries(
-        httpx_client, account.region, account.id
+        client=httpx_client, region=account.region, puuid=puuid
     )
 
     return league_entries

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
-// @ts-expect-error correct path
 import logo from '~/assets/logo.png'
 import { selectRegions } from '~/helpers/regions'
 import { lengthRule } from '~/helpers/rules'
@@ -297,10 +296,18 @@ function sendToUserView() {
                   class="mb-2"
                   :to="item.raw.isChampion
                     ? `/champion/${item.raw.value.toLowerCase()}`
-                    : `/player/${item.raw.team}/${item.raw.player}`"
+                    : `/player/${'team' in item.raw
+                      ? item.raw.team
+                      : ''}/${'player' in item.raw
+                      ? item.raw.player
+                      : ''}`"
                   :prepend-avatar="item.raw.isChampion
-                    ? storageStore.getChampionIcon(item.raw.id)
-                    : storageStore.getPlayerImage(item.raw.player)"
+                    ? storageStore.getChampionIcon('id' in item.raw
+                      ? item.raw.id
+                      : '') || undefined
+                    : storageStore.getPlayerImage('player' in item.raw
+                      ? item.raw.player
+                      : '') || undefined"
                 >
                   {{ item.raw.title }}
                 </v-list-item>

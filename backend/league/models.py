@@ -3,7 +3,6 @@ import pydantic
 
 class LeagueEntry(pydantic.BaseModel):
     leagueId: str
-    summonerId: str
     queueType: str
     tier: str
     rank: str
@@ -14,6 +13,7 @@ class LeagueEntry(pydantic.BaseModel):
     veteran: bool
     freshBlood: bool
     inactive: bool
+    puuid: str
 
 
 class LeaderboardEntry(pydantic.BaseModel):

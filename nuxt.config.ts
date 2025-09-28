@@ -48,7 +48,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      APP_VERSION: process.env.npm_package_version,
+      server_url: process.env.SERVER_URL || 'http://localhost:8000',
       apiKey: process.env.API_KEY,
       authDomain: process.env.AUTH_DOMAIN,
       projectId: process.env.PROJECT_ID,

@@ -20,7 +20,6 @@ async def get_account(
     region: typing.Optional[str] = None,
     username: typing.Optional[str] = None,
     tag: typing.Optional[str] = None,
-    summoner_id: typing.Optional[str] = None,
     puuid: typing.Optional[str] = None,
     save_account: bool = False,
 ) -> typing.Optional[models.Account]:
@@ -28,7 +27,6 @@ async def get_account(
         region=region,
         username=username,
         tag=tag,
-        summoner_id=summoner_id,
         puuid=puuid,
     ):
         return account
@@ -53,7 +51,6 @@ def get_account_from_database(
     region: typing.Optional[str] = None,
     username: typing.Optional[str] = None,
     tag: typing.Optional[str] = None,
-    summoner_id: typing.Optional[str] = None,
     puuid: typing.Optional[str] = None,
 ) -> typing.Optional[models.Account]:
     collection = database.get_collection("accounts")
@@ -63,13 +60,6 @@ def get_account_from_database(
 
     if puuid is not None:
         account_doc = collection.document(puuid).get()
-
-    elif summoner_id is not None:
-        docs = collection.where(
-            filter=FieldFilter("summoner_id", "==", summoner_id)
-        ).get()
-
-        account_doc = docs[0] if len(docs) else None
 
     elif username is not None and tag is not None and region is not None:
         docs = (
@@ -96,10 +86,6 @@ def get_account_from_database(
         "tagLine": account_data.get("tagLine", ""),
         "puuid": account_data.get("puuid", ""),
         "region": account_data.get("region", ""),
-        "accountId": account_data.get("accountId", ""),
-        "id": account_data.get("id", ""),
-        "profileIconId": account_data.get("profileIconId", ""),
-        "summonerLevel": account_data.get("summonerLevel", ""),
     }
     model = models.Account(**model_data)
 
@@ -124,22 +110,11 @@ async def get_account_from_api(
     ) is None:
         return None
 
-    if (
-        summoner_details := await _get_summoner_details(
-            client, region, account_details.get("puuid", "")
-        )
-    ) is None:
-        return None
-
     model_data = {
         "gameName": account_details.get("gameName"),
         "tagLine": account_details.get("tagLine"),
         "puuid": account_details.get("puuid"),
         "region": region,
-        "accountId": summoner_details.get("accountId"),
-        "id": summoner_details.get("id"),
-        "profileIconId": summoner_details.get("profileIconId"),
-        "summonerLevel": summoner_details.get("summonerLevel"),
     }
 
     model = models.Account(**model_data)
@@ -171,27 +146,6 @@ async def _get_account_details(
 
     else:
         return None
-
-    try:
-        response = await client.get(request_url, headers=riot_api.get_headers())
-
-        if response.status_code == 200:
-            return response.json()
-
-    except:
-        pass
-
-
-async def _get_summoner_details(
-    client: httpx.AsyncClient,
-    region: str,
-    puuid: str,
-) -> typing.Optional[typing.Dict[str, str]]:
-    if (row_regions := regions.get_region(region)) is None:
-        return None
-
-    request_region = row_regions[1].lower()
-    request_url = f"https://{request_region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
 
     try:
         response = await client.get(request_url, headers=riot_api.get_headers())
@@ -629,7 +583,7 @@ async def _update_leaderboard_for_region(region):
     for index, entry in enumerate(entries, start=1):
         if (
             account := await get_account(
-                httpx_client, summoner_id=entry["summonerId"], save_account=True
+                httpx_client, puuid=entry["puuid"], save_account=True
             )
         ) is None:
             return

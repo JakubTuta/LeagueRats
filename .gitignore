@@ -30,3 +30,5 @@ pnpm-lock.yaml
 .vscode/
 serviceAccount.json
 *praison*
+*lock*
+*.lock

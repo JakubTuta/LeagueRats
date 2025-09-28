@@ -82,7 +82,6 @@ export interface IParticipantStats {
   riotIdTagline: string
   summoner1Id: number
   summoner2Id: number
-  summonerId: string
   summonerName: string
   teamId: number
   teamPosition: 'TOP' | 'JUNGLE' | 'MIDDLE' | 'BOTTOM' | 'UTILITY'
@@ -158,7 +157,6 @@ export function mapMatchData(data: any): IMatchData {
         riotIdTagline: participant?.riotIdTagline || '',
         summoner1Id: participant?.summoner1Id || 0,
         summoner2Id: participant?.summoner2Id || 0,
-        summonerId: participant?.summonerId || '',
         summonerName: participant?.summonerName || '',
         teamId: participant?.teamId || 0,
         teamPosition: participant?.teamPosition || '',

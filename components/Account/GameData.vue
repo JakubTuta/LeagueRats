@@ -320,7 +320,7 @@ function findSecondaryRuneTree() {
                 size="60"
               >
                 <v-img
-                  :src="storageStore.getChampionIcon(gamer.championId)"
+                  :src="storageStore.getChampionIcon(gamer.championId) || undefined"
                   lazy-src="~/assets/default.png"
                 />
               </v-avatar>
@@ -506,7 +506,7 @@ function findSecondaryRuneTree() {
                       class="mr-1"
                     >
                       <v-img
-                        :src="storageStore.getChampionIcon(participant.championId)"
+                        :src="storageStore.getChampionIcon(participant.championId) || undefined"
                         lazy-src="~/assets/default.png"
                       />
                     </v-avatar>

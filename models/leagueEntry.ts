@@ -1,8 +1,8 @@
 import type { DocumentData } from 'firebase/firestore'
 
 export interface ILeagueEntry {
+  puuid: string
   leagueId: string
-  summonerId: string
   queueType: string
   tier: string
   rank: string
@@ -23,8 +23,8 @@ export interface ILeagueEntry {
 
 export function mapLeagueEntry(data: ILeagueEntry | DocumentData): ILeagueEntry {
   return {
+    puuid: data.puuid,
     leagueId: data.leagueId,
-    summonerId: data.summonerId,
     queueType: data.queueType,
     tier: data.tier,
     rank: data.rank,

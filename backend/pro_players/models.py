@@ -15,7 +15,6 @@ class ProPlayer(pydantic.BaseModel):
 class BootcampAccount(pydantic.BaseModel):
     # LeagueEntry
     leagueId: str
-    summonerId: str
     queueType: str
     tier: str
     rank: str
@@ -33,8 +32,6 @@ class BootcampAccount(pydantic.BaseModel):
     tagLine: str
     puuid: str
     region: str
-    accountId: str
-    id: str
 
 
 class ChampionStats(pydantic.BaseModel):

@@ -13,7 +13,6 @@ export interface IParticipant {
   championId: number
   perks: IPerks
   teamId: number
-  summonerId: string
   riotId: string
   gameName: string
   tagLine: string

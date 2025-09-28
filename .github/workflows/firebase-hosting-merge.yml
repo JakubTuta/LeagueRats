@@ -12,7 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          echo "API_KEY=${{ secrets.API_KEY }}" > .env
+          echo "SERVER_URL=https://league-rats-server-268364642393.europe-central2.run.app" > .env
+          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
           echo "AUTH_DOMAIN=${{ secrets.AUTH_DOMAIN }}" >> .env
           echo "PROJECT_ID=${{ secrets.PROJECT_ID }}" >> .env
           echo "STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }}" >> .env

@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
-// @ts-expect-error correct path
-import topIcon from '~/assets/roles/top.png'
-// @ts-expect-error correct path
-import jngIcon from '~/assets/roles/jng.png'
-// @ts-expect-error correct path
-import midIcon from '~/assets/roles/mid.png'
-// @ts-expect-error correct path
 import adcIcon from '~/assets/roles/adc.png'
-// @ts-expect-error correct path
+import jngIcon from '~/assets/roles/jng.png'
+import midIcon from '~/assets/roles/mid.png'
 import supIcon from '~/assets/roles/sup.png'
+import topIcon from '~/assets/roles/top.png'
 import { mapKDAToColor } from '~/helpers/kdaColors'
 import { regionColors } from '~/helpers/regionColors'
 import { teamPerRegion } from '~/helpers/regions'
@@ -79,7 +74,7 @@ onMounted(async () => {
   const leagueEntries = (await Promise.all(leagueEntryPromises)).filter(entry => entry !== null) as ILeagueEntry[]
 
   proAccounts.value = accounts.map((account) => {
-    const leagueEntry = leagueEntries.flat().find(e => e.queueType === 'RANKED_SOLO_5x5' && e.summonerId === account.id) || null
+    const leagueEntry = leagueEntries.flat().find(e => e.queueType === 'RANKED_SOLO_5x5' && e.puuid === account.puuid) || null
 
     return { account, leagueEntry }
   }).sort((a, b) => calculateTotalLP(b.leagueEntry) - calculateTotalLP(a.leagueEntry))
@@ -260,7 +255,7 @@ function findRegionForTeam(team: string) {
           <p class="my-4">
             <v-avatar size="150">
               <v-img
-                :src="storageStore.getPlayerImage(player.player)"
+                :src="storageStore.getPlayerImage(player.player) || undefined"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>
@@ -344,7 +339,7 @@ function findRegionForTeam(team: string) {
                         size="70"
                       >
                         <v-img
-                          :src="storageStore.getRankIcon(account.leagueEntry.tier)"
+                          :src="storageStore.getRankIcon(account.leagueEntry.tier) || undefined"
                           lazy-src="~/assets/default.png"
                         />
                       </v-avatar>
@@ -404,7 +399,7 @@ function findRegionForTeam(team: string) {
                       size="45"
                     >
                       <v-img
-                        :src="storageStore.getChampionIcon(champion.championId)"
+                        :src="storageStore.getChampionIcon(champion.championId) || undefined"
                         lazy-src="~/assets/default.png"
                       />
                     </v-avatar>

@@ -20,7 +20,6 @@ class Participant(pydantic.BaseModel):
     championId: int
     perks: Perks
     teamId: int
-    summonerId: str
     riotId: str
     gameName: str = ""
     tagLine: str = ""
@@ -135,7 +134,6 @@ class ParticipantStats(pydantic.BaseModel):
     riotIdTagline: str
     summoner1Id: int
     summoner2Id: int
-    summonerId: str
     summonerName: str
     teamId: int
     teamPosition: typing.Literal["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY", ""]
