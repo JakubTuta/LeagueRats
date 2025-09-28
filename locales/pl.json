@@ -94,7 +94,7 @@
       "noChampions": "Nie znaleziono postaci"
     },
     "search": {
-      "title": "Nie znaleziono {username} #{tag}}",
+      "title": "Nie znaleziono {username} #{tag}",
       "subtitle1": "Sprawdź czy poprawnie wpisałeś nazwę użytkownika i tag",
       "subtitle2": "Znajdź konto w innym regionie"
     }
