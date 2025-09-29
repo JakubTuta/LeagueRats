@@ -674,17 +674,18 @@ async def _update_champion_history_for_team(client, region, team):
             matches = await get_ranked_matches_from_period(client, account, 1)
 
             for match in matches:
-                player = next(
+                player_participant = next(
                     (p for p in match.info.participants if p.puuid == puuid), None
                 )
-                if not player:
+                if not player_participant:
                     continue
 
                 enemy = next(
                     (
                         p
                         for p in match.info.participants
-                        if p.teamPosition == player.teamPosition and p.puuid != puuid
+                        if p.teamPosition == player_participant.teamPosition
+                        and p.puuid != puuid
                     ),
                     None,
                 )
@@ -693,18 +694,20 @@ async def _update_champion_history_for_team(client, region, team):
                     "player": player.model_dump(),
                     "match": match.model_dump(),
                     "enemy": enemy.championId if enemy else None,
-                    "lane": player.teamPosition,
+                    "lane": player_participant.teamPosition,
                 }
 
-                if player.championId not in champion_history:
-                    champion_history[player.championId] = {
+                if player_participant.championId not in champion_history:
+                    champion_history[player_participant.championId] = {
                         "stats": {"games": 0, "wins": 0, "losses": 0},
                         "matches": [],
                     }
 
-                stats = champion_history[player.championId]["stats"]
+                stats = champion_history[player_participant.championId]["stats"]
                 stats["games"] += 1
-                stats["wins" if player.win else "losses"] += 1
-                champion_history[player.championId]["matches"].append(match_data)
+                stats["wins" if player_participant.win else "losses"] += 1
+                champion_history[player_participant.championId]["matches"].append(
+                    match_data
+                )
 
     return champion_history
