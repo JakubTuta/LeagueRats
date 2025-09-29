@@ -65,7 +65,7 @@ async def update_leaderboard():
 # LIVE STREAMS
 
 
-@scheduler.scheduled_job("interval", minutes=15)
+@scheduler.scheduled_job("interval", minutes=10)
 async def update_live_streams():
     await functions.update_live_streams()
 
@@ -73,7 +73,7 @@ async def update_live_streams():
 # ACTIVE GAMES
 
 
-@scheduler.scheduled_job("interval", minutes=15)
+@scheduler.scheduled_job("interval", minutes=10)
 async def update_active_games():
     await functions.update_active_games()
 

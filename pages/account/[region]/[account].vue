@@ -196,7 +196,7 @@ async function findChampions() {
         >
           <v-avatar size="100">
             <v-img
-              :src="storageStore.getPlayerImage(proPlayer.player)"
+              :src="storageStore.getPlayerImage(proPlayer.player) || undefined"
               lazy-src="~/assets/default.png"
             />
           </v-avatar>

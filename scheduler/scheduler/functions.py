@@ -428,7 +428,7 @@ async def update_active_games():
     db_functions.clear_collection("active_pro_games")
     for game in active_games:
         db_functions.add_or_update_document(
-            "active_pro_games", game, document_id=game.metadata.matchId
+            "active_pro_games", game.model_dump(), document_id=str(game.gameId)
         )
 
     await client.aclose()
@@ -589,8 +589,13 @@ async def _update_leaderboard_for_region(region):
             return
 
         model = models.LeaderboardEntry(
-            **account.model_dump(),
+            gameName=account.gameName,
+            tagLine=account.tagLine,
+            puuid=account.puuid,
             rank=index,
+            leaguePoints=entry["leaguePoints"],
+            wins=entry["wins"],
+            losses=entry["losses"],
             league="CHALLENGER",
         )
         leaderboard_accounts.append(model)
@@ -640,16 +645,15 @@ async def _check_if_channel_is_live(client: httpx.AsyncClient, channel):
     return "isLiveBroadcast" in contents
 
 
-async def _get_active_games_for_team(client, team, region):
+async def _get_active_games_for_team(
+    client, team, region
+) -> typing.List[models.ActiveMatch]:
     active_games = []
 
     player_docs = db_functions.get_pro_team_documents(region, team)
 
     for player in player_docs:
         for puuid in player.puuid:
-            if (account := get_account_from_database(puuid=puuid)) is None:
-                continue
-
             if (active_match := await get_active_match(client, puuid)) is None:
                 continue
 

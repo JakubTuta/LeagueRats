@@ -67,13 +67,13 @@ const headers = computed(() => [
     title: 'LP',
     key: 'leaguePoints',
     value: 'leaguePoints',
-    align: 'center',
+    align: 'center' as const,
   },
   {
     title: t('bootcamp.totalGames'),
     key: 'totalGames',
     value: 'totalGames',
-    align: 'center',
+    align: 'center' as const,
     sortRaw: (a: any, b: any) => {
       return (a.wins + a.losses) - (b.wins + b.losses)
     },
@@ -82,19 +82,19 @@ const headers = computed(() => [
     title: t('bootcamp.wins'),
     key: 'wins',
     value: 'wins',
-    align: 'center',
+    align: 'center' as const,
   },
   {
     title: t('bootcamp.losses'),
     key: 'losses',
     value: 'losses',
-    align: 'center',
+    align: 'center' as const,
   },
   {
     title: t('bootcamp.winRate'),
     key: 'winRate',
     value: 'winRate',
-    align: 'center',
+    align: 'center' as const,
     sortRaw: (a: any, b: any) => {
       return a.wins / (a.wins + a.losses) - b.wins / (b.wins + b.losses)
     },
