@@ -370,8 +370,6 @@ async def update_player_game_names():
         for player_name, details in player_names.items()
     }
 
-    print(player_game_names_dict)
-
     db_functions.add_or_update_document(
         "pro_players", player_game_names_dict, document_id="account_names"
     )
@@ -662,7 +660,6 @@ async def _get_active_games_for_team(
     for player in player_docs:
         for puuid in player.puuid:
             if (active_match := await get_active_match(client, puuid)) is None:
-                print(f"No active match for {player.player} ({puuid})")
                 continue
 
             active_games.append(active_match)
