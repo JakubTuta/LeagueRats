@@ -370,6 +370,8 @@ async def update_player_game_names():
         for player_name, details in player_names.items()
     }
 
+    print(player_game_names_dict)
+
     db_functions.add_or_update_document(
         "pro_players", player_game_names_dict, document_id="account_names"
     )
@@ -410,10 +412,15 @@ async def update_active_games():
     teams = (
         ("G2", "LEC"),
         ("FNC", "LEC"),
+        ("KOI", "LEC"),
+        ("KC", "LEC"),
         ("T1", "LCK"),
         ("GENG", "LCK"),
+        ("HLE", "LCK"),
+        ("DK", "LCK"),
         ("BLG", "LPL"),
         ("IG", "LPL"),
+        ("FLY", "LCS"),
         ("C9", "LCS"),
         ("TL", "LCS"),
     )
@@ -580,19 +587,19 @@ async def _update_leaderboard_for_region(region):
     entries = response.json()["entries"]
     leaderboard_accounts = []
 
-    for index, entry in enumerate(entries, start=1):
+    for index, entry in enumerate(entries):
         if (
             account := await get_account(
                 httpx_client, puuid=entry["puuid"], save_account=True
             )
         ) is None:
-            return
+            continue
 
         model = models.LeaderboardEntry(
             gameName=account.gameName,
             tagLine=account.tagLine,
             puuid=account.puuid,
-            rank=index,
+            rank=index + 1,
             leaguePoints=entry["leaguePoints"],
             wins=entry["wins"],
             losses=entry["losses"],
@@ -655,6 +662,7 @@ async def _get_active_games_for_team(
     for player in player_docs:
         for puuid in player.puuid:
             if (active_match := await get_active_match(client, puuid)) is None:
+                print(f"No active match for {player.player} ({puuid})")
                 continue
 
             active_games.append(active_match)
