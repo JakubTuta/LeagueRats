@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ILeagueEntry } from '~/models/leagueEntry'
+import type { ILeagueEntry } from '~/models/leagueEntry';
 
 const props = defineProps<{
   leagueEntries: ILeagueEntry[]
@@ -112,7 +112,7 @@ const items = computed(() => [
               size="80"
             >
               <v-img
-                :src="storageStore.getRankIcon(entry.tier)"
+                :src="storageStore.getRankIcon(entry.tier) || undefined"
                 lazy-src="~/assets/default.png"
               />
             </v-avatar>

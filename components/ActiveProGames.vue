@@ -189,7 +189,7 @@ function getPlayerStream(player: IProPlayer) {
                     >
                       <v-img
                         lazy-src="~/assets/default.png"
-                        :src="storageStore.getPlayerImage(game.player.player)"
+                        :src="storageStore.getPlayerImage(game.player.player) || undefined"
                       />
                     </v-avatar>
 
@@ -204,7 +204,7 @@ function getPlayerStream(player: IProPlayer) {
                     >
                       <v-img
                         lazy-src="~/assets/default.png"
-                        :src="storageStore.getChampionIcon(game.participant.championId)"
+                        :src="storageStore.getChampionIcon(game.participant.championId) || undefined"
                       />
                     </v-avatar>
                   </div>

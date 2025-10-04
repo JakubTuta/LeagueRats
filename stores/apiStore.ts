@@ -42,7 +42,7 @@ export const useApiStore = defineStore('api', () => {
     }
 
     catch (error: any) {
-      // console.error(error)
+      console.error(error)
     }
 
     return response

@@ -1,0 +1,225 @@
+/riot/account/v1/accounts/by-puuid/{puuid}
+OPIS: zwraca najważniejsze informacje o koncie, takie jak nazwa użytkownika, tag oraz unikalne PUUID
+UŻYCIE W APLIKACJI:
+- sprawdzenie czy gracz zmienił nick (puuid jest zawsze stałe, ale gameName i tagLine mogą się różnić)
+PATH PARAMS:
+- puuid: string
+RESPONSE:
+- puuid: string
+- gameName: string
+- tagLine: string
+
+
+/riot/account/v1/accounts/by-riot-id/{username}/{tag}
+OPIS: zwraca najważniejsze informacje o koncie, takie jak nazwa użytkownika, tag oraz unikalne PUUID
+UŻYCIE W APLIKACJI:
+- podstawowe wyszukiwanie konta
+- pozyskanie puuid, który jest podstawowym polem większości zapytań
+PATH PARAMS:
+- puuid: string
+RESPONSE:
+- puuid: string
+- gameName: string
+- tagLine: string
+
+
+/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}
+OPIS: zwraca pełną listę postaci zagranych przez użytkownika razem z poziomem i punktami maestrii, czyli poziomem opanowania postaci przez gracza
+UŻYCIE W APLIKACJI:
+- podanie dodatkowych informacji o koncie
+PATH PARAMS:
+- puuid: string
+RESPONSE:
+- championId: int
+- championLevel: int
+- championPoints: int
+
+
+/lol/league/v4/entries/by-puuid/{puuid}
+OPIS: zwraca informacje o lidze i dywizji gracza, jego pozycji w lidze oraz ilość zwycięstw i porażek
+UŻYCIE W APLIKACJI:
+- podstawowa informacja o koncie, na podstawie której można poznać swoją pozycję w drabince w porównaniu do innych graczy
+PATH PARAMS:
+- puuid: string
+RESPONSE:
+- puuid: string
+- leagueId: string
+- queueType: string
+- tier: string
+- rank: string
+- leaguePoints: int
+- wins: int
+- loses: int
+
+
+/lol/league/v4/challengerleagues/by-queue/{queue_id}
+OPIS: zwraca informacje o wszystkich graczach w najwyższej możliwej lidze, czyli pretendencie (challanger)
+UŻYCIE W APLIKACJI:
+- przygotowanie tabeli z najlepszymi graczami w regionie
+PATH PARAMS:
+- queue_id: string
+RESPONSE:
+- gameName: string
+- tagLine: string
+- puuid: string
+- rank: int
+- leaguePoints: int
+- wins: int
+- losses: int
+- league: string
+
+
+/lol/match/v5/matches/by-puuid/{puuid}/ids
+OPIS: zwraca id meczów rozegranych przez gracza
+UŻYCIE W PROJEKCIE:
+- podstawowa i najważniejsza funkcjonalność konta gracza, dzięki której może zobaczyć swoją historię rozgrywek
+PATH PARAMS:
+- puuid: string
+QUERY PARAMS:
+- startTime: int
+- endTime: int
+- queue: int
+- type: string
+- start: int
+- count: int
+RESPONSE:
+- ids: list[string]
+
+
+/lol/match/v5/matches/{match_id}
+OPIS: zwraca wszystkie informacje o pojedynczej grze
+UŻYCIE W PROJEKCIE:
+- podstawowa i najważniejsza funkcjonalność konta gracza, dzięki której może zobaczyć szczegóły poszczególnej rozgrywki
+PATH PARAMS:
+- match_id: string
+RESPONSE:
+- gameDuration: int
+- gameMode: string
+- gameStartTimestamp: int
+- gameType: string
+- gameVersion: string
+- mapId: int
+- participants: [
+    kills: int
+    assists: int
+    deaths: int
+    champLevel: int
+    championId: int
+    championName: string
+    goldEarned: int
+    damageDealtToBuildings: int
+    item0: int
+    item1: int
+    item2: int
+    item3: int
+    item4: int
+    item5: int
+    item6: int
+    physicalDamageDealtToChampions: int
+    physicalDamageTaken: int
+    magicDamageDealtToChampions: int
+    magicDamageTaken: int
+    trueDamageDealtToChampions: int
+    trueDamageTaken: int
+    neutralMinionsKilled: int
+    totalMinionsKilled: int
+    participantId: int
+    perks: {
+        statPerks: {
+            defense: int
+            flex: int
+            offense: int
+        }
+        styles: [
+            description: string
+            style: int
+            selections: [
+                perk: int
+                var1: int
+                var2: int
+                var3: int
+            ]
+        ]
+    }
+    puuid: string
+    riotIdGameName: string
+    riotIdTagline: string
+    summoner1Id: int
+    summoner2Id: int
+    summonerName: string
+    teamId: int
+    teamPosition: string
+    totalHealsOnTeammates: int
+    visionScore: int
+    win: bool
+    gameEndedInEarlySurrender: bool
+    doubleKills: int
+    tripleKills: int
+    quadraKills: int
+    pentaKills: int
+]
+- platformId: str
+- queueId: int
+- teams: [
+    bans: [
+        championId: int
+        pickTurn: int
+    ]
+    objectives: {
+        baron: {
+            first: bool
+            kills: int
+        }
+        champion: {
+            first: bool
+            kills: int
+        }
+        dragon: {
+            first: bool
+            kills: int
+        }
+        tower: {
+            first: bool
+            kills: int
+        }
+    }
+    teamId: int
+    win: bool
+]
+
+
+/lol/spectator/v5/active-games/by-summoner/{puuid}
+OPIS: zwraca statystyki obecnej gry, jeżeli taka istnieje
+UŻYCIE W APLIKACJI:
+- sprawdzenie czy profesjonalni gracze grają obecnie grę, którą można podejrzeć
+PATH PARAMS:
+- puuid: string
+RESPONSE:
+- gameId: int
+- gameType: string
+- gameStartTime: int
+- mapId: int
+- gameLength: int
+- gameMode: string
+- bannedChampions: [
+    pickTurn: int
+    championId: int
+    teamId: int
+]
+- participants: [
+    championId: int
+    perks: {
+        perkIds: list[int]
+        perkStyle: int
+        perkSubStyle: int
+    }
+    teamId: int
+    riotId: string
+    gameName: string
+    tagLine: string
+    puuid: string
+    spell1Id: int
+    spell2Id: int
+]
+- platformId: string
+- gameQueueConfigId: string
