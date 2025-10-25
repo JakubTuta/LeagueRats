@@ -8,7 +8,6 @@ import httpx
 from account.routes import router as account_router
 from champions.routes import router as champion_router
 from database.database import initialize_app
-from fastapi.middleware.cors import CORSMiddleware
 from league.routes import router as league_router
 from match.routes import router as match_router
 from pro_players.routes import router as pro_players_router
@@ -18,17 +17,7 @@ dotenv.load_dotenv()
 
 
 def init_app():
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",
-            "https://leaguerats.net",
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
+    # CORS is handled by nginx reverse proxy
     routers = [
         account_router,
         match_router,
