@@ -8,6 +8,7 @@ import httpx
 from account.routes import router as account_router
 from champions.routes import router as champion_router
 from database.database import initialize_app
+from fastapi.middleware.gzip import GZipMiddleware
 from league.routes import router as league_router
 from match.routes import router as match_router
 from pro_players.routes import router as pro_players_router
@@ -18,12 +19,14 @@ dotenv.load_dotenv()
 
 def init_app():
     # CORS is handled by nginx reverse proxy
+
+    app.add_middleware(GZipMiddleware, minimum_size=500)
+
     routers = [
         account_router,
         match_router,
         champion_router,
         league_router,
-        champion_router,
         runes_router,
         pro_players_router,
     ]
@@ -33,7 +36,11 @@ def init_app():
 
 
 def initialize_httpx_client() -> httpx.AsyncClient:
-    client = httpx.AsyncClient()
+    client = httpx.AsyncClient(
+        timeout=httpx.Timeout(10.0, connect=5.0),
+        limits=httpx.Limits(max_connections=100, max_keepalive_connections=20),
+        http2=True,
+    )
 
     return client
 
