@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          echo "SERVER_URL=https://league-rats-server-268364642393.europe-central2.run.app" > .env
+          echo "SERVER_URL=https://leaguerats-server.jtuta.cloud" > .env
           echo "API_KEY=${{ secrets.API_KEY }}" >> .env
           echo "AUTH_DOMAIN=${{ secrets.AUTH_DOMAIN }}" >> .env
           echo "PROJECT_ID=${{ secrets.PROJECT_ID }}" >> .env
@@ -27,3 +27,5 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LEAGUE_RATS }}
           channelId: live
           projectId: league-rats
+
+# echo "SERVER_URL=https://league-rats-server-268364642393.europe-central2.run.app" > .env

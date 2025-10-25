@@ -1,4 +1,5 @@
 import contextlib
+import os
 
 import dotenv
 import fastapi
@@ -20,9 +21,8 @@ def init_app():
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
-            # "http://localhost:3000",
-            # "https://leaguerats.net",
-            "*"
+            "http://localhost:3000",
+            "https://leaguerats.net",
         ],
         allow_credentials=True,
         allow_methods=["*"],
@@ -70,3 +70,13 @@ async def lifespan(app: fastapi.FastAPI):
 app = fastapi.FastAPI(lifespan=lifespan)
 
 init_app()
+
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}

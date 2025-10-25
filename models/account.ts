@@ -1,10 +1,7 @@
-export interface IAccountDetails {
+export interface IAccount {
   gameName: string
   tagLine: string
   puuid: string
-}
-
-export interface IAccount extends IAccountDetails {
   region: string
 }
 
