@@ -20,7 +20,7 @@ async def get_account(
     puuid: typing.Optional[str] = None,
 ) -> models.Account:
 
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         account := await functions.get_account(
@@ -46,7 +46,7 @@ async def create_account(
     puuid: typing.Optional[str] = None,
 ) -> models.Account:
 
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         created_account := await functions.get_account(
@@ -74,7 +74,7 @@ async def get_accounts_in_all_regions(
     tag: str,
 ) -> typing.Dict[str, typing.Optional[models.Account]]:
 
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     found_accounts = await functions.get_accounts_in_all_regions(
         httpx_client, username, tag

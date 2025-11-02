@@ -16,7 +16,7 @@ router = fastapi.APIRouter(prefix="/v2/league")
 async def get_league_entries(
     request: fastapi.Request, puuid: str
 ) -> typing.List[models.LeagueEntry]:
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         account := await account_functions.get_account(

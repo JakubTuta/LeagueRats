@@ -36,11 +36,11 @@ def initialize_httpx_client() -> httpx.AsyncClient:
 async def lifespan(app: fastapi.FastAPI):
     try:
         firebase_app, firestore_client = initialize_app()
-        app.firebase_app = firebase_app  # type: ignore
-        app.firestore_client = firestore_client  # type: ignore
+        app.state.firebase_app = firebase_app
+        app.state.firestore_client = firestore_client
 
         httpx_client = initialize_httpx_client()
-        app.httpx_client = httpx_client  # type: ignore
+        app.state.httpx_client = httpx_client
     except Exception as e:
         raise e
 

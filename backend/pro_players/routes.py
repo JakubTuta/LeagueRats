@@ -30,7 +30,7 @@ async def create_pro_player(
     tag: typing.Optional[str] = None,
     region: typing.Optional[str] = None,
 ) -> models.ProPlayer:
-    client = request.app.httpx_client
+    client = request.app.state.httpx_client
 
     account_data = None
     if username is not None and tag is not None and region is not None:
@@ -159,7 +159,7 @@ async def transfer_player(player: str, fromTeam: str, toTeam: str) -> models.Pro
 async def get_pro_player_history_stats(
     request: fastapi.Request, team: str, player: str, amount: int = 20
 ) -> typing.Dict[int, models.ChampionStats]:
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         history_stats := await functions.get_player_history_stats(

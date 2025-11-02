@@ -18,7 +18,7 @@ async def get_active_game(
     puuid: str,
 ) -> typing.Optional[models.ActiveMatch]:
 
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         active_match := await functions.get_active_match(httpx_client, puuid)
@@ -44,7 +44,7 @@ async def get_match_history(
     count: int = 20,
 ) -> typing.List[str]:
 
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         account := await account_functions.get_account(
@@ -79,7 +79,7 @@ async def get_match_history(
 async def get_match_data(
     request: fastapi.Request, match_id: str
 ) -> models.MatchHistory:
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         match_data := await functions.get_match_data(httpx_client, match_id)

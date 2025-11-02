@@ -66,7 +66,7 @@ async def get_champion_positions(
         )
 
     split_champion_ids = champion_ids.split(".")
-    client = request.app.httpx_client
+    client = request.app.state.httpx_client
 
     if (
         champion_positions := await functions.get_champion_positions(
@@ -86,7 +86,7 @@ async def get_champion_positions(
 async def get_champion_mastery(
     request: fastapi.Request, puuid: str
 ) -> typing.List[models.ChampionMastery]:
-    httpx_client = request.app.httpx_client
+    httpx_client = request.app.state.httpx_client
 
     if (
         account := await account_functions.get_account(
