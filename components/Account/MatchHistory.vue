@@ -37,7 +37,6 @@ const matchHistoryPerRegion = ref<Record<string, IMatchData[]>>({
   ARAM: [] as IMatchData[],
 })
 const canLoadMore = ref(true)
-const matchesLoading = ref(0)
 const loadedFirstBatch = ref(false)
 
 const matchAmount = 10
@@ -57,9 +56,11 @@ watch(account, () => {
   getMatchHistory()
 }, { immediate: true })
 
-async function getMatchIds(count: number) {
+async function loadMatches(count: number = matchAmount) {
   if (!account.value)
-    return []
+    return
+
+  loading.value = true
 
   const requestQueueType = queueTypes[selectedTab.value]
 
@@ -77,37 +78,25 @@ async function getMatchIds(count: number) {
     endTime: Math.floor(lastLoadedMatchDate / 1000),
   }
 
-  const matchIds = await matchStore.getMatchHistory(account.value.puuid, optionalKeys)
+  const matchesData = await matchStore.getMatchHistoryBatch(account.value.puuid, optionalKeys)
 
-  return matchIds
-}
+  matchHistoryPerRegion.value[selectedTab.value].push(...matchesData)
 
-async function loadMatches(count: number = matchAmount) {
-  const matchIds = await getMatchIds(count)
-
-  matchesLoading.value = matchIds.length
-
-  matchIds.forEach(async (matchId, index) => {
-    const matchData = await matchStore.getMatchData(matchId)
-
-    if (matchData)
-      matchHistoryPerRegion.value[selectedTab.value].push(matchData)
-    matchesLoading.value--
-
-    if (index === matchIds.length - 1) {
-      loading.value = false
-      loadedFirstBatch.value = true
-    }
-  })
-
-  if (matchIds.length < count) {
+  if (matchesData.length < count) {
     canLoadMore.value = false
   }
+
+  loading.value = false
+  loadedFirstBatch.value = true
 }
 
 function getMatchHistory() {
   if (!account.value || loading.value)
     return
+
+  if (matchHistoryPerRegion.value[selectedTab.value].length === 0) {
+    canLoadMore.value = true
+  }
 
   loadMatches()
 }
@@ -282,9 +271,9 @@ const lastGamesLosses = computed(() => processedGames.value.reduce((acc, game) =
     :game="match"
   />
 
-  <div v-if="matchesLoading > 0">
+  <div v-if="loading && loadedFirstBatch">
     <v-skeleton-loader
-      v-for="n in matchesLoading"
+      v-for="n in matchAmount"
       :key="n"
       class="my-4"
       type="image"

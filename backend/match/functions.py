@@ -1,3 +1,4 @@
+import asyncio
 import typing
 
 import account.functions as account_functions
@@ -105,3 +106,33 @@ async def get_match_data(
 
     except:
         pass
+
+
+async def get_match_history_batch(
+    client: httpx.AsyncClient,
+    account: typing.Optional[account_models.Account] = None,
+    puuid: typing.Optional[str] = None,
+    query_params: typing.Dict[str, typing.Union[str, int, None]] = {},
+) -> typing.List[models.MatchHistory]:
+    """
+    Get match history with all match data in a single batch.
+    Returns a list of MatchHistory objects instead of just match IDs.
+    """
+    match_ids = await get_match_history(
+        client=client,
+        account=account,
+        puuid=puuid,
+        query_params=query_params,
+    )
+
+    if not match_ids:
+        return []
+
+    tasks = [get_match_data(client, match_id) for match_id in match_ids]
+    match_data_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    matches: typing.List[models.MatchHistory] = [
+        match for match in match_data_results if isinstance(match, models.MatchHistory)
+    ]
+
+    return matches

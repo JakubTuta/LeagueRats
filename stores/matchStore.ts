@@ -48,9 +48,30 @@ export const useMatchStore = defineStore('match', () => {
     return null
   }
 
+  const getMatchHistoryBatch = async (puuid: string, optionalKeys: object) => {
+    const baseUrl = `/v2/match/history/batch/${puuid}`
+
+    const queryParams = new URLSearchParams()
+
+    Object.entries(optionalKeys).forEach(([key, value]) => {
+      queryParams.append(key, value)
+    })
+
+    const url = `${baseUrl}?${queryParams.toString()}`
+
+    const response = await apiStore.sendRequest({ url, method: 'GET' })
+
+    if (apiStore.isResponseOk(response)) {
+      return response!.data.map(mapMatchData)
+    }
+
+    return []
+  }
+
   return {
     getMatchHistory,
     getMatchData,
     getActiveMatch,
+    getMatchHistoryBatch,
   }
 })

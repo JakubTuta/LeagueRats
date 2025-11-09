@@ -87,3 +87,49 @@ async def get_match_data(
         return match_data
 
     raise fastapi.HTTPException(status_code=404, detail="Match not found")
+
+
+@router.get(
+    "/history/batch/{puuid}",
+    response_model=typing.List[models.MatchHistory],
+    status_code=200,
+)
+async def get_match_history_batch(
+    request: fastapi.Request,
+    puuid: str,
+    startTime: typing.Optional[str] = None,
+    endTime: typing.Optional[str] = None,
+    queue: typing.Optional[str] = None,
+    type: typing.Optional[str] = None,
+    start: int = 0,
+    count: int = 20,
+) -> typing.List[models.MatchHistory]:
+    """
+    Get match history with all match data in a single batch request.
+    This is more efficient than fetching match IDs first, then each match individually.
+    """
+    httpx_client = request.app.state.httpx_client
+
+    if (
+        account := await account_functions.get_account(
+            httpx_client, puuid=puuid, save_account=True
+        )
+    ) is None:
+        raise fastapi.HTTPException(status_code=404, detail="Account not found")
+
+    query_params = {
+        "startTime": startTime,
+        "endTime": endTime,
+        "queue": queue,
+        "type": type,
+        "start": start,
+        "count": count,
+    }
+
+    matches = await functions.get_match_history_batch(
+        httpx_client,
+        account=account,
+        query_params=query_params,
+    )
+
+    return matches
