@@ -5,6 +5,8 @@ import dotenv
 import fastapi
 import firebase_admin
 import httpx
+import ledger
+import ledger.integrations.fastapi as ledger_fastapi
 from account.routes import router as account_router
 from champions.routes import router as champion_router
 from database.database import initialize_app
@@ -62,9 +64,17 @@ async def lifespan(app: fastapi.FastAPI):
 
     firebase_admin.delete_app(firebase_app)
     await httpx_client.aclose()
+    await ledger_client.shutdown()
 
 
 app = fastapi.FastAPI(lifespan=lifespan)
+
+ledger_client = ledger.LedgerClient(api_key=os.getenv("LEDGER_API_KEY"))  # type: ignore
+app.add_middleware(
+    ledger_fastapi.LedgerMiddleware,
+    ledger_client=ledger_client,
+)
+
 
 init_app()
 

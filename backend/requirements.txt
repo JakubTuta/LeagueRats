@@ -5,3 +5,4 @@ python-dotenv==1.0.1
 motor==3.6.0
 firebase-admin==6.6.0
 httpx[http2]==0.28.1
+ledger-sdk==1.0.4
