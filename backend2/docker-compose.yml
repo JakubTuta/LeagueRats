@@ -1,0 +1,65 @@
+services:
+  leaguerats-postgres:
+    image: postgres:15-alpine
+    container_name: leaguerats-postgres
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_SHARED_BUFFERS: 1GB
+      POSTGRES_WORK_MEM: 64MB
+      POSTGRES_MAINTENANCE_WORK_MEM: 512MB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 4GB
+      POSTGRES_CHECKPOINT_TIMEOUT: 30min
+      POSTGRES_MAX_WAL_SIZE: 4GB
+      POSTGRES_AUTOVACUUM_MAX_WORKERS: 4
+    volumes:
+      - leaguerats-postgres-data:/var/lib/postgresql/data
+      - ./database_schema/init_logs_db.sql:/docker-entrypoint-initdb.d/init.sql
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    networks:
+      - leaguerats-network
+
+  # ==================== Redis ====================
+  leaguerats-redis:
+    image: redis:7-alpine
+    container_name: leaguerats-redis
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - leaguerats-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    networks:
+      - leaguerats-network
+    command: >
+      redis-server
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --bind 0.0.0.0
+      --protected-mode no
+
+volumes:
+  leaguerats-postgres-data:
+  leaguerats-redis-data:
+
+networks:
+  leaguerats-network:
+    driver: bridge

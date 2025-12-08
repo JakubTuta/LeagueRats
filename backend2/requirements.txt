@@ -1,0 +1,17 @@
+fastapi[standard]==0.115.6
+uvicorn[standard]==0.37.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
+
+google-cloud-firestore==2.21.0
+redis[asyncio]==7.1.0
+httpx[http2]==0.28.1
+
+tenacity==9.0.0
+cachetools==6.2.2
+slowapi==0.1.9
+pybreaker==1.2.0
+
+structlog==24.4.0
+ledger-sdk==1.0.7
