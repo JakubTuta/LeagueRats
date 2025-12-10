@@ -195,7 +195,7 @@ class RiotAPIClient:
 
     async def get(
         self, region: str, endpoint: str, **params
-    ) -> typing.Optional[dict[str, typing.Any]]:
+    ) -> typing.Optional[dict[str, typing.Any] | list[typing.Any]]:
         if region not in self.BASE_URLS:
             logger.error("invalid_region", region=region)
             raise ValueError(f"Invalid region: {region}")

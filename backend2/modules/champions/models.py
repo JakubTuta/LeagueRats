@@ -5,6 +5,17 @@ import pydantic
 from match import models as match_models
 
 
+class ChampionName(pydantic.BaseModel):
+    title: str = ""
+    value: str = ""
+
+
+class ChampionStats(pydantic.BaseModel):
+    games: int = 0
+    wins: int = 0
+    losses: int = 0
+
+
 class ChampionMastery(pydantic.BaseModel):
     championId: int = 0
     championLevel: int = 0

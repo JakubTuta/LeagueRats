@@ -21,6 +21,7 @@ dotenv.load_dotenv()
 async def lifespan(app: fastapi.FastAPI):
     utils.get_redis_client()
     utils.get_firestore_client()
+    utils.get_http_client()
     utils.get_riot_api_client()
 
     logger.info("application_started")
@@ -31,6 +32,7 @@ async def lifespan(app: fastapi.FastAPI):
 
     await utils.close_redis_client()
     await utils.close_firestore_client()
+    await utils.close_http_client()
     await utils.close_riot_api_client()
 
 

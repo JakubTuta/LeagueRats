@@ -153,6 +153,8 @@ class FirestoreClient:
         order_direction: str = "ASCENDING",
         limit: typing.Optional[int] = None,
         offset: typing.Optional[int] = None,
+        start_after: typing.Optional[str] = None,
+        **kwargs,
     ) -> typing.Sequence[dict[str, typing.Any]]:
         try:
             query = self._client.collection(collection)
@@ -169,11 +171,24 @@ class FirestoreClient:
                 )
                 query = query.order_by(order_by, direction=direction)
 
+                if start_after:
+                    start_after_doc = (
+                        await self._client.collection(collection)
+                        .document(start_after)
+                        .get()
+                    )
+                    if start_after_doc.exists:
+                        query = query.start_after(start_after_doc)
+
             if offset:
                 query = query.offset(offset)
 
             if limit:
                 query = query.limit(limit)
+
+            if kwargs:
+                for key, value in kwargs.items():
+                    query = query.where(key, "==", value)
 
             docs = query.stream()
             results = [doc.to_dict() async for doc in docs]

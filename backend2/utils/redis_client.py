@@ -182,6 +182,57 @@ class RedisClient:
             logger.error("json_encode_error", key=key, error=str(e))
             raise
 
+    async def get_value(self, key: str) -> typing.Optional[typing.Union[str, dict, list]]:
+        value = await self.get(key)
+        if value is None:
+            return None
+
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            return value
+
+    async def set_value(
+        self,
+        key: str,
+        value: typing.Union[str, dict, list, int, float, bool],
+        ex: typing.Optional[int] = None,
+        px: typing.Optional[int] = None,
+        nx: bool = False,
+        xx: bool = False,
+    ) -> bool:
+        if isinstance(value, str):
+            return await self.set(key, value, ex=ex, px=px, nx=nx, xx=xx)
+        else:
+            try:
+                json_value = json.dumps(value)
+                return await self.set(key, json_value, ex=ex, px=px, nx=nx, xx=xx)
+            except (TypeError, ValueError) as e:
+                logger.error("value_encode_error", key=key, value_type=type(value).__name__, error=str(e))
+                raise
+
+    async def get_many_json(self, *keys: str) -> list[typing.Optional[typing.Any]]:
+        values = await self.get_many(*keys)
+        results = []
+        for idx, value in enumerate(values):
+            if value is None:
+                results.append(None)
+            else:
+                try:
+                    results.append(json.loads(value))
+                except json.JSONDecodeError as e:
+                    logger.error("json_decode_error_in_batch", key=keys[idx], error=str(e))
+                    results.append(None)
+        return results
+
+    async def set_many_json(self, mapping: dict[str, typing.Any]) -> bool:
+        try:
+            json_mapping = {k: json.dumps(v) for k, v in mapping.items()}
+            return await self.set_many(json_mapping)
+        except (TypeError, ValueError) as e:
+            logger.error("json_encode_error_in_batch", error=str(e))
+            raise
+
     async def increment(self, key: str, amount: int = 1) -> int:
         try:
             result = await self._client.incrby(key, amount)
