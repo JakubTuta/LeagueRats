@@ -8,27 +8,27 @@ CACHE_SETTINGS = {
     "champion_names": {
         "cache_name": "champion_names",
         "ttl": 86400,  # 24 hours
-        "cache_key": "champion_names",
+        "cache_prefix": "champion_names",
     },
     "champion_stats": {
         "cache_name": "champion_stats",
         "ttl": 3600,  # 1 hour
-        "cache_key": "champion_stats",
+        "cache_prefix": "champion_stats",
     },
     "champion_matches": {
         "cache_name": "champion_matches",
         "ttl": 1800,  # 30 minutes
-        "cache_key": "champion_matches",
+        "cache_prefix": "champion_matches",
     },
     "champion_positions": {
         "cache_name": "champion_positions",
         "ttl": 86400,  # 24 hours
-        "cache_key": "champion_positions",
+        "cache_prefix": "champion_positions",
     },
     "champion_mastery": {
         "cache_name": "champion_mastery",
         "ttl": 86400,  # 24 hours
-        "cache_key": "champion_mastery",
+        "cache_prefix": "champion_mastery",
     },
 }
 
@@ -61,8 +61,8 @@ class ChampionsCache:
         )
 
     def get_all_champions_names(self) -> dict[int, models.ChampionName]:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
-        cached_data = self.cache_champions_names.get(f"{cache_key}:all")
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
+        cached_data = self.cache_champions_names.get(f"{cache_prefix}:all")
 
         if cached_data is not None:
             return cached_data
@@ -72,8 +72,8 @@ class ChampionsCache:
     def get_champion_name(
         self, champion_id: int
     ) -> typing.Optional[models.ChampionName]:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
-        cached_data = self.cache_champions_names.get(f"{cache_key}:{champion_id}")
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
+        cached_data = self.cache_champions_names.get(f"{cache_prefix}:{champion_id}")
 
         if cached_data is not None:
             return cached_data
@@ -83,8 +83,8 @@ class ChampionsCache:
     def set_all_champions_names(
         self, champions: dict[int, models.ChampionName]
     ) -> None:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
-        self.cache_champions_names.set(f"{cache_key}:all", champions)
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
+        self.cache_champions_names.set(f"{cache_prefix}:all", champions)
 
         for champion_id, champion in champions.items():
             self.set_champion_name(champion_id, champion)
@@ -92,14 +92,16 @@ class ChampionsCache:
     def set_champion_name(
         self, champion_id: int, champion: models.ChampionName
     ) -> None:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
-        self.cache_champions_names.set(f"{cache_key}:{champion_id}", champion)
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
+        self.cache_champions_names.set(f"{cache_prefix}:{champion_id}", champion)
 
     def get_champion_stats(
         self, champion_id: int
     ) -> typing.Optional[models.ChampionStats]:
-        cache_key = f"{CACHE_SETTINGS['champion_stats']['cache_key']}:{champion_id}"
-        cached_data = self.cache_champions_stats.get(cache_key)
+        cache_prefix = (
+            f"{CACHE_SETTINGS['champion_stats']['cache_prefix']}:{champion_id}"
+        )
+        cached_data = self.cache_champions_stats.get(cache_prefix)
 
         if cached_data is not None:
             return cached_data
@@ -109,8 +111,10 @@ class ChampionsCache:
     def set_champion_stats(
         self, champion_id: int, champion_stats: models.ChampionStats
     ) -> None:
-        cache_key = f"{CACHE_SETTINGS['champion_stats']['cache_key']}:{champion_id}"
-        self.cache_champions_stats.set(cache_key, champion_stats)
+        cache_prefix = (
+            f"{CACHE_SETTINGS['champion_stats']['cache_prefix']}:{champion_id}"
+        )
+        self.cache_champions_stats.set(cache_prefix, champion_stats)
 
     def get_champion_matches(
         self,
@@ -119,17 +123,15 @@ class ChampionsCache:
         lane: typing.Optional[str] = None,
         versus: typing.Optional[str] = None,
     ) -> list[models.ChampionHistory]:
-        cache_key = (
-            f"{CACHE_SETTINGS['champion_matches']['cache_key']}:{champion_id}:{limit}"
-        )
+        cache_prefix = f"{CACHE_SETTINGS['champion_matches']['cache_prefix']}:{champion_id}:{limit}"
 
         if lane:
-            cache_key += f":{lane}"
+            cache_prefix += f":{lane}"
 
         if versus:
-            cache_key += f":{versus}"
+            cache_prefix += f":{versus}"
 
-        cached_data = self.cache_champions_matches.get(cache_key)
+        cached_data = self.cache_champions_matches.get(cache_prefix)
 
         if cached_data is not None:
             return cached_data
@@ -144,21 +146,19 @@ class ChampionsCache:
         lane: typing.Optional[str] = None,
         versus: typing.Optional[str] = None,
     ) -> None:
-        cache_key = (
-            f"{CACHE_SETTINGS['champion_matches']['cache_key']}:{champion_id}:{limit}"
-        )
+        cache_prefix = f"{CACHE_SETTINGS['champion_matches']['cache_prefix']}:{champion_id}:{limit}"
 
         if lane:
-            cache_key += f":{lane}"
+            cache_prefix += f":{lane}"
 
         if versus:
-            cache_key += f":{versus}"
+            cache_prefix += f":{versus}"
 
-        self.cache_champions_matches.set(cache_key, champion_matches)
+        self.cache_champions_matches.set(cache_prefix, champion_matches)
 
     def get_champion_positions(self) -> dict[str, str]:
-        cache_key = CACHE_SETTINGS["champion_positions"]["cache_key"]
-        data = self.cache_champions_positions.get(f"{cache_key}:all")
+        cache_prefix = CACHE_SETTINGS["champion_positions"]["cache_prefix"]
+        data = self.cache_champions_positions.get(f"{cache_prefix}:all")
 
         return data or {}
 
@@ -166,13 +166,13 @@ class ChampionsCache:
         self,
         champion_data: dict[str, str],
     ) -> None:
-        cache_key = CACHE_SETTINGS["champion_positions"]["cache_key"]
+        cache_prefix = CACHE_SETTINGS["champion_positions"]["cache_prefix"]
 
-        self.cache_champions_positions.set(f"{cache_key}:all", champion_data)
+        self.cache_champions_positions.set(f"{cache_prefix}:all", champion_data)
 
     def get_champions_mastery(self, puuid: str) -> list[models.ChampionMastery]:
-        cache_key = f"{CACHE_SETTINGS['champion_mastery']['cache_key']}:{puuid}"
-        cached_data = self.cache_champion_mastery.get(cache_key)
+        cache_prefix = f"{CACHE_SETTINGS['champion_mastery']['cache_prefix']}:{puuid}"
+        cached_data = self.cache_champion_mastery.get(cache_prefix)
 
         if cached_data is not None:
             return cached_data
@@ -182,8 +182,8 @@ class ChampionsCache:
     def set_champions_mastery(
         self, puuid: str, champion_mastery: list[models.ChampionMastery]
     ) -> None:
-        cache_key = f"{CACHE_SETTINGS['champion_mastery']['cache_key']}:{puuid}"
-        self.cache_champion_mastery.set(cache_key, champion_mastery)
+        cache_prefix = f"{CACHE_SETTINGS['champion_mastery']['cache_prefix']}:{puuid}"
+        self.cache_champion_mastery.set(cache_prefix, champion_mastery)
 
 
 class ChampionsRedis:
@@ -191,8 +191,8 @@ class ChampionsRedis:
         self.redis_client = redis_client
 
     async def get_all_champions_names(self) -> dict[int, models.ChampionName]:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
-        cached_data = await self.redis_client.get_json(f"{cache_key}:all")
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
+        cached_data = await self.redis_client.get_json(f"{cache_prefix}:all")
 
         if cached_data is not None:
             return cached_data
@@ -202,8 +202,8 @@ class ChampionsRedis:
     async def get_champion_name(
         self, champion_id: int
     ) -> typing.Optional[models.ChampionName]:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
-        cached_data = await self.redis_client.get_json(f"{cache_key}:{champion_id}")
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
+        cached_data = await self.redis_client.get_json(f"{cache_prefix}:{champion_id}")
 
         if cached_data is not None:
             return cached_data
@@ -213,9 +213,9 @@ class ChampionsRedis:
     async def set_champion_name(
         self, champion_id: int, champion: models.ChampionName
     ) -> None:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
         await self.redis_client.set_json(
-            f"{cache_key}:{champion_id}",
+            f"{cache_prefix}:{champion_id}",
             champion,
             ex=CACHE_SETTINGS["champion_names"]["ttl"],
         )
@@ -223,16 +223,18 @@ class ChampionsRedis:
     async def set_all_champions_names(
         self, champions: dict[int, models.ChampionName]
     ) -> None:
-        cache_key = CACHE_SETTINGS["champion_names"]["cache_key"]
+        cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
         await self.redis_client.set_json(
-            f"{cache_key}:all", champions, ex=CACHE_SETTINGS["champion_names"]["ttl"]
+            f"{cache_prefix}:all", champions, ex=CACHE_SETTINGS["champion_names"]["ttl"]
         )
 
     async def get_champion_stats(
         self, champion_id: int
     ) -> typing.Optional[models.ChampionStats]:
-        cache_key = f"{CACHE_SETTINGS['champion_stats']['cache_key']}:{champion_id}"
-        cached_data = await self.redis_client.get_json(cache_key)
+        cache_prefix = (
+            f"{CACHE_SETTINGS['champion_stats']['cache_prefix']}:{champion_id}"
+        )
+        cached_data = await self.redis_client.get_json(cache_prefix)
 
         if cached_data is not None:
             return cached_data
@@ -242,9 +244,11 @@ class ChampionsRedis:
     async def set_champion_stats(
         self, champion_id: int, champion_stats: models.ChampionStats
     ) -> None:
-        cache_key = f"{CACHE_SETTINGS['champion_stats']['cache_key']}:{champion_id}"
+        cache_prefix = (
+            f"{CACHE_SETTINGS['champion_stats']['cache_prefix']}:{champion_id}"
+        )
         await self.redis_client.set_json(
-            cache_key,
+            cache_prefix,
             champion_stats,
             ex=CACHE_SETTINGS["champion_stats"]["ttl"],
         )
@@ -256,17 +260,15 @@ class ChampionsRedis:
         lane: typing.Optional[str] = None,
         versus: typing.Optional[str] = None,
     ) -> list[models.ChampionHistory]:
-        cache_key = (
-            f"{CACHE_SETTINGS['champion_matches']['cache_key']}:{champion_id}:{limit}"
-        )
+        cache_prefix = f"{CACHE_SETTINGS['champion_matches']['cache_prefix']}:{champion_id}:{limit}"
 
         if lane:
-            cache_key += f":{lane}"
+            cache_prefix += f":{lane}"
 
         if versus:
-            cache_key += f":{versus}"
+            cache_prefix += f":{versus}"
 
-        cached_data = await self.redis_client.get_json(cache_key)
+        cached_data = await self.redis_client.get_json(cache_prefix)
 
         if cached_data is not None:
             return cached_data
@@ -281,25 +283,23 @@ class ChampionsRedis:
         lane: typing.Optional[str] = None,
         versus: typing.Optional[str] = None,
     ) -> None:
-        cache_key = (
-            f"{CACHE_SETTINGS['champion_matches']['cache_key']}:{champion_id}:{limit}"
-        )
+        cache_prefix = f"{CACHE_SETTINGS['champion_matches']['cache_prefix']}:{champion_id}:{limit}"
 
         if lane:
-            cache_key += f":{lane}"
+            cache_prefix += f":{lane}"
 
         if versus:
-            cache_key += f":{versus}"
+            cache_prefix += f":{versus}"
 
         await self.redis_client.set_json(
-            cache_key,
+            cache_prefix,
             champion_matches,
             ex=CACHE_SETTINGS["champion_matches"]["ttl"],
         )
 
     async def get_champion_positions(self) -> dict[str, str]:
-        cache_key = CACHE_SETTINGS["champion_positions"]["cache_key"]
-        data = await self.redis_client.get_json(f"{cache_key}:all")
+        cache_prefix = CACHE_SETTINGS["champion_positions"]["cache_prefix"]
+        data = await self.redis_client.get_json(f"{cache_prefix}:all")
 
         return data or {}
 
@@ -307,10 +307,10 @@ class ChampionsRedis:
         self,
         champion_data: dict[str, str],
     ) -> None:
-        cache_key = CACHE_SETTINGS["champion_positions"]["cache_key"]
+        cache_prefix = CACHE_SETTINGS["champion_positions"]["cache_prefix"]
 
         await self.redis_client.set_json(
-            f"{cache_key}:all",
+            f"{cache_prefix}:all",
             champion_data,
             ex=CACHE_SETTINGS["champion_positions"]["ttl"],
         )
@@ -319,8 +319,8 @@ class ChampionsRedis:
         self,
         puuid: str,
     ) -> list[models.ChampionMastery]:
-        cache_key = f"{CACHE_SETTINGS['champion_mastery']['cache_key']}:{puuid}"
-        cached_data = await self.redis_client.get_json(cache_key)
+        cache_prefix = f"{CACHE_SETTINGS['champion_mastery']['cache_prefix']}:{puuid}"
+        cached_data = await self.redis_client.get_json(cache_prefix)
 
         if cached_data is not None:
             return cached_data
@@ -330,9 +330,9 @@ class ChampionsRedis:
     async def set_champions_mastery(
         self, puuid: str, champion_mastery: list[models.ChampionMastery]
     ) -> None:
-        cache_key = f"{CACHE_SETTINGS['champion_mastery']['cache_key']}:{puuid}"
+        cache_prefix = f"{CACHE_SETTINGS['champion_mastery']['cache_prefix']}:{puuid}"
         await self.redis_client.set_json(
-            cache_key,
+            cache_prefix,
             champion_mastery,
             ex=CACHE_SETTINGS["champion_mastery"]["ttl"],
         )
