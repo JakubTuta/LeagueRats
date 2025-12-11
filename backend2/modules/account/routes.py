@@ -4,6 +4,8 @@ import fastapi
 import structlog
 import utils
 
+import constants
+
 from . import models, service
 
 logger = structlog.get_logger(__name__)
@@ -17,7 +19,7 @@ router = fastapi.APIRouter(prefix="/v2/account")
     status_code=200,
 )
 async def get_account(
-    region: typing.Optional[str] = None,
+    region: typing.Optional[constants.Region] = None,
     username: typing.Optional[str] = None,
     tag: typing.Optional[str] = None,
     puuid: typing.Optional[str] = None,
@@ -33,13 +35,15 @@ async def get_account(
         puuid=puuid,
     )
 
-    account_service = service.AccountService(firestore, redis, riot_api)
+    account_service = service.AccountService(
+        firestore=firestore, redis=redis, riot_api=riot_api
+    )
     if (
         account := await account_service.get_account(
             puuid=puuid,
             username=username,
             tag=tag,
-            region=region,
+            region=region.value if region else None,
         )
     ) is None:
         raise fastapi.HTTPException(status_code=404, detail="Account not found")
@@ -65,7 +69,9 @@ async def get_accounts_in_all_regions(
         tag=tag,
     )
 
-    account_service = service.AccountService(firestore, redis, riot_api)
+    account_service = service.AccountService(
+        firestore=firestore, redis=redis, riot_api=riot_api
+    )
     accounts_in_all_regions = await account_service.get_accounts_in_all_regions(
         username=username,
         tag=tag,

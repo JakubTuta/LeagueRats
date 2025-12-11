@@ -3,62 +3,9 @@ import typing
 
 import utils
 
+import constants
+
 from . import models, repository
-
-REGIONS = [
-    "euw",
-    "eune",
-    "na",
-    "kr",
-    "br",
-    "jp",
-    "lan",
-    "las",
-    "oce",
-    "ph",
-    "ru",
-    "sg",
-    "th",
-    "tr",
-    "tw",
-    "vn",
-    "me",
-]
-
-REGION_MAPPING = {
-    "euw": "europe",
-    "euw1": "europe",
-    "eune": "europe",
-    "eun1": "europe",
-    "na": "americas",
-    "na1": "americas",
-    "kr": "asia",
-    "br": "americas",
-    "br1": "americas",
-    "jp": "asia",
-    "jp1": "asia",
-    "lan": "americas",
-    "la1": "americas",
-    "las": "americas",
-    "la2": "americas",
-    "oce": "asia",
-    "oc1": "asia",
-    "ph": "asia",
-    "ph2": "asia",
-    "ru": "europe",
-    "sg": "asia",
-    "sg2": "asia",
-    "th": "asia",
-    "th2": "asia",
-    "tr": "europe",
-    "tr1": "europe",
-    "tw": "asia",
-    "tw2": "asia",
-    "vn": "asia",
-    "vn2": "asia",
-    "me": "europe",
-    "me1": "europe",
-}
 
 
 class AccountService:
@@ -95,7 +42,7 @@ class AccountService:
             username=username,
             tag=tag,
         ):
-            self.cache_repo.set_account(account)
+            self.cache_repo.set_account(account=account)
             return account
 
         if account := await self.firestore_repo.get_account(
@@ -104,8 +51,8 @@ class AccountService:
             tag=tag,
             region=region,
         ):
-            await self.redis_repo.set_account(account)
-            self.cache_repo.set_account(account)
+            await self.redis_repo.set_account(account=account)
+            self.cache_repo.set_account(account=account)
             return account
 
         if (
@@ -117,9 +64,9 @@ class AccountService:
             )
         ) is not None:
             account = models.Account(**response)  # pyright: ignore[reportCallIssue]
-            await self.firestore_repo.set_account(account)
-            await self.redis_repo.set_account(account)
-            self.cache_repo.set_account(account)
+            await self.firestore_repo.set_account(account=account)
+            await self.redis_repo.set_account(account=account)
+            self.cache_repo.set_account(account=account)
             return account
 
         return None
@@ -131,11 +78,11 @@ class AccountService:
     ) -> dict[str, typing.Optional[models.Account]]:
         tasks = [
             self.get_account(puuid=None, username=username, tag=tag, region=region)
-            for region in REGIONS
+            for region in constants.REGIONS
         ]
 
         accounts = await asyncio.gather(*tasks)
-        accounts_in_all_regions = dict(zip(REGIONS, accounts))
+        accounts_in_all_regions = dict(zip(constants.REGIONS, accounts))
 
         return accounts_in_all_regions
 
@@ -167,4 +114,4 @@ class AccountService:
             return account
 
     def _map_region(self, region: str) -> typing.Optional[str]:
-        return REGION_MAPPING.get(region.lower())
+        return constants.REGION_TO_CONTINENT.get(region.lower())

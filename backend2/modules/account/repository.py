@@ -5,20 +5,18 @@ import utils
 from . import models
 
 CACHE_SETTINGS = {
-    "account": {
-        "cache_name": "account",
-        "ttl": 86400,  # 24 hours
-        "cache_prefix": "account",
-    }
+    "cache_name": "account",
+    "ttl": 86400,  # 24 hours
+    "cache_prefix": "account",
 }
 
 
 class AccountCache:
     def __init__(self):
-        self.cache_prefix = CACHE_SETTINGS["account"]["cache_prefix"]
+        self.cache_prefix = CACHE_SETTINGS["cache_prefix"]
         self.cache_account = utils.get_ttl_cache_client(
-            name=CACHE_SETTINGS["account"]["cache_name"],
-            ttl=CACHE_SETTINGS["account"]["ttl"],
+            name=CACHE_SETTINGS["cache_name"],
+            ttl=CACHE_SETTINGS["ttl"],
         )
 
     def get_account(
@@ -54,7 +52,7 @@ class AccountCache:
 
 class AccountRedis:
     def __init__(self, redis_client: utils.RedisClient):
-        self.cache_prefix = CACHE_SETTINGS["account"]["cache_prefix"]
+        self.cache_prefix = CACHE_SETTINGS["cache_prefix"]
         self.redis_client = redis_client
 
     async def get_account(
@@ -78,7 +76,7 @@ class AccountRedis:
 
     async def set_account(self, account: models.Account) -> None:
         account_data = account.model_dump()
-        ttl = CACHE_SETTINGS["account"]["ttl"]
+        ttl = CACHE_SETTINGS["ttl"]
 
         redis_key_puuid = f"{self.cache_prefix}:puuid:{account.puuid}"
         await self.redis_client.set_json(redis_key_puuid, account_data, ex=ttl)
