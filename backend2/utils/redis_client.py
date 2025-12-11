@@ -182,7 +182,9 @@ class RedisClient:
             logger.error("json_encode_error", key=key, error=str(e))
             raise
 
-    async def get_value(self, key: str) -> typing.Optional[typing.Union[str, dict, list]]:
+    async def get_value(
+        self, key: str
+    ) -> typing.Optional[typing.Union[str, dict, list]]:
         value = await self.get(key)
         if value is None:
             return None
@@ -208,7 +210,12 @@ class RedisClient:
                 json_value = json.dumps(value)
                 return await self.set(key, json_value, ex=ex, px=px, nx=nx, xx=xx)
             except (TypeError, ValueError) as e:
-                logger.error("value_encode_error", key=key, value_type=type(value).__name__, error=str(e))
+                logger.error(
+                    "value_encode_error",
+                    key=key,
+                    value_type=type(value).__name__,
+                    error=str(e),
+                )
                 raise
 
     async def get_many_json(self, *keys: str) -> list[typing.Optional[typing.Any]]:
@@ -221,14 +228,21 @@ class RedisClient:
                 try:
                     results.append(json.loads(value))
                 except json.JSONDecodeError as e:
-                    logger.error("json_decode_error_in_batch", key=keys[idx], error=str(e))
+                    logger.error(
+                        "json_decode_error_in_batch", key=keys[idx], error=str(e)
+                    )
                     results.append(None)
         return results
 
-    async def set_many_json(self, mapping: dict[str, typing.Any]) -> bool:
+    async def set_many_json(
+        self,
+        mapping: dict[str, typing.Any],
+        ex: typing.Optional[int] = None,
+        px: typing.Optional[int] = None,
+    ) -> bool:
         try:
             json_mapping = {k: json.dumps(v) for k, v in mapping.items()}
-            return await self.set_many(json_mapping)
+            return await self.set_many(json_mapping, ex=ex, px=px)
         except (TypeError, ValueError) as e:
             logger.error("json_encode_error_in_batch", error=str(e))
             raise
@@ -258,11 +272,17 @@ class RedisClient:
             logger.error("redis_get_many_error", keys=keys, error=str(e))
             raise
 
-    async def set_many(self, mapping: dict[str, str]) -> bool:
+    async def set_many(
+        self,
+        mapping: dict[str, str],
+        ex: typing.Optional[int] = None,
+        px: typing.Optional[int] = None,
+    ) -> bool:
         try:
-            result = await self._client.mset(mapping)
-            logger.debug("cache_set_many", count=len(mapping))
-            return bool(result)
+            for key, value in mapping.items():
+                await self.set(key, value, ex=ex, px=px)
+            logger.debug("cache_set_many", count=len(mapping), ttl=ex or px)
+            return True
         except Exception as e:
             logger.error("redis_set_many_error", error=str(e))
             raise

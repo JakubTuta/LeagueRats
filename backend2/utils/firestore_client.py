@@ -229,6 +229,41 @@ class FirestoreClient:
             )
             raise
 
+    async def batch_get(
+        self, collection: str, document_ids: list[str]
+    ) -> list[dict[str, typing.Any]]:
+        try:
+            results = []
+
+            for doc_id in document_ids:
+                doc_ref = self._client.collection(collection).document(doc_id)
+                doc = await doc_ref.get()
+
+                if doc.exists:
+                    results.append(doc.to_dict())
+                else:
+                    logger.debug(
+                        "document_not_found_in_batch",
+                        collection=collection,
+                        doc_id=doc_id,
+                    )
+
+            logger.info(
+                "batch_get_completed",
+                collection=collection,
+                requested=len(document_ids),
+                found=len(results),
+            )
+            return results
+
+        except Exception as e:
+            logger.error(
+                "firestore_batch_get_error",
+                collection=collection,
+                error=str(e),
+            )
+            raise
+
     async def batch_set(
         self, collection: str, documents: dict[str, dict[str, typing.Any]]
     ) -> bool:

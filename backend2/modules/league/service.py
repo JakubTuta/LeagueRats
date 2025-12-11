@@ -1,8 +1,5 @@
-import typing
-
-import utils
-
 import constants as shared_constants
+import utils
 
 from . import models, repository
 
@@ -94,7 +91,9 @@ class LeagueService:
     async def _fetch_league_entries(
         self, puuid: str, region: str, riot_api: utils.RiotAPIClient
     ) -> list[models.LeagueEntry]:
-        if (mapped_region := shared_constants.REGION_TO_PLATFORM.get(region.lower())) is None:
+        if (
+            mapped_region := shared_constants.REGION_TO_PLATFORM.get(region.lower())
+        ) is None:
             return []
 
         request_url = f"/lol/league/v4/entries/by-puuid/{puuid}"

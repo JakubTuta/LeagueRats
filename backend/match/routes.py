@@ -104,10 +104,6 @@ async def get_match_history_batch(
     start: int = 0,
     count: int = 20,
 ) -> typing.List[models.MatchHistory]:
-    """
-    Get match history with all match data in a single batch request.
-    This is more efficient than fetching match IDs first, then each match individually.
-    """
     httpx_client = request.app.state.httpx_client
 
     if (
