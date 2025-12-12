@@ -1,4 +1,5 @@
 from enum import Enum
+import typing
 
 __all__ = [
     "Region",
@@ -6,6 +7,9 @@ __all__ = [
     "PLATFORM_REGIONS",
     "REGION_TO_PLATFORM",
     "REGION_TO_CONTINENT",
+    "PRO_REGIONS",
+    "TEAMS_PER_REGION",
+    "PRO_REGION_TO_GAME_REGION",
 ]
 
 
@@ -122,4 +126,42 @@ REGION_TO_CONTINENT = {
     "vn2": "asia",
     "me": "europe",
     "me1": "europe",
+}
+
+PRO_REGIONS = ["LCK", "LPL", "LEC", "LCS"]
+
+TEAMS_PER_REGION: typing.Dict[
+    typing.Literal["LEC", "LCS", "LCK", "LPL"], typing.List[str]
+] = {
+    "LCK": ["T1", "GENG", "DK", "DRX", "HLE", "DNF", "KT", "FOX", "BRO", "NS"],
+    "LPL": [
+        "AL",
+        "BLG",
+        "EDG",
+        "FPX",
+        "IG",
+        "JDG",
+        "LGD",
+        "LNG",
+        "NIP",
+        "OMG",
+        "RA",
+        "RNG",
+        "WE",
+        "TES",
+        "TT",
+        "UP",
+        "WBG",
+    ],
+    "LCS": ["TL", "C9", "FLY", "DIG", "100", "SR", "DSG", "LYN"],
+    "LEC": ["FNC", "G2", "GX", "KC", "MKOI", "RGE", "SK", "BDS", "TH", "VIT"],
+}
+
+PRO_REGION_TO_GAME_REGION: typing.Dict[
+    typing.Literal["LEC", "LCS", "LCK", "LPL"], str
+] = {
+    "LCK": "kr",
+    "LPL": "kr",
+    "LEC": "euw",
+    "LCS": "na",
 }

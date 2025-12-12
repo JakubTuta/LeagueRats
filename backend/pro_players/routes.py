@@ -1,6 +1,5 @@
 import typing
 
-import database.functions as db_functions
 import fastapi
 
 from . import functions, models

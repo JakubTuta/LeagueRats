@@ -81,7 +81,6 @@ def initialize_app() -> tuple[App, Client]:
         "match_history",
         "pro_players",
         "active_pro_games",
-        "eu_bootcamp_leaderboard",
         "live_streams",
         "champion_history",
         "leaderboard/EUW/CHALLENGER",
