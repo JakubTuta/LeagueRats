@@ -19,10 +19,6 @@ class RunesService:
         self.firestore_repo = repository.RunesFirestore(firestore)
 
     async def get_runes(self) -> typing.Optional[list[models.Rune]]:
-        """
-        Fetch runes with L1’L2’L3 caching strategy.
-        L1 (In-memory) ’ L2 (Redis) ’ L3 (Firestore)
-        """
         cached_runes = self.cache_repo.get_runes()
         if cached_runes:
             return cached_runes
