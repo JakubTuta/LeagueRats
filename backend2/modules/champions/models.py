@@ -1,8 +1,8 @@
 import typing
 
-import pro_players.models as pro_players_models
 import pydantic
-from match import models as match_models
+from modules.match import models as match_models
+from modules.pro_players import models as pro_players_models
 
 
 class ChampionName(pydantic.BaseModel):
