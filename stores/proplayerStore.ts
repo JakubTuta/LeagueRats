@@ -73,7 +73,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   }
 
   const getAllProPlayers = async (): Promise<IProPlayer[]> => {
-    const url = '/v2/pro-players/accounts/'
+    const url = '/v2/pro-players/players'
 
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 
@@ -115,12 +115,26 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   }
 
   const getPlayer = async (region: string, team: string, name: string): Promise<IProPlayer | null> => {
-    const url = `/v2/pro-players/accounts/${region}/${team}/${name}`
+    const upperRegion = region.toUpperCase()
+    const upperTeam = team.toUpperCase()
+    const upperName = name.toUpperCase()
 
-    const response = await apiStore.sendRequest({ url, method: 'GET' })
+    const url = `/v2/pro-players/players`
+
+    const queryParams = new URLSearchParams()
+
+    queryParams.append('region', upperRegion)
+    queryParams.append('team', upperTeam)
+    queryParams.append('player', upperName)
+
+    const fullUrl = `${url}?${queryParams.toString()}`
+
+    const response = await apiStore.sendRequest({ url: fullUrl, method: 'GET' })
 
     if (apiStore.isResponseOk(response)) {
-      return mapIProPlayer(response!.data)
+      const playerData = response!.data[upperRegion][upperTeam][0]
+
+      return mapIProPlayer(playerData)
     }
 
     return null
@@ -153,18 +167,6 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     }
 
     return {}
-  }
-
-  const getBootcampAccounts = async (): Promise<IBootcampAccount[]> => {
-    const url = '/v2/pro-players/bootcamp/leaderboard'
-
-    const response = await apiStore.sendRequest({ url, method: 'GET' })
-
-    if (apiStore.isResponseOk(response)) {
-      bootcampAccounts.value = response!.data as IBootcampAccount[]
-    }
-
-    return []
   }
 
   const getLiveStreams = () => {
@@ -211,7 +213,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   }
 
   const createProPlayer = async (player: IProPlayer, account: { username: string, tag: string, region: string }): Promise<boolean> => {
-    const baseUrl = '/v2/pro-players/accounts'
+    const baseUrl = '/v2/pro-players/players'
 
     const queryParams = new URLSearchParams()
 
@@ -269,7 +271,6 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     getPlayer,
     getActiveProGamesFromDatabase,
     getProAccountNames,
-    getBootcampAccounts,
     getLiveStreams,
     getNotLiveStreams,
     createProPlayer,

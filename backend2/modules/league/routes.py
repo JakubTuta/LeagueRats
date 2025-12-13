@@ -1,8 +1,7 @@
+import constants
 import fastapi
 import structlog
 import utils
-
-import constants
 
 from . import models, service
 
@@ -50,7 +49,9 @@ async def get_leaderboard(
     redis: utils.RedisClient = fastapi.Depends(utils.get_redis_client),
     firestore: utils.FirestoreClient = fastapi.Depends(utils.get_firestore_client),
 ) -> list[models.LeaderboardEntry]:
-    logger.info("get_leaderboard_endpoint_called", region=region, limit=limit, page=page)
+    logger.info(
+        "get_leaderboard_endpoint_called", region=region, limit=limit, page=page
+    )
 
     league_service = service.LeagueService(
         redis_client=redis, firestore_client=firestore
@@ -58,6 +59,8 @@ async def get_leaderboard(
     leaderboard = await league_service.get_leaderboard(
         region=region.value, limit=limit, page=page
     )
+
+    logger.info("leaderboard", leaderboard=leaderboard)
 
     if not leaderboard:
         raise fastapi.HTTPException(status_code=404, detail="Leaderboard not found")

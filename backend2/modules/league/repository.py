@@ -45,7 +45,7 @@ class LeagueCache:
         league_entries: list[models.LeagueEntry],
     ) -> None:
         cache_key = f"{CACHE_SETTINGS['league_entries']['cache_prefix']}:{puuid}"
-        entries_data = [entry.model_dump() for entry in league_entries]
+        entries_data = [entry.model_dump(mode='json') for entry in league_entries]
         self.league_entries_cache.set(cache_key, entries_data)
 
     def get_leaderboard(
@@ -70,7 +70,7 @@ class LeagueCache:
         leaderboard: list[models.LeaderboardEntry],
     ) -> None:
         cache_key = f"{CACHE_SETTINGS['leaderboard']['cache_prefix']}:leaderboard:{region}:{limit}:{page}"
-        leaderboard_data = [entry.model_dump() for entry in leaderboard]
+        leaderboard_data = [entry.model_dump(mode='json') for entry in leaderboard]
         self.leaderboard_cache.set(cache_key, leaderboard_data)
 
 
@@ -96,7 +96,7 @@ class LeagueRedis:
         league_entries: list[models.LeagueEntry],
     ) -> None:
         redis_key = f"{CACHE_SETTINGS['league_entries']['cache_prefix']}:{puuid}"
-        entries_data = [entry.model_dump() for entry in league_entries]
+        entries_data = [entry.model_dump(mode='json') for entry in league_entries]
         await self.redis_client.set_json(
             redis_key, entries_data, ex=CACHE_SETTINGS["league_entries"]["ttl"]
         )
@@ -123,7 +123,7 @@ class LeagueRedis:
         leaderboard: list[models.LeaderboardEntry],
     ) -> None:
         redis_key = f"{CACHE_SETTINGS['leaderboard']['cache_prefix']}:leaderboard:{region}:{limit}:{page}"
-        leaderboard_data = [entry.model_dump() for entry in leaderboard]
+        leaderboard_data = [entry.model_dump(mode='json') for entry in leaderboard]
         await self.redis_client.set_json(
             redis_key, leaderboard_data, ex=CACHE_SETTINGS["leaderboard"]["ttl"]
         )
@@ -139,7 +139,7 @@ class LeagueFirestore:
         limit: int,
         page: int,
     ) -> list[models.LeaderboardEntry]:
-        collection_path = f"leaderboard/{region}/CHALLENGER"
+        collection_path = f"leaderboard/{region.upper()}/CHALLENGER"
 
         response = await self.firestore_client.query_collection(
             collection=collection_path,

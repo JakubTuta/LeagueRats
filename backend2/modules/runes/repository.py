@@ -30,7 +30,7 @@ class RunesCache:
 
     def set_runes(self, runes: list[models.Rune]) -> None:
         cache_key = f"{self.cache_prefix}:all"
-        self.runes_cache.set(cache_key, [rune.model_dump() for rune in runes])
+        self.runes_cache.set(cache_key, [rune.model_dump(mode='json') for rune in runes])
 
 
 class RunesRedis:
@@ -49,7 +49,7 @@ class RunesRedis:
         redis_key = f"{self.cache_prefix}:all"
         ttl = CACHE_SETTINGS["runes"]["ttl"]
         await self.redis_client.set_json(
-            redis_key, [rune.model_dump() for rune in runes], ex=ttl
+            redis_key, [rune.model_dump(mode='json') for rune in runes], ex=ttl
         )
 
 

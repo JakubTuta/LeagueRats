@@ -6,7 +6,7 @@ export const useSoloqStore = defineStore('soloq', () => {
   const apiStore = useApiStore()
 
   const getLeaderboardForRegion = async (region: string, limit: number, page: number) => {
-    const url = `/v2/league/leaderboard/${region}?limit=${limit}&page=${page}`
+    const url = `/v2/league/leaderboard/${region.toLowerCase()}?limit=${limit}&page=${page}`
 
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 

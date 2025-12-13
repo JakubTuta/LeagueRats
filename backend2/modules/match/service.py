@@ -60,10 +60,6 @@ class MatchService:
         queue: typing.Optional[str] = None,
         type: typing.Optional[str] = None,
     ) -> list[models.MatchHistory]:
-        """
-        Fetch match history with multi-layer caching strategy:
-        L1 (In-memory) → L2 (Redis) → L3 (Firestore) → L4 (Riot API)
-        """
         match_ids = await self._fetch_match_history_ids(
             puuid=puuid,
             region=region,
@@ -196,7 +192,7 @@ class MatchService:
         match_ids_data = await self.riot_api.get(
             region=mapped_region,
             endpoint=f"/lol/match/v5/matches/by-puuid/{puuid}/ids",
-            params=params,
+            **params,
         )
 
         if not match_ids_data:

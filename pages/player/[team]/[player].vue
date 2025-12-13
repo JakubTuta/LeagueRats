@@ -70,7 +70,7 @@ onMounted(async () => {
   const promises = player.value.puuid.map(async puuid => await accountStore.getAccount({ puuid }))
   const accounts = (await Promise.all(promises)).filter(account => account !== null) as IAccount[]
 
-  const leagueEntryPromises = accounts.map(async account => await leagueStore.getLeagueEntry(account.puuid))
+  const leagueEntryPromises = accounts.map(async account => await leagueStore.getLeagueEntry(account.puuid, account.region.toUpperCase()))
   const leagueEntries = (await Promise.all(leagueEntryPromises)).filter(entry => entry !== null) as ILeagueEntry[]
 
   proAccounts.value = accounts.map((account) => {

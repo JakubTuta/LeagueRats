@@ -216,7 +216,7 @@ class ChampionsRedis:
         cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
         await self.redis_client.set_json(
             f"{cache_prefix}:{champion_id}",
-            champion,
+            champion.model_dump(mode="json"),
             ex=CACHE_SETTINGS["champion_names"]["ttl"],
         )
 
@@ -224,8 +224,14 @@ class ChampionsRedis:
         self, champions: dict[int, models.ChampionName]
     ) -> None:
         cache_prefix = CACHE_SETTINGS["champion_names"]["cache_prefix"]
+        serialized_champions = {
+            str(champion_id): champion.model_dump(mode="json")
+            for champion_id, champion in champions.items()
+        }
         await self.redis_client.set_json(
-            f"{cache_prefix}:all", champions, ex=CACHE_SETTINGS["champion_names"]["ttl"]
+            f"{cache_prefix}:all",
+            serialized_champions,
+            ex=CACHE_SETTINGS["champion_names"]["ttl"],
         )
 
     async def get_champion_stats(
@@ -249,7 +255,7 @@ class ChampionsRedis:
         )
         await self.redis_client.set_json(
             cache_prefix,
-            champion_stats,
+            champion_stats.model_dump(mode="json"),
             ex=CACHE_SETTINGS["champion_stats"]["ttl"],
         )
 
@@ -293,7 +299,7 @@ class ChampionsRedis:
 
         await self.redis_client.set_json(
             cache_prefix,
-            champion_matches,
+            [match.model_dump(mode="json") for match in champion_matches],
             ex=CACHE_SETTINGS["champion_matches"]["ttl"],
         )
 
@@ -333,7 +339,7 @@ class ChampionsRedis:
         cache_prefix = f"{CACHE_SETTINGS['champion_mastery']['cache_prefix']}:{puuid}"
         await self.redis_client.set_json(
             cache_prefix,
-            champion_mastery,
+            list(map(lambda x: x.model_dump(mode="json"), champion_mastery)),
             ex=CACHE_SETTINGS["champion_mastery"]["ttl"],
         )
 
@@ -367,7 +373,7 @@ class ChampionsFirestore:
         document_name = "champions"
 
         data = {
-            str(champion_id): champion.model_dump()
+            str(champion_id): champion.model_dump(mode="json")
             for champion_id, champion in champions.items()
         }
 
@@ -395,7 +401,7 @@ class ChampionsFirestore:
         collection_name = "champion_history"
         document_name = str(champion_id)
 
-        data = champion_stats.model_dump()
+        data = champion_stats.model_dump(mode="json")
 
         await self.firestore_client.set_document(collection_name, document_name, data)
 
@@ -407,14 +413,16 @@ class ChampionsFirestore:
         lane: typing.Optional[str] = None,
         versus: typing.Optional[str] = None,
     ) -> list[models.ChampionHistory]:
-        collection_name = f"champion_history/{champion_id}/matches"
+        collection_name = f"champion_history/{str(champion_id)}/matches"
 
         documents = await self.firestore_client.query_collection(
             collection_name,
             start_after=start_after,
             limit=limit,
             lane=lane,
-            versus=versus,
+            enemy=int(versus) if versus is not None else None,
+            order_by="match.info.gameStartTimestamp",
+            order_direction="DESCENDING",
         )
 
         matches = [models.ChampionHistory(**document) for document in documents]
@@ -447,7 +455,7 @@ class ChampionsFirestore:
         collection_name = f"champion_history/{champion_id}/matches"
 
         documents = {
-            match.match.metadata.matchId: match.model_dump()
+            match.match.metadata.matchId: match.model_dump(mode="json")
             for match in champion_matches
         }
 
@@ -460,5 +468,5 @@ class ChampionsFirestore:
     ) -> None:
         collection_name = f"champion_history/{champion_id}/matches"
         document_name = champion_match.match.metadata.matchId
-        data = champion_match.model_dump()
+        data = champion_match.model_dump(mode="json")
         await self.firestore_client.set_document(collection_name, document_name, data)

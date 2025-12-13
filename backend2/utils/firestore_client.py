@@ -188,7 +188,10 @@ class FirestoreClient:
 
             if kwargs:
                 for key, value in kwargs.items():
-                    query = query.where(key, "==", value)
+                    print(value)
+                    print(type(value))
+                    if value is not None:
+                        query = query.where(key, "==", value)
 
             docs = query.stream()
             results = [doc.to_dict() async for doc in docs]

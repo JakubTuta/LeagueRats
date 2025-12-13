@@ -155,7 +155,7 @@ async function findLeagueEntry() {
     return
 
   rankLoading.value = true
-  leagueEntry.value = await leagueStore.getLeagueEntry(account.value.puuid)
+  leagueEntry.value = await leagueStore.getLeagueEntry(account.value.puuid, account.value.region.toUpperCase())
   rankLoading.value = false
 }
 
@@ -164,16 +164,16 @@ async function findCurrentGame() {
     return
 
   liveGameLoading.value = true
-  currentGame.value = await matchStore.getActiveMatch(account.value.puuid)
+  currentGame.value = await matchStore.getActiveMatch(account.value.puuid, account.value.region)
   liveGameLoading.value = false
 }
 
 async function findChampions() {
-  if (!account.value || championMasteries.value.length)
+  if (!account.value || championMasteries.value.length || !region.value)
     return
 
   championsLoading.value = true
-  championMasteries.value = await championStore.getChampionMastery(account.value.puuid)
+  championMasteries.value = await championStore.getChampionMastery(account.value.puuid, region.value.toLowerCase())
   championsLoading.value = false
 }
 </script>

@@ -31,30 +31,6 @@ export const useAccountStore = defineStore('account', () => {
     return null
   }
 
-  const createAccount = async (
-    { username, tag, region, puuid }:
-    { username?: string, tag?: string, region?: string, puuid?: string },
-  ): Promise<IAccount | null> => {
-    const url = '/v2/account/'
-    const method = 'POST'
-
-    const requestData = {
-      username: username || '',
-      tag: tag || '',
-      region: region || '',
-      puuid: puuid || '',
-    }
-
-    const response = await apiStore.sendRequest(
-      { url, method, data: requestData },
-    )
-
-    if (apiStore.isResponseOk(response))
-      return mapAccount(response!.data)
-
-    return null
-  }
-
   const getAccountsInAllRegions = async (username: string, tag: string): Promise<Record<string, IAccount | null>> => {
     const url = `/v2/account/all-regions/${username}/${tag}`
 
@@ -68,7 +44,6 @@ export const useAccountStore = defineStore('account', () => {
 
   return {
     getAccount,
-    createAccount,
     getAccountsInAllRegions,
   }
 })

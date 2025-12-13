@@ -35,6 +35,12 @@ async def get_account(
         puuid=puuid,
     )
 
+    if not puuid and not (username and tag and region):
+        raise fastapi.HTTPException(
+            status_code=400,
+            detail="Either puuid OR (username, tag, and region) must be provided",
+        )
+
     account_service = service.AccountService(
         firestore=firestore, redis=redis, riot_api=riot_api
     )

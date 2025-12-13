@@ -3,9 +3,9 @@ import typing
 
 import constants
 import utils
+from modules.match import service as match_service_module
 
 from . import models, repository
-from modules.match import service as match_service_module
 
 
 class ProPlayerService:
@@ -35,10 +35,13 @@ class ProPlayerService:
         - Region + team: All players in team
         - Region + team + player: Single player
         """
+        print("get_players called with:", region, team, player)
         if player and region and team:
+            print("Fetching single player:", region, team, player)
             pro_player = await self._get_single_player(
                 region=region, team=team, player=player
             )
+            print("Found player:", pro_player)
 
             return {region: {team: [pro_player]}} if pro_player else None
 

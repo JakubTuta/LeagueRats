@@ -63,6 +63,10 @@ async def get_match_history_batch(
         region=region,
         start=start,
         count=count,
+        startTime=startTime,
+        endTime=endTime,
+        queue=queue,
+        type=type,
     )
 
     match_service = service.MatchService(

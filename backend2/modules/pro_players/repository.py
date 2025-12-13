@@ -72,7 +72,7 @@ class ProPlayersCache:
         if region and team:
             cache_key = f"{self.cache_prefix}:{region}:{team}"
             team_players = players.get(region, {}).get(team, [])
-            self.players_cache.set(cache_key, [p.model_dump() for p in team_players])
+            self.players_cache.set(cache_key, [p.model_dump(mode='json') for p in team_players])
         elif region:
             cache_key = f"{self.cache_prefix}:{region}"
             region_data = players.get(region, {})
@@ -156,13 +156,13 @@ class ProPlayersRedis:
             redis_key = f"{self.cache_prefix}:{region}:{team}"
             team_players = players.get(region, {}).get(team, [])
             await self.redis_client.set_json(
-                redis_key, [p.model_dump() for p in team_players], ex=ttl
+                redis_key, [p.model_dump(mode='json') for p in team_players], ex=ttl
             )
         elif region:
             redis_key = f"{self.cache_prefix}:{region}"
             region_data = players.get(region, {})
             serialized_data = {
-                team_name: [p.model_dump() for p in team_players]
+                team_name: [p.model_dump(mode='json') for p in team_players]
                 for team_name, team_players in region_data.items()
             }
             await self.redis_client.set_json(redis_key, serialized_data, ex=ttl)
@@ -170,7 +170,7 @@ class ProPlayersRedis:
             redis_key = f"{self.cache_prefix}:all"
             serialized_data = {
                 region_name: {
-                    team_name: [p.model_dump() for p in team_players]
+                    team_name: [p.model_dump(mode='json') for p in team_players]
                     for team_name, team_players in region_teams.items()
                 }
                 for region_name, region_teams in players.items()
@@ -253,7 +253,7 @@ class ProPlayersFirestore:
         await self.firestore_client.set_document(
             collection=collection_path,
             document_id=player.player.lower(),
-            data=player.model_dump(),
+            data=player.model_dump(mode='json'),
         )
 
     async def delete_player(self, region: str, team: str, player_name: str) -> bool:

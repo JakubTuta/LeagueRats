@@ -66,3 +66,20 @@ def get_lru_cache_client(name: str, max_size=1000) -> LRUCacheClient:
         LRU_CACHES[name] = LRUCacheClient(max_size=max_size)
 
     return LRU_CACHES[name]
+
+
+def clear_all_ttl_caches() -> None:
+    global TTL_CACHES
+    for cache in TTL_CACHES.values():
+        cache.clear()
+
+
+def clear_all_lru_caches() -> None:
+    global LRU_CACHES
+    for cache in LRU_CACHES.values():
+        cache.clear()
+
+
+def clear_all_caches() -> None:
+    clear_all_ttl_caches()
+    clear_all_lru_caches()

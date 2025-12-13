@@ -24,11 +24,12 @@ class AccountCache:
         puuid: typing.Optional[str],
         username: typing.Optional[str],
         tag: typing.Optional[str],
+        region: typing.Optional[str],
     ) -> typing.Optional[models.Account]:
         if puuid is not None:
             cache_key = f"{self.cache_prefix}:puuid:{puuid}"
-        elif username is not None and tag is not None:
-            cache_key = f"{self.cache_prefix}:username:{username}#{tag}"
+        elif username is not None and tag is not None and region is not None:
+            cache_key = f"{self.cache_prefix}:username:{username}#{tag}:region={region.upper()}"
         else:
             return None
 
@@ -39,14 +40,12 @@ class AccountCache:
         return None
 
     def set_account(self, account: models.Account) -> None:
-        account_data = account.model_dump()
+        account_data = account.model_dump(mode='json')
 
         cache_key_puuid = f"{self.cache_prefix}:puuid:{account.puuid}"
         self.cache_account.set(cache_key_puuid, account_data)
 
-        cache_key_username = (
-            f"{self.cache_prefix}:username:{account.gameName}#{account.tagLine}"
-        )
+        cache_key_username = f"{self.cache_prefix}:username:{account.gameName}#{account.tagLine}:region={account.region.upper()}"
         self.cache_account.set(cache_key_username, account_data)
 
 
@@ -60,11 +59,12 @@ class AccountRedis:
         puuid: typing.Optional[str],
         username: typing.Optional[str],
         tag: typing.Optional[str],
+        region: typing.Optional[str],
     ) -> typing.Optional[models.Account]:
         if puuid is not None:
             redis_key = f"{self.cache_prefix}:puuid:{puuid}"
-        elif username is not None and tag is not None:
-            redis_key = f"{self.cache_prefix}:username:{username}#{tag}"
+        elif username is not None and tag is not None and region is not None:
+            redis_key = f"{self.cache_prefix}:username:{username}#{tag}:region={region.upper()}"
         else:
             return None
 
@@ -75,15 +75,13 @@ class AccountRedis:
         return None
 
     async def set_account(self, account: models.Account) -> None:
-        account_data = account.model_dump()
+        account_data = account.model_dump(mode='json')
         ttl = CACHE_SETTINGS["ttl"]
 
         redis_key_puuid = f"{self.cache_prefix}:puuid:{account.puuid}"
         await self.redis_client.set_json(redis_key_puuid, account_data, ex=ttl)
 
-        redis_key_username = (
-            f"{self.cache_prefix}:username:{account.gameName}#{account.tagLine}"
-        )
+        redis_key_username = f"{self.cache_prefix}:username:{account.gameName}#{account.tagLine}:region={account.region.upper()}"
         await self.redis_client.set_json(redis_key_username, account_data, ex=ttl)
 
 
@@ -98,6 +96,8 @@ class AccountFirestore:
         tag: typing.Optional[str],
         region: typing.Optional[str],
     ) -> typing.Optional[models.Account]:
+        account_data = None
+
         if puuid is not None:
             account_data = await self.firestore_client.get_document(
                 collection="accounts", document_id=puuid
@@ -107,12 +107,12 @@ class AccountFirestore:
             query_filters = [
                 ("gameName", "==", username),
                 ("tagLine", "==", tag),
-                ("region", "==", region),
+                ("region", "==", region.upper()),
             ]
-            account_data = await self.firestore_client.query_collection(
+            account_data_list = await self.firestore_client.query_collection(
                 collection="accounts", filters=query_filters
             )
-            account_data = account_data[0] if account_data else None
+            account_data = account_data_list[0] if account_data_list else None
 
         else:
             return None
@@ -120,9 +120,11 @@ class AccountFirestore:
         if account_data is not None:
             return models.Account(**account_data)
 
+        return None
+
     async def set_account(self, account: models.Account) -> None:
         await self.firestore_client.set_document(
             collection="accounts",
             document_id=account.puuid,
-            data=account.model_dump(),
+            data={**account.model_dump(mode='json'), "region": account.region.upper()},
         )

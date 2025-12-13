@@ -46,7 +46,9 @@ async def get_pro_players(
 
     pro_player_service = service.ProPlayerService(firestore=firestore, redis=redis)
 
-    result = await pro_player_service.get_players(region=region, team=team, player=None)
+    result = await pro_player_service.get_players(
+        region=region, team=team, player=player
+    )
 
     if not result:
         raise fastapi.HTTPException(status_code=404, detail="Players not found")
@@ -172,7 +174,9 @@ async def get_live_streams(
 async def get_pro_player_history_stats(
     team: str,
     player: str,
-    amount: int = fastapi.Query(20, ge=1, le=100, description="Number of matches to analyze"),
+    amount: int = fastapi.Query(
+        20, ge=1, le=100, description="Number of matches to analyze"
+    ),
     redis: utils.RedisClient = fastapi.Depends(utils.get_redis_client),
     firestore: utils.FirestoreClient = fastapi.Depends(utils.get_firestore_client),
     riot_api: utils.RiotAPIClient = fastapi.Depends(utils.get_riot_api_client),

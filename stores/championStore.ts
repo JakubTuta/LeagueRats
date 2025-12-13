@@ -19,7 +19,7 @@ export const useChampionStore = defineStore('championStore', () => {
   }
 
   const getChampions = async () => {
-    const url = '/v2/champions/'
+    const url = '/v2/champions/list'
 
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 
@@ -32,8 +32,8 @@ export const useChampionStore = defineStore('championStore', () => {
     return []
   }
 
-  const getChampionMastery = async (puuid: string) => {
-    const url = `/v2/champions/mastery/${puuid}`
+  const getChampionMastery = async (puuid: string, region: string) => {
+    const url = `/v2/champions/mastery/${puuid}?region=${region}`
 
     const response = await apiStore.sendRequest({ url, method: 'GET' })
 

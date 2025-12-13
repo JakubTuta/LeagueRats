@@ -1,6 +1,9 @@
 from utils.cache_client import (
     LRUCacheClient,
     TTLCacheClient,
+    clear_all_caches,
+    clear_all_lru_caches,
+    clear_all_ttl_caches,
     get_lru_cache_client,
     get_ttl_cache_client,
 )
@@ -44,4 +47,7 @@ __all__ = [
     "LRUCacheClient",
     "get_ttl_cache_client",
     "get_lru_cache_client",
+    "clear_all_ttl_caches",
+    "clear_all_lru_caches",
+    "clear_all_caches",
 ]

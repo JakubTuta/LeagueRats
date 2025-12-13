@@ -8,7 +8,7 @@ from . import models, service
 
 logger = structlog.get_logger(__name__)
 
-router = fastapi.APIRouter(prefix="/v3/champions")
+router = fastapi.APIRouter(prefix="/v2/champions")
 
 
 @router.get(

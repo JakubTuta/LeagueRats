@@ -115,8 +115,10 @@ watch(champion, async (newChampion) => {
   ]
   await Promise.all(promises)
 
-  if (championMatches.value[newChampion.id]?.length)
+  if (championMatches.value[newChampion.id]?.length) {
     loadedGames.value = championMatches.value[newChampion.id].slice(0, gamesAmount)
+    console.log(loadedGames.value[0])
+  }
 
   secondaryLoading.value = false
 }, { immediate: true })

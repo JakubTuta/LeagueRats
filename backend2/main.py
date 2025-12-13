@@ -6,7 +6,9 @@ import dotenv
 import fastapi
 import ledger
 import ledger.integrations.fastapi as ledger_fastapi
+import modules
 import utils
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
 logging.basicConfig(
@@ -52,7 +54,20 @@ app = fastapi.FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    redirect_slashes=False,
 )
+
+if os.getenv("ENVIRONMENT", "development") == "development":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:3000",
+            "https://leaguerats.net",
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
@@ -63,7 +78,14 @@ app.add_middleware(
 )
 
 
-routers = []
+routers = [
+    modules.account_router,
+    modules.champions_router,
+    modules.league_router,
+    modules.match_router,
+    modules.pro_players_router,
+    modules.runes_router,
+]
 
 for router in routers:
     app.include_router(router)
@@ -82,4 +104,20 @@ async def health_check():
     return {
         "status": "healthy",
         "redis": "connected" if redis_healthy else "disconnected",
+    }
+
+
+@app.post("/admin/clear-cache")
+async def clear_cache():
+    redis_client = utils.get_redis_client()
+
+    await redis_client.flush_db()
+
+    utils.clear_all_caches()
+
+    logger.info("all_caches_cleared")
+
+    return {
+        "status": "success",
+        "message": "All caches (Redis and in-memory) have been cleared",
     }

@@ -47,7 +47,7 @@ class MatchCache:
         active_match: models.ActiveMatch,
     ) -> None:
         cache_key = f"{CACHE_SETTINGS['active_match']['cache_prefix']}:{puuid}"
-        active_match_data = active_match.model_dump()
+        active_match_data = active_match.model_dump(mode='json')
         self.active_match_cache.set(cache_key, active_match_data)
 
     def get_match_history(
@@ -73,7 +73,7 @@ class MatchCache:
 
         for match_history in match_histories:
             cache_key = f"{cache_prefix}:{match_history.metadata.matchId}"
-            match_history_data = match_history.model_dump()
+            match_history_data = match_history.model_dump(mode='json')
             self.match_history_cache.set(cache_key, match_history_data)
 
 
@@ -99,7 +99,7 @@ class MatchRedis:
         active_match: models.ActiveMatch,
     ) -> None:
         redis_key = f"{CACHE_SETTINGS['active_match']['cache_prefix']}:{puuid}"
-        active_match_data = active_match.model_dump()
+        active_match_data = active_match.model_dump(mode='json')
         await self.redis.set_json(
             redis_key,
             active_match_data,
@@ -129,7 +129,7 @@ class MatchRedis:
         match_histories: list[models.MatchHistory],
     ) -> None:
         redis_data = {
-            f"{CACHE_SETTINGS['match_history']['cache_prefix']}:{match_history.metadata.matchId}": match_history.model_dump()
+            f"{CACHE_SETTINGS['match_history']['cache_prefix']}:{match_history.metadata.matchId}": match_history.model_dump(mode='json')
             for match_history in match_histories
         }
 
@@ -167,7 +167,7 @@ class MatchFirestore:
         collection_name = "match_history"
 
         batch_data = {
-            match_history.metadata.matchId: match_history.model_dump()
+            match_history.metadata.matchId: match_history.model_dump(mode='json')
             for match_history in match_histories
         }
 

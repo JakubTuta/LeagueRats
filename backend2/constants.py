@@ -14,43 +14,52 @@ __all__ = [
 
 
 class Region(str, Enum):
-    EUW = "euw"
-    EUNE = "eune"
-    NA = "na"
-    KR = "kr"
-    BR = "br"
-    JP = "jp"
-    LAN = "lan"
-    LAS = "las"
-    OCE = "oce"
-    PH = "ph"
-    RU = "ru"
-    SG = "sg"
-    TH = "th"
-    TR = "tr"
-    TW = "tw"
-    VN = "vn"
-    ME = "me"
+    EUW = "EUW"
+    EUNE = "EUNE"
+    NA = "NA"
+    KR = "KR"
+    BR = "BR"
+    JP = "JP"
+    LAN = "LAN"
+    LAS = "LAS"
+    OCE = "OCE"
+    PH = "PH"
+    RU = "RU"
+    SG = "SG"
+    TH = "TH"
+    TR = "TR"
+    TW = "TW"
+    VN = "VN"
+    ME = "ME"
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            value_upper = value.upper()
+            for member in cls:
+                if member.value == value_upper:
+                    return member
+        return None
 
 
 REGIONS = [
-    "euw",
-    "eune",
-    "na",
-    "kr",
-    "br",
-    "jp",
-    "lan",
-    "las",
-    "oce",
-    "ph",
-    "ru",
-    "sg",
-    "th",
-    "tr",
-    "tw",
-    "vn",
-    "me",
+    "EUW",
+    "EUNE",
+    "NA",
+    "KR",
+    "BR",
+    "JP",
+    "LAN",
+    "LAS",
+    "OCE",
+    "PH",
+    "RU",
+    "SG",
+    "TH",
+    "TR",
+    "TW",
+    "VN",
+    "ME",
 ]
 
 PLATFORM_REGIONS = [
@@ -95,36 +104,53 @@ REGION_TO_PLATFORM = {
 
 REGION_TO_CONTINENT = {
     "euw": "europe",
+    "EUW": "europe",
     "euw1": "europe",
     "eune": "europe",
+    "EUNE": "europe",
     "eun1": "europe",
     "na": "americas",
+    "NA": "americas",
     "na1": "americas",
     "kr": "asia",
+    "KR": "asia",
     "br": "americas",
+    "BR": "americas",
     "br1": "americas",
     "jp": "asia",
+    "JP": "asia",
     "jp1": "asia",
     "lan": "americas",
+    "LAN": "americas",
     "la1": "americas",
     "las": "americas",
+    "LAS": "americas",
     "la2": "americas",
     "oce": "asia",
+    "OCE": "asia",
     "oc1": "asia",
     "ph": "asia",
+    "PH": "asia",
     "ph2": "asia",
     "ru": "europe",
+    "RU": "europe",
     "sg": "asia",
+    "SG": "asia",
     "sg2": "asia",
     "th": "asia",
+    "TH": "asia",
     "th2": "asia",
     "tr": "europe",
+    "TR": "europe",
     "tr1": "europe",
     "tw": "asia",
+    "TW": "asia",
     "tw2": "asia",
     "vn": "asia",
+    "VN": "asia",
     "vn2": "asia",
     "me": "europe",
+    "ME": "europe",
     "me1": "europe",
 }
 

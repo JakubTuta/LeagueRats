@@ -78,7 +78,7 @@ async function loadMatches(count: number = matchAmount) {
     endTime: Math.floor(lastLoadedMatchDate / 1000),
   }
 
-  const matchesData = await matchStore.getMatchHistoryBatch(account.value.puuid, optionalKeys)
+  const matchesData = await matchStore.getMatchHistoryBatch(account.value.puuid, account.value.region.toUpperCase(), optionalKeys)
 
   matchHistoryPerRegion.value[selectedTab.value].push(...matchesData)
 
