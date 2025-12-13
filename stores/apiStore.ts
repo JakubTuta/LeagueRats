@@ -1,17 +1,66 @@
-import axios, { type AxiosResponse } from 'axios'
+import axios, { type AxiosError, type AxiosInstance, type AxiosResponse } from 'axios'
+
+export interface ApiError {
+  message: string
+  status?: number
+  data?: any
+}
 
 export const useApiStore = defineStore('api', () => {
   const config = useRuntimeConfig()
   const baseUrl = config.public.server_url
 
-  function getAxios() {
-    return axios.create({
+  let axiosInstance: AxiosInstance | null = null
+
+  const getAxiosInstance = (): AxiosInstance => {
+    if (axiosInstance) {
+      return axiosInstance
+    }
+
+    axiosInstance = axios.create({
       baseURL: baseUrl,
       headers: {
         'Content-Type': 'application/json',
       },
       responseType: 'json',
+      timeout: 30000,
     })
+
+    axiosInstance.interceptors.request.use(
+      (config) => {
+        return config
+      },
+      (error) => {
+        return Promise.reject(error)
+      },
+    )
+
+    axiosInstance.interceptors.response.use(
+      (response) => {
+        return response
+      },
+      (error: AxiosError) => {
+        const apiError: ApiError = {
+          message: error.message || 'An unknown error occurred',
+          status: error.response?.status,
+          data: error.response?.data,
+        }
+
+        if (error.response?.status === 404) {
+          apiError.message = 'Resource not found'
+        }
+        else if (error.response?.status === 500) {
+          apiError.message = 'Server error occurred'
+        }
+        else if (error.code === 'ECONNABORTED') {
+          apiError.message = 'Request timeout'
+        }
+
+        return Promise.reject(apiError)
+      },
+    )
+
+    return axiosInstance
   }
 
   const isResponseOk = (response: AxiosResponse | null): boolean => {
@@ -22,34 +71,30 @@ export const useApiStore = defineStore('api', () => {
     { url, method, data }:
     { url: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', data?: any },
   ): Promise<AxiosResponse | null> => {
-    let response: AxiosResponse | null = null
-
     try {
+      const instance = getAxiosInstance()
+
       switch (method) {
         case 'GET':
-          response = await getAxios().get(url)
-          break
+          return await instance.get(url)
         case 'POST':
-          response = await getAxios().post(url, data)
-          break
+          return await instance.post(url, data)
         case 'PUT':
-          response = await getAxios().put(url, data)
-          break
+          return await instance.put(url, data)
         case 'DELETE':
-          response = await getAxios().delete(url)
-          break
+          return await instance.delete(url)
       }
     }
-
     catch (error: any) {
-      console.error(error)
-    }
+      console.error('API Request Error:', error)
 
-    return response
+      return null
+    }
   }
 
   return {
     isResponseOk,
     sendRequest,
+    getAxiosInstance,
   }
 })

@@ -8,14 +8,14 @@ services:
     volumes:
       - leaguerats-redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: [CMD, redis-cli, -a, '${REDIS_PASSWORD}', ping]
       interval: 60s
       timeout: 10s
       retries: 3
     networks:
       - leaguerats-network
     ports:
-      - "${REDIS_PORT}:6379"
+      - '${REDIS_PORT}:6379'
     command: >
       redis-server
       --maxmemory 2gb

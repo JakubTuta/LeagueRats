@@ -80,7 +80,7 @@ RIOT_API_KEY=your_riot_api_key
 docker-compose up -d
 ```
 
-FastAPI server runs on `http://localhost:8000`  
+FastAPI server runs on `http://localhost:8000`
 Frontend web app runs on `http://localhost:3000`
 
 ## Running each module separately

@@ -96,9 +96,8 @@ function getMatchHistory() {
 
   if (matchHistoryPerRegion.value[selectedTab.value].length === 0) {
     canLoadMore.value = true
+    loadMatches()
   }
-
-  loadMatches()
 }
 
 const processedGames = computed(() => {
@@ -111,8 +110,6 @@ const mapLastGames = computed(() => {
   return processedGames.value
     .reduce((acc, game) => {
       const participant = game.info.participants.find(participant => account.value!.puuid.includes(participant.puuid))!
-
-      storageStore.getChampionIcon(participant.championId)
 
       let champion = acc.find(champ => champ.championId === participant.championId)
 
@@ -145,6 +142,21 @@ const mapLastGames = computed(() => {
     }, [] as IChampionHistory[])
     .sort((a, b) => b.games - a.games)
 })
+
+watch(processedGames, (games) => {
+  const championIds = new Set<number>()
+
+  games.forEach((game) => {
+    const participant = game.info.participants.find(p => account.value!.puuid.includes(p.puuid))
+    if (participant) {
+      championIds.add(participant.championId)
+    }
+  })
+
+  championIds.forEach((championId) => {
+    storageStore.getChampionIcon(championId)
+  })
+}, { immediate: true })
 
 function getKDA(champion: IChampionHistory) {
   const kda = (champion.kills + champion.assists) / champion.deaths
@@ -262,6 +274,17 @@ const lastGamesLosses = computed(() => processedGames.value.reduce((acc, game) =
   </v-card>
 
   <v-spacer class="my-4" />
+
+  <v-card
+    v-if="!loading && loadedFirstBatch && processedGames.length === 0"
+    class="my-4"
+  >
+    <v-card-text class="text-center py-8">
+      <p class="text-subtitle-1 text-medium-emphasis">
+        {{ $t('profile.matchHistory.noGames') }}
+      </p>
+    </v-card-text>
+  </v-card>
 
   <AccountGameData
     v-for="match in processedGames"

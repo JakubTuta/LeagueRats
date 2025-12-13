@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
 import { selectRegions } from '~/helpers/regions'
-import type { IAccount } from '~/models/account'
-import type { IActiveGame } from '~/models/activeGame'
-import type { IChampionMastery } from '~/models/championMastery'
-import type { ILeagueEntry } from '~/models/leagueEntry'
-import { useLeagueStore } from '~/stores/leagueStore'
-import { useMatchStore } from '~/stores/matchStore'
 
 const route = useRoute()
 const router = useRouter()
@@ -25,18 +19,10 @@ const { proAccountNames } = storeToRefs(proStore)
 const appStore = useAppStore()
 const { loading: appLoading } = storeToRefs(appStore)
 
-const loading = ref(false)
-const rankLoading = ref(false)
-const gamesLoading = ref(false)
-const liveGameLoading = ref(false)
-const championsLoading = ref(false)
 const selectedTab = ref(0)
 const region = ref('')
-const account = ref<IAccount | null>(null)
-const leagueEntry = ref<ILeagueEntry[]>([])
-const matchHistory = ref<any[]>([])
-const currentGame = ref<IActiveGame | null>(null)
-const championMasteries = ref<IChampionMastery[]>([])
+const gameName = ref('')
+const tagLine = ref('')
 
 const proPlayer = ref<{ team: string, player: string } | null>(null)
 const isShowTeamDialog = ref(false)
@@ -49,10 +35,10 @@ const tabs = computed(() => [
   { text: t('profile.champions.title'), value: 3 },
 ])
 
-onMounted(async () => {
-  let gameName = ''
-  let tagLine = ''
+const account = computed(() => accountStore.getAccountData(region.value, gameName.value, tagLine.value))
+const accountLoading = computed(() => accountStore.isAccountLoading(region.value, gameName.value, tagLine.value))
 
+onMounted(async () => {
   try {
     const paramsData = route.params as { region: string, account: string }
     region.value = paramsData.region.toUpperCase()
@@ -61,55 +47,34 @@ onMounted(async () => {
     if (!accountData.includes('-'))
       throw new Error('Invalid account data')
 
-    gameName = accountData.split('-')[0]
-    tagLine = accountData.split('-')[1]
+    gameName.value = accountData.split('-')[0]
+    tagLine.value = accountData.split('-')[1]
   }
-
   catch (error) {
     router.push('/404')
-  }
-
-  if (!selectRegions.includes(region.value)) {
-    router.push(`/search-account/${gameName}-${tagLine}`)
-  }
-
-  loading.value = true
-
-  const response = await accountStore.getAccount({ username: gameName, tag: tagLine, region: region.value })
-
-  if (!response) {
-    router.push(`/search-account/${gameName}-${tagLine}`)
 
     return
   }
 
-  account.value = response
+  if (!selectRegions.includes(region.value)) {
+    router.push(`/search-account/${gameName.value}-${tagLine.value}`)
 
-  loadTabs()
+    return
+  }
 
-  loading.value = false
+  const fetchedAccount = await accountStore.fetchAccount(region.value, gameName.value, tagLine.value)
+
+  if (!fetchedAccount) {
+    router.push(`/search-account/${gameName.value}-${tagLine.value}`)
+
+    return
+  }
+
+  prefetchAllData(fetchedAccount)
 })
 
-onUnmounted(() => {
-  loading.value = false
-  rankLoading.value = false
-  gamesLoading.value = false
-  liveGameLoading.value = false
-  championsLoading.value = false
-  account.value = null
-  leagueEntry.value = []
-  matchHistory.value = []
-  currentGame.value = null
-  championMasteries.value = []
-})
-
-watch(account, () => {
-  handleTabData()
-  checkIfAccountIsPro()
-}, { immediate: true })
-
-watch(selectedTab, () => {
-  handleTabData()
+watch(account, (acc) => {
+  checkIfAccountIsPro(acc)
 }, { immediate: true })
 
 watch(isShowTeamDialog, (value) => {
@@ -117,70 +82,28 @@ watch(isShowTeamDialog, (value) => {
     selectedTeam.value = ''
 })
 
-function loadTabs() {
-  findLeagueEntry()
-  findCurrentGame()
-  findChampions()
-}
-
-function handleTabData() {
-  switch (selectedTab.value) {
-    case 0:
-      // replaceUrl(0)
-      findLeagueEntry()
-      break
-    // case 1:
-    //   replaceUrl(1)
-    //   break
-    case 2:
-      // replaceUrl(2)
-      findCurrentGame()
-      break
-    case 3:
-      // replaceUrl(3)
-      findChampions()
-      break
-  }
-}
-
-function checkIfAccountIsPro() {
-  if (!account.value?.puuid || !proAccountNames.value)
+async function prefetchAllData(acc: any) {
+  if (!acc)
     return
 
-  proPlayer.value = proAccountNames.value[account.value.puuid] || null
+  await Promise.all([
+    leagueStore.fetchLeagueEntry(acc),
+    matchStore.fetchActiveMatch(acc),
+    championStore.fetchChampionMastery(acc),
+  ])
 }
 
-async function findLeagueEntry() {
-  if (!account.value || leagueEntry.value.length)
+function checkIfAccountIsPro(acc: any) {
+  if (!acc?.puuid || !proAccountNames.value)
     return
 
-  rankLoading.value = true
-  leagueEntry.value = await leagueStore.getLeagueEntry(account.value.puuid, account.value.region.toUpperCase())
-  rankLoading.value = false
-}
-
-async function findCurrentGame() {
-  if (!account.value || currentGame.value)
-    return
-
-  liveGameLoading.value = true
-  currentGame.value = await matchStore.getActiveMatch(account.value.puuid, account.value.region)
-  liveGameLoading.value = false
-}
-
-async function findChampions() {
-  if (!account.value || championMasteries.value.length || !region.value)
-    return
-
-  championsLoading.value = true
-  championMasteries.value = await championStore.getChampionMastery(account.value.puuid, region.value.toLowerCase())
-  championsLoading.value = false
+  proPlayer.value = proAccountNames.value[acc.puuid] || null
 }
 </script>
 
 <template>
   <v-container>
-    <Loader v-if="loading || appLoading" />
+    <Loader v-if="accountLoading || appLoading" />
 
     <v-card
       v-else
@@ -225,7 +148,7 @@ async function findChampions() {
       </v-card-title>
 
       <v-tabs
-        v-if="!loading"
+        v-if="!accountLoading"
         v-model="selectedTab"
         color="primary"
         align-tabs="center"
@@ -241,11 +164,12 @@ async function findChampions() {
         </v-tab>
       </v-tabs>
 
-      <v-card-text v-if="!loading">
+      <v-card-text v-if="!accountLoading">
         <AccountRank
           v-if="selectedTab === 0"
-          :league-entries="leagueEntry"
-          :loading="rankLoading"
+          :region="region"
+          :game-name="gameName"
+          :tag-line="tagLine"
         />
 
         <AccountMatchHistory
@@ -255,16 +179,18 @@ async function findChampions() {
 
         <AccountCurrentGame
           v-if="selectedTab === 2"
-          :current-game="currentGame"
+          :region="region"
+          :game-name="gameName"
+          :tag-line="tagLine"
           :account="account"
-          :loading="liveGameLoading"
         />
 
         <AccountChampions
           v-if="selectedTab === 3"
+          :region="region"
+          :game-name="gameName"
+          :tag-line="tagLine"
           :account="account"
-          :champions="championMasteries"
-          :loading="championsLoading"
         />
       </v-card-text>
     </v-card>

@@ -10,21 +10,31 @@ export const useAppStore = defineStore('app', () => {
   const getInitialData = async () => {
     loading.value = true
 
-    const players = await proPlayerStore.getAllProPlayers()
-    await storageStore.fetchAllPlayerImages(players)
-    await storageStore.fetchAllTeamLogos()
-    await proPlayerStore.getProAccountNames()
+    try {
+      const [players, champions] = await Promise.all([
+        proPlayerStore.getAllProPlayers(),
+        championStore.getChampions(),
+      ])
 
-    const champions = await championStore.getChampions()
-    await storageStore.fetchAllChampionIcons(champions)
+      await Promise.all([
+        storageStore.fetchAllPlayerImages(players),
+        storageStore.fetchAllTeamLogos(),
+        proPlayerStore.getProAccountNames(),
+        storageStore.fetchAllChampionIcons(champions),
+        storageStore.fetchAllRankIcons(),
+        runeStore.getRuneInfo(),
+      ])
 
-    await storageStore.fetchAllRankIcons()
-    await runeStore.getRuneInfo()
-    summonersSpellStore.getAllSummonerSpellIcons()
-    proPlayerStore.getLiveStreams()
-    proPlayerStore.getNotLiveStreams()
-
-    loading.value = false
+      summonersSpellStore.getAllSummonerSpellIcons()
+      proPlayerStore.getLiveStreams()
+      proPlayerStore.getNotLiveStreams()
+    }
+    catch (error) {
+      console.error('Error loading initial data:', error)
+    }
+    finally {
+      loading.value = false
+    }
   }
 
   return {

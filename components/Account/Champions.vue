@@ -5,12 +5,13 @@ import type { IChampionMastery } from '~/models/championMastery'
 import { useChampionStore } from '~/stores/championStore'
 
 const props = defineProps<{
+  region: string
+  gameName: string
+  tagLine: string
   account: IAccount | null
-  champions: IChampionMastery[]
-  loading: boolean
 }>()
 
-const { champions, loading, account } = toRefs(props)
+const { region, gameName, tagLine, account } = toRefs(props)
 
 const { height } = useDisplay()
 
@@ -21,6 +22,9 @@ const { proAccountNames } = storeToRefs(proStore)
 
 const championStore = useChampionStore()
 const { champions: storeChampions } = storeToRefs(championStore)
+
+const champions = computed(() => championStore.getChampionMasteryData(region.value, gameName.value, tagLine.value))
+const loading = computed(() => championStore.isChampionMasteryLoading(region.value, gameName.value, tagLine.value))
 
 const loadedChampions = ref<IChampionMastery[]>([])
 const isAccountPro = ref(false)

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import bannedDefault from '~/assets/banned_default.png';
-import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions';
-import type { IAccount } from '~/models/account';
-import type { IActiveGame, IParticipant } from '~/models/activeGame';
+import bannedDefault from '~/assets/banned_default.png'
+import { type TApiRegions2, mapApiRegion2ToSelect } from '~/helpers/regions'
+import type { IAccount } from '~/models/account'
+import type { IActiveGame, IParticipant } from '~/models/activeGame'
 
 const props = withDefaults(defineProps<{
   game: IActiveGame | null

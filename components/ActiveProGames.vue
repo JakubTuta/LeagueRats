@@ -11,25 +11,33 @@ const storageStore = useStorageStore()
 const refreshTime = ref('00:00')
 
 const playersPerSlide = 3
-
-setInterval(getNextUpdateTime, 1000)
+const intervalId = ref<number | null>(null)
 
 onMounted(() => {
   proStore.getActiveProGamesFromDatabase()
+  intervalId.value = setInterval(getNextUpdateTime, 1000) as unknown as number
+})
+
+onUnmounted(() => {
+  if (intervalId.value !== null) {
+    clearInterval(intervalId.value)
+  }
 })
 
 const filteredGames = computed(() => activeGames.value.filter((game, index, self) => index === self.findIndex(g => g.player.player === game.player.player)))
 
-const shuffledGames = computed(() => {
-  const copiedArray = filteredGames.value.map(game => game)
+const shuffledGames = ref<IProActiveGame[]>([])
+
+watch(filteredGames, (newGames) => {
+  const copiedArray = [...newGames]
 
   for (let i = copiedArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [copiedArray[i], copiedArray[j]] = [copiedArray[j], copiedArray[i]]
   }
 
-  return copiedArray
-})
+  shuffledGames.value = copiedArray
+}, { immediate: true })
 
 const splitProGames = computed(() => {
   if (!filteredGames.value)

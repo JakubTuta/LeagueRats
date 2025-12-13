@@ -6,23 +6,23 @@ import type { IProPlayer } from '~/models/proPlayer'
 export const useStorageStore = defineStore('storage', () => {
   const { storage } = useFirebase()
 
-  const championStore = useChampionStore()
-
   const regionIcons = ref<Record<string, string>>({})
   const runeIcons = ref<Record<number, string>>({})
   const itemIcons = ref<Record<number, string>>({})
+  const championIcons = ref<Record<number, string>>({})
+  const rankIcons = ref<Record<string, string>>({})
+  const teamLogos = ref<Record<string, string>>({})
+  const teamImages = ref<Record<string, string>>({})
 
-  const championIcons: Record<number, string> = {}
-  const rankIcons: Record<string, string> = {}
-  const teamLogos: Record<string, string> = {}
-  const teamImages: Record<string, string> = {}
-
-  const fetchChampionIcon = async (championId: number) => {
-    if (championIcons[championId]) {
-      return championIcons[championId]
+  const fetchChampionIcon = async (championId: number, championName?: string) => {
+    if (championIcons.value[championId]) {
+      return championIcons.value[championId]
     }
 
-    const championName = championStore.getChampionName(championId)
+    if (!championName) {
+      const championStore = useChampionStore()
+      championName = championStore.getChampionName(championId) || undefined
+    }
 
     if (!championName) {
       return null
@@ -31,7 +31,7 @@ export const useStorageStore = defineStore('storage', () => {
     try {
       const championsRef = storageRef(storage, `champions/icons/${championName}.png`)
       const url = await getDownloadURL(championsRef)
-      championIcons[championId] = url
+      championIcons.value[championId] = url
 
       return url
     }
@@ -48,14 +48,14 @@ export const useStorageStore = defineStore('storage', () => {
   const fetchRankIcon = async (rank: string) => {
     const rankName = rank.toLowerCase()
 
-    if (rankIcons[rankName]) {
+    if (rankIcons.value[rankName]) {
       return
     }
 
     try {
       const rankRef = storageRef(storage, `ranks/icons/${rankName}.png`)
       const url = await getDownloadURL(rankRef)
-      rankIcons[rankName] = url
+      rankIcons.value[rankName] = url
     }
     catch (error) { }
   }
@@ -96,52 +96,52 @@ export const useStorageStore = defineStore('storage', () => {
   }
 
   const getRuneIcons = async (runePathPerId: Record<number, string>) => {
-    for (const id in runePathPerId) {
-      if (runeIcons.value[id]) {
-        continue
-      }
+    const promises = Object.entries(runePathPerId).map(async ([id, runePath]) => {
+      const numId = Number(id)
 
-      const runePath = runePathPerId[id]
+      if (runeIcons.value[numId]) {
+        return
+      }
 
       try {
         const runeRef = storageRef(storage, runePath)
-        // eslint-disable-next-line no-await-in-loop
         const url = await getDownloadURL(runeRef)
-        runeIcons.value[id] = url
+        runeIcons.value[numId] = url
       }
       catch (error) {}
-    }
+    })
+
+    await Promise.all(promises)
   }
 
   const getItemIcons = async (itemIds: number[]) => {
-    for (const id of itemIds) {
+    const promises = itemIds.map(async (id) => {
       if (id === 0 || itemIcons.value[id]) {
-        continue
+        return
       }
 
       try {
         const itemRef = storageRef(storage, `items/${id}.png`)
-
-        // eslint-disable-next-line no-await-in-loop
         const url = await getDownloadURL(itemRef)
-
         itemIcons.value[id] = url
       }
       catch (error) {}
-    }
+    })
+
+    await Promise.all(promises)
   }
 
   const fetchPlayerImage = async (player: string) => {
     const playerName = player?.toLowerCase().replace(' ', '_') || ''
 
-    if (teamImages[playerName]) {
+    if (teamImages.value[playerName]) {
       return
     }
 
     try {
       const playerRef = storageRef(storage, `players/${playerName}.png`)
       const url = await getDownloadURL(playerRef)
-      teamImages[playerName] = url
+      teamImages.value[playerName] = url
     }
     catch (error) { }
   }
@@ -155,33 +155,28 @@ export const useStorageStore = defineStore('storage', () => {
   const fetchTeamLogo = async (team: string) => {
     const teamName = team?.toUpperCase() || ''
 
-    if (teamLogos[teamName]) {
+    if (teamLogos.value[teamName]) {
       return
     }
 
     try {
       const teamRef = storageRef(storage, `teams/${teamName}.png`)
-
       const url = await getDownloadURL(teamRef)
-
-      teamLogos[teamName] = url
+      teamLogos.value[teamName] = url
     }
     catch (error) { }
   }
 
   const fetchAllTeamLogos = async () => {
-    await Promise.all(Object.values(teamPerRegion).map(async (teams) => {
-      await Promise.all(teams.map(async (team) => {
-        await fetchTeamLogo(team)
-      }))
-    }))
+    const allTeams = Object.values(teamPerRegion).flat()
+    await Promise.all(allTeams.map(team => fetchTeamLogo(team)))
   }
 
   const getPlayerImage = (player: string) => {
     const playerName = player?.toLowerCase().replace(' ', '_') || ''
 
-    if (teamImages[playerName]) {
-      return teamImages[playerName]
+    if (teamImages.value[playerName]) {
+      return teamImages.value[playerName]
     }
 
     return null
@@ -190,8 +185,8 @@ export const useStorageStore = defineStore('storage', () => {
   const getTeamLogo = (team: string) => {
     const teamName = team?.toUpperCase() || ''
 
-    if (teamLogos[teamName]) {
-      return teamLogos[teamName]
+    if (teamLogos.value[teamName]) {
+      return teamLogos.value[teamName]
     }
 
     return null
@@ -200,8 +195,8 @@ export const useStorageStore = defineStore('storage', () => {
   const getRankIcon = (rank: string) => {
     const rankName = rank.toLowerCase()
 
-    if (rankIcons[rankName]) {
-      return rankIcons[rankName]
+    if (rankIcons.value[rankName]) {
+      return rankIcons.value[rankName]
     }
 
     return null
@@ -210,8 +205,8 @@ export const useStorageStore = defineStore('storage', () => {
   const getChampionIcon = (championId: number | string) => {
     championId = Number(championId)
 
-    if (championIcons[championId]) {
-      return championIcons[championId]
+    if (championIcons.value[championId]) {
+      return championIcons.value[championId]
     }
 
     return null

@@ -35,12 +35,21 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   const liveStreams = ref<Record<string, IStream>>({})
   const notLiveStreams = ref<Record<string, IStream>>({})
 
-  const activeGamesUnsubscribe = ref<Unsubscribe | null>(null)
-  const liveStreamsUnsubscribe = ref<Unsubscribe | null>(null)
-  const notLiveStreamsUnsubscribe = ref<Unsubscribe | null>(null)
+  const unsubscribers = ref<Record<string, Unsubscribe>>({})
 
   const { firestore } = useFirebase()
   const apiStore = useApiStore()
+
+  const unsubscribe = (key: string) => {
+    if (unsubscribers.value[key]) {
+      unsubscribers.value[key]()
+      delete unsubscribers.value[key]
+    }
+  }
+
+  const unsubscribeAll = () => {
+    Object.keys(unsubscribers.value).forEach(key => unsubscribe(key))
+  }
 
   const resetState = () => {
     savedPlayers.value = {}
@@ -52,21 +61,12 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
     liveStreams.value = {}
     notLiveStreams.value = {}
 
-    if (liveStreamsUnsubscribe.value) {
-      liveStreamsUnsubscribe.value()
-      liveStreamsUnsubscribe.value = null
-    }
-
-    if (notLiveStreamsUnsubscribe.value) {
-      notLiveStreamsUnsubscribe.value()
-      notLiveStreamsUnsubscribe.value = null
-    }
-
-    if (activeGamesUnsubscribe.value) {
-      activeGamesUnsubscribe.value()
-      activeGamesUnsubscribe.value = null
-    }
+    unsubscribeAll()
   }
+
+  onScopeDispose(() => {
+    unsubscribeAll()
+  })
 
   const resetPlayers = () => {
     players.value = []
@@ -141,9 +141,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   }
 
   const getActiveProGamesFromDatabase = () => {
-    if (activeGamesUnsubscribe.value) {
-      activeGamesUnsubscribe.value()
-    }
+    unsubscribe('activeGames')
 
     const q = query(collection(firestore, 'active_pro_games'))
 
@@ -154,7 +152,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
       activeGames.value = games
     }
 
-    activeGamesUnsubscribe.value = onSnapshot(q, onSuccess)
+    unsubscribers.value.activeGames = onSnapshot(q, onSuccess)
   }
 
   const getProAccountNames = async (): Promise<IProAccountNames> => {
@@ -170,9 +168,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
   }
 
   const getLiveStreams = () => {
-    if (liveStreamsUnsubscribe.value) {
-      liveStreamsUnsubscribe.value()
-    }
+    unsubscribe('liveStreams')
 
     const onSuccess = (snapshot: DocumentData) => {
       const data = snapshot.data()
@@ -182,16 +178,14 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
       liveStreams.value = data as Record<string, IStream>
     }
 
-    liveStreamsUnsubscribe.value = onSnapshot(
+    unsubscribers.value.liveStreams = onSnapshot(
       doc(collection(firestore, 'live_streams'), 'live'),
       onSuccess,
     )
   }
 
   const getNotLiveStreams = () => {
-    if (notLiveStreamsUnsubscribe.value) {
-      notLiveStreamsUnsubscribe.value()
-    }
+    unsubscribe('notLiveStreams')
 
     const onSuccess = (snapshot: DocumentData) => {
       const data = snapshot.data()
@@ -205,7 +199,7 @@ export const useProPlayerStore = defineStore('proPlayer', () => {
       console.error(error)
     }
 
-    notLiveStreamsUnsubscribe.value = onSnapshot(
+    unsubscribers.value.notLiveStreams = onSnapshot(
       doc(collection(firestore, 'live_streams'), 'not_live'),
       onSuccess,
       onError,

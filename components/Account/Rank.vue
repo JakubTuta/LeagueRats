@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import type { ILeagueEntry } from '~/models/leagueEntry';
-
 const props = defineProps<{
-  leagueEntries: ILeagueEntry[]
-  loading: boolean
+  region: string
+  gameName: string
+  tagLine: string
 }>()
 
-const { leagueEntries, loading } = toRefs(props)
+const { region, gameName, tagLine } = toRefs(props)
 
 const storageStore = useStorageStore()
+const leagueStore = useLeagueStore()
 
 const themeStore = useThemeStore()
 const { isDark } = storeToRefs(themeStore)
+
+const leagueEntries = computed(() => leagueStore.getLeagueData(region.value, gameName.value, tagLine.value))
+const loading = computed(() => leagueStore.isLeagueLoading(region.value, gameName.value, tagLine.value))
 
 function romanToNumber(roman: string) {
   switch (roman) {

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
 import { mapKDAToColor } from '~/helpers/kdaColors'
-import { mouseButton } from '~/helpers/mouse'
 import { queueIdToType } from '~/helpers/queueTypes'
 import type { TApiRegions2 } from '~/helpers/regions'
 import { mapApiRegion2ToSelect } from '~/helpers/regions'
@@ -16,7 +15,6 @@ const props = defineProps<{
 const { account, game } = toRefs(props)
 
 const { t, locale } = useI18n()
-const router = useRouter()
 const { xs } = useDisplay()
 
 const storageStore = useStorageStore()
@@ -27,8 +25,6 @@ const { runeInfo } = storeToRefs(runeStore)
 
 const summonerSpellStore = useSummonerSpellsStore()
 const { summonerSpellIcons } = storeToRefs(summonerSpellStore)
-
-const accountStore = useAccountStore()
 
 const team1 = ref<IParticipantStats[]>([])
 const team2 = ref<IParticipantStats[]>([])
@@ -185,30 +181,6 @@ function whenWasGame() {
   }
 
   return t('gameHistory.yearAgo')
-}
-
-async function sendToProfile(participant: IParticipantStats, event: MouseEvent) {
-  const region = mapApiRegion2ToSelect(game.value.info.platformId as TApiRegions2)
-  let summonerName = participant.riotIdGameName || participant.summonerName
-  let tagLine = participant.riotIdTagline
-
-  if (!tagLine || !summonerName) {
-    const account = await accountStore.getAccount({ puuid: participant.puuid })
-
-    if (!account)
-      return
-
-    summonerName = account.gameName
-    tagLine = account.tagLine
-  }
-
-  const url = `/account/${region}/${summonerName}-${tagLine}`
-
-  if (event.button === mouseButton.MIDDLE)
-    window.open(url, '_blank', 'noopener,noreferrer')
-
-  else if (event.button === mouseButton.LEFT)
-    router.push(url)
 }
 
 function chipText() {
@@ -496,30 +468,33 @@ function findSecondaryRuneTree() {
                 <tr
                   v-for="(participant, index) in team"
                   :key="index"
-                  style="cursor: pointer"
-                  @mousedown.prevent="(event: MouseEvent) => sendToProfile(participant, event)"
                 >
-                  <td>
-                    <v-avatar
-                      size="20"
-                      rounded="0"
-                      class="mr-1"
-                    >
-                      <v-img
-                        :src="storageStore.getChampionIcon(participant.championId) || undefined"
-                        lazy-src="~/assets/default.png"
-                      />
-                    </v-avatar>
-                  </td>
-
-                  <td
-                    :class="participant.puuid === gamer.puuid
-                      ? 'font-weight-bold'
-                      : ''"
-                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;"
+                  <NuxtLink
+                    :to="`/account/${mapApiRegion2ToSelect(game.info.platformId as TApiRegions2)}/${participant.riotIdGameName || participant.summonerName}-${participant.riotIdTagline}`"
+                    style="display: flex; align-items: center; text-decoration: none; color: inherit;"
                   >
-                    {{ participant.riotIdGameName || participant.summonerName }}
-                  </td>
+                    <td>
+                      <v-avatar
+                        size="20"
+                        rounded="0"
+                        class="mr-1"
+                      >
+                        <v-img
+                          :src="storageStore.getChampionIcon(participant.championId) || undefined"
+                          lazy-src="~/assets/default.png"
+                        />
+                      </v-avatar>
+                    </td>
+
+                    <td
+                      :class="participant.puuid === gamer.puuid
+                        ? 'font-weight-bold'
+                        : ''"
+                      style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;"
+                    >
+                      {{ participant.riotIdGameName || participant.summonerName }}
+                    </td>
+                  </NuxtLink>
                 </tr>
               </tbody>
             </table>

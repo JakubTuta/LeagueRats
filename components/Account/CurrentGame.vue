@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
 import type { IAccount } from '~/models/account'
-import type { IActiveGame } from '~/models/activeGame'
 
 const props = defineProps<{
-  currentGame: IActiveGame | null
+  region: string
+  gameName: string
+  tagLine: string
   account: IAccount | null
-  loading: boolean
 }>()
 
-const { currentGame, account, loading } = toRefs(props)
+const { region, gameName, tagLine, account } = toRefs(props)
 
+const matchStore = useMatchStore()
 const { mdAndDown } = useDisplay()
+
+const currentGame = computed(() => matchStore.getActiveGameData(region.value, gameName.value, tagLine.value))
+const loading = computed(() => matchStore.isActiveGameLoading(region.value, gameName.value, tagLine.value))
+
+const intervalId = ref<number | null>(null)
 
 function formatTime(time: number) {
   const minutes = Math.floor(time / 60)
@@ -22,13 +28,25 @@ function formatTime(time: number) {
     : seconds}`
 }
 
-const interval = setInterval(() => {
-  if (currentGame.value)
-    currentGame.value.gameLength += 1
-}, 1000)
+watch(currentGame, (game) => {
+  if (intervalId.value !== null) {
+    clearInterval(intervalId.value)
+    intervalId.value = null
+  }
+
+  if (game) {
+    intervalId.value = setInterval(() => {
+      if (currentGame.value) {
+        currentGame.value.gameLength += 1
+      }
+    }, 1000) as unknown as number
+  }
+}, { immediate: true })
 
 onUnmounted(() => {
-  clearInterval(interval)
+  if (intervalId.value !== null) {
+    clearInterval(intervalId.value)
+  }
 })
 </script>
 
