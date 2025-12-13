@@ -1,73 +1,75 @@
 import contextlib
+import logging
 import os
 
 import dotenv
 import fastapi
-import firebase_admin
-import httpx
 import ledger
 import ledger.integrations.fastapi as ledger_fastapi
-from account.routes import router as account_router
-from champions.routes import router as champion_router
-from database.database import initialize_app
+import modules
+import utils
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from league.routes import router as league_router
-from match.routes import router as match_router
-from pro_players.routes import router as pro_players_router
-from runes.routes import router as runes_router
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 dotenv.load_dotenv()
 
 
-def init_app():
-    # CORS is handled by nginx reverse proxy
-
-    app.add_middleware(GZipMiddleware, minimum_size=500)
-
-    routers = [
-        account_router,
-        match_router,
-        champion_router,
-        league_router,
-        runes_router,
-        pro_players_router,
-    ]
-
-    for router in routers:
-        app.include_router(router)
-
-
-def initialize_httpx_client() -> httpx.AsyncClient:
-    client = httpx.AsyncClient(
-        timeout=httpx.Timeout(10.0, connect=5.0),
-        limits=httpx.Limits(max_connections=100, max_keepalive_connections=20),
-        http2=True,
-    )
-
-    return client
-
-
 @contextlib.asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
-    try:
-        firebase_app, firestore_client = initialize_app()
+    utils.get_redis_client()
+    utils.get_firestore_client()
+    utils.get_http_client()
+    utils.get_riot_api_client()
 
-        app.state.firestore_client = firestore_client
-        app.state.firebase_app = firebase_app
-
-        httpx_client = initialize_httpx_client()
-        app.state.httpx_client = httpx_client
-    except Exception as e:
-        raise e
+    logger.info("application_started")
 
     yield
 
-    firebase_admin.delete_app(firebase_app)
-    await httpx_client.aclose()
-    await ledger_client.shutdown()
+    logger.info("application_shutting_down")
+
+    await utils.close_redis_client()
+    await utils.close_firestore_client()
+    await utils.close_http_client()
+    await utils.close_riot_api_client()
 
 
-app = fastapi.FastAPI(lifespan=lifespan)
+app = fastapi.FastAPI(
+    lifespan=lifespan,
+    title="League Rats API",
+    version="3.0.0",
+    description="API for League of Legends data",
+    contact={
+        "name": "League Rats",
+        "url": "https://leaguerats.net",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    redirect_slashes=False,
+)
+
+if os.getenv("ENVIRONMENT", "development") == "development":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:3000",
+            "https://leaguerats.net",
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 ledger_client = ledger.LedgerClient(api_key=os.getenv("LEDGER_API_KEY"))  # type: ignore
 app.add_middleware(
@@ -76,7 +78,17 @@ app.add_middleware(
 )
 
 
-init_app()
+routers = [
+    modules.account_router,
+    modules.champions_router,
+    modules.league_router,
+    modules.match_router,
+    modules.pro_players_router,
+    modules.runes_router,
+]
+
+for router in routers:
+    app.include_router(router)
 
 
 @app.get("/")
@@ -86,4 +98,26 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    redis_client = utils.get_redis_client()
+    redis_healthy = await redis_client.ping()
+
+    return {
+        "status": "healthy",
+        "redis": "connected" if redis_healthy else "disconnected",
+    }
+
+
+@app.post("/admin/clear-cache")
+async def clear_cache():
+    redis_client = utils.get_redis_client()
+
+    await redis_client.flush_db()
+
+    utils.clear_all_caches()
+
+    logger.info("all_caches_cleared")
+
+    return {
+        "status": "success",
+        "message": "All caches (Redis and in-memory) have been cleared",
+    }
