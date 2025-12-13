@@ -35,4 +35,4 @@ serviceAccount.json
 
 CLAUDE.md
 .claude/
-backend2/service_account.json
+backend/service_account.json
