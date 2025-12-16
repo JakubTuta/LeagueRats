@@ -36,7 +36,12 @@ const matchHistoryPerRegion = ref<Record<string, IMatchData[]>>({
   NORMAL: [] as IMatchData[],
   ARAM: [] as IMatchData[],
 })
-const canLoadMore = ref(true)
+const canLoadMorePerQueue = ref<Record<string, boolean>>({
+  SOLOQ: true,
+  FLEXQ: true,
+  NORMAL: true,
+  ARAM: true,
+})
 const loadedFirstBatch = ref(false)
 
 const matchAmount = 10
@@ -57,7 +62,7 @@ watch(account, () => {
 }, { immediate: true })
 
 async function loadMatches(count: number = matchAmount) {
-  if (!account.value)
+  if (!account.value || loading.value)
     return
 
   loading.value = true
@@ -83,7 +88,7 @@ async function loadMatches(count: number = matchAmount) {
   matchHistoryPerRegion.value[selectedTab.value].push(...matchesData)
 
   if (matchesData.length < count) {
-    canLoadMore.value = false
+    canLoadMorePerQueue.value[selectedTab.value] = false
   }
 
   loading.value = false
@@ -95,10 +100,11 @@ function getMatchHistory() {
     return
 
   if (matchHistoryPerRegion.value[selectedTab.value].length === 0) {
-    canLoadMore.value = true
     loadMatches()
   }
 }
+
+const canLoadMore = computed(() => canLoadMorePerQueue.value[selectedTab.value])
 
 const processedGames = computed(() => {
   return matchHistoryPerRegion.value[selectedTab.value]
@@ -231,7 +237,7 @@ const lastGamesLosses = computed(() => processedGames.value.reduce((acc, game) =
           </p>
 
           <p class="text-subtitle-2 mt-1">
-            {{ `${$t('profile.rank.winRate')}: ${(lastGamesWins / 10 * 100).toFixed(0)}%` }}
+            {{ `${$t('profile.rank.winRate')}: ${(lastGamesWins / (lastGamesWins + lastGamesLosses) * 100).toFixed(0)}%` }}
           </p>
         </v-col>
 
@@ -279,7 +285,7 @@ const lastGamesLosses = computed(() => processedGames.value.reduce((acc, game) =
     v-if="!loading && loadedFirstBatch && processedGames.length === 0"
     class="my-4"
   >
-    <v-card-text class="text-center py-8">
+    <v-card-text class="py-8 text-center">
       <p class="text-subtitle-1 text-medium-emphasis">
         {{ $t('profile.matchHistory.noGames') }}
       </p>
@@ -314,7 +320,7 @@ const lastGamesLosses = computed(() => processedGames.value.reduce((acc, game) =
       stacked
       append-icon="mdi-chevron-down"
       size="small"
-      @click="getMatchHistory"
+      @click="loadMatches()"
     >
       {{ $t('profile.matchHistory.loadMore') }}
     </v-btn>
