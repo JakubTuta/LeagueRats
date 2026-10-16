@@ -1,32 +1,100 @@
 services:
-  # ==================== Redis ====================
+  ####################
+  # League Rats
+  ####################
+  leaguerats-server:
+    image: europe-central2-docker.pkg.dev/league-rats/server/server:latest
+    container_name: leaguerats-server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8000"
+    env_file: ../secrets/.env.leaguerats
+    environment:
+      - ENVIRONMENT=production
+      - PORT=8001
+    depends_on:
+      leaguerats-redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: 192M
+        reservations:
+          cpus: "0.05"
+          memory: 96M
+    networks:
+      - leaguerats-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
   leaguerats-redis:
     image: redis:7-alpine
     container_name: leaguerats-redis
     restart: unless-stopped
-    env_file: .env
+    env_file: ../secrets/.env.leaguerats
     volumes:
       - leaguerats-redis-data:/data
     healthcheck:
-      test: [CMD, redis-cli, -a, '${REDIS_PASSWORD}', ping]
+      test: [CMD, redis-cli, -a, "${REDIS_PASSWORD}", ping]
       interval: 60s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+        reservations:
+          cpus: "0.05"
+          memory: 16M
     networks:
       - leaguerats-network
-    ports:
-      - '${REDIS_PORT}:6379'
     command: >
       redis-server
-      --maxmemory 2gb
+      --maxmemory 32mb
       --maxmemory-policy allkeys-lru
       --appendonly yes
       --requirepass ${REDIS_PASSWORD}
       --bind 0.0.0.0
       --protected-mode no
+      --save 300 10
+      --save 900 1
+      --tcp-keepalive 300
+      --timeout 300
+      --maxclients 30
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  leaguerats-scheduler:
+    image: europe-central2-docker.pkg.dev/league-rats/server/scheduler:latest
+    container_name: leaguerats-scheduler
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: 128M
+        reservations:
+          cpus: "0.05"
+          memory: 128M
+    networks:
+      - leaguerats-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
 
 volumes:
   leaguerats-redis-data:
+    name: leaguerats-redis-data
 
 networks:
   leaguerats-network:
